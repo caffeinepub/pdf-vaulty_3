@@ -1,0 +1,40 @@
+{
+  "kind": "build_request",
+  "title": "Add Google Search Console verification file",
+  "projectName": "PDF Vaulty",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-28",
+      "text": "Add the Google Search Console HTML verification file with the name 'google61423bcf1843cd2d.html' to the frontend public directory so that it is served as a static file at the path /google61423bcf1843cd2d.html. The file content must be exactly: 'google-site-verification: google61423bcf1843cd2d.html' as required by Google Search Console.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-recent"
+        ],
+        "quotes": [
+          "google61423bcf1843cd2d.html ( can you add this within the code ) it's a verification code from google search console"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A file named 'google61423bcf1843cd2d.html' exists in the frontend public directory.",
+        "The file is accessible at the URL path /google61423bcf1843cd2d.html when the app is running.",
+        "The file content matches the standard Google Search Console HTML verification format: 'google-site-verification: google61423bcf1843cd2d.html'.",
+        "No existing app functionality or routing is affected by the addition of this file."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify any existing pages, components, or routing logic.",
+    "The verification file must be served as a plain static file, not rendered as a React route."
+  ],
+  "nonGoals": [
+    "Modifying the backend.",
+    "Adding any Google Analytics or Tag Manager scripts.",
+    "Changes to any existing UI components or pages."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

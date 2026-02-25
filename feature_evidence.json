@@ -1,0 +1,24 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-add-the-google-search-console-html-verification-file-with-the-name-google61423bcf1843cd2d-html-to-the-frontend-public-directory-so-that-it-is-served-as-a-static-file-at-the-path-google61423bcf1843cd2d-html-the-file-content-must-be-exactly-google-site-verification-google61423bcf1843cd2d-html-as-required-by-google-search-console",
+      "featureTitle": "Add the Google Search Console HTML verification file with the name 'google61423bcf1843cd2d.html' to the frontend public directory so that it is served as a static file at the path /google61423bcf1843cd2d.html. The file content must be exactly: 'google-site-verification: google61423bcf1843cd2d.html' as required by Google Search Console.",
+      "files": [
+        "frontend/public/google61423bcf1843cd2d.html"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-28"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

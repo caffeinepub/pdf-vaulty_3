@@ -1,0 +1,37 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-25T11:37:42.960Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 1,
+    "implemented": 1,
+    "items": [
+      {
+        "id": "REQ-28",
+        "summary": "Add the Google Search Console HTML verification file with the name 'google61423bcf1843cd2d.html' to the frontend public directory so that it is served as a static file at the path /google61423bcf1843cd2d.html. The file content must be exactly: 'google-site-verification: google61423bcf1843cd2d.html' as required by Google Search Console.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/public/google61423bcf1843cd2d.html"
+        ],
+        "matchedFiles": [
+          "frontend/public/google61423bcf1843cd2d.html"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/public/google61423bcf1843cd2d.html",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

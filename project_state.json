@@ -1,0 +1,334 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 13,
+  "summary": "PDF Vaulty - an all-in-one PDF toolkit app with Merge PDF, Split PDF, Compress PDF, Image to PDF, PDF to Word, Word to PDF, Excel to PDF, Rotate PDF, and Password Protect PDF features. Includes dark/light theme toggle, drag-and-drop upload, and Internet Identity login. Built on Internet Computer with jsPDF installed as npm package.",
+  "architectural_notes": [
+    "Use jsPDF installed as an npm package (not CDN), with correct initialization before any PDF operations"
+  ],
+  "known_issues": [
+    "Dark/light theme toggle button is not working"
+  ],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-install-jspdf-as-a-proper-npm-package-not-via-cdn-or-dynamic-script-injection-and-ensure-it-is-correctly-imported-and-initialized-before-any-pdf-operation-is-invoked-across-all-tools",
+      "title": "Install jsPDF as a proper npm package (not via CDN or dynamic script injection) and ensure it is correctly imported and initialized before any PDF operation is invoked across all tools.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-merge-pdf-tool-that-accepts-multiple-pdf-files-via-drag-and-drop-or-file-picker-and-merges-them-into-a-single-downloadable-pdf",
+      "title": "Implement a Merge PDF tool that accepts multiple PDF files via drag-and-drop or file picker and merges them into a single downloadable PDF.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-split-pdf-tool-that-accepts-a-pdf-file-and-splits-it-into-individual-pages-or-a-user-defined-page-range-each-downloadable-separately",
+      "title": "Implement a Split PDF tool that accepts a PDF file and splits it into individual pages or a user-defined page range, each downloadable separately.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-compress-pdf-tool-that-reduces-the-file-size-of-an-uploaded-pdf-and-offers-the-compressed-file-for-download",
+      "title": "Implement a Compress PDF tool that reduces the file size of an uploaded PDF and offers the compressed file for download.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-an-image-to-pdf-tool-that-accepts-one-or-more-image-files-jpg-png-and-converts-them-into-a-single-downloadable-pdf",
+      "title": "Implement an Image to PDF tool that accepts one or more image files (JPG, PNG) and converts them into a single downloadable PDF.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-pdf-to-word-conversion-tool-that-accepts-a-pdf-file-and-provides-a-downloadable-docx-file-representing-its-content",
+      "title": "Implement a PDF to Word conversion tool that accepts a PDF file and provides a downloadable .docx file representing its content.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-word-to-pdf-conversion-tool-that-accepts-a-docx-file-and-converts-it-to-a-downloadable-pdf",
+      "title": "Implement a Word to PDF conversion tool that accepts a .docx file and converts it to a downloadable PDF.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-an-excel-to-pdf-conversion-tool-that-accepts-an-xlsx-or-xls-file-and-converts-it-to-a-downloadable-pdf",
+      "title": "Implement an Excel to PDF conversion tool that accepts an .xlsx or .xls file and converts it to a downloadable PDF.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-rotate-pdf-tool-that-accepts-a-pdf-lets-the-user-select-rotation-angle-90-180-270-per-page-or-for-all-pages-and-provides-the-rotated-pdf-for-download",
+      "title": "Implement a Rotate PDF tool that accepts a PDF, lets the user select rotation angle (90°, 180°, 270°) per page or for all pages, and provides the rotated PDF for download.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-password-protect-pdf-tool-that-accepts-a-pdf-and-a-user-supplied-password-and-produces-a-password-protected-pdf-for-download",
+      "title": "Implement a Password Protect PDF tool that accepts a PDF and a user-supplied password, and produces a password-protected PDF for download.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-drag-and-drop-file-upload-on-every-tool-page-files-must-also-be-selectable-via-a-traditional-file-picker-as-a-fallback",
+      "title": "Implement drag-and-drop file upload on every tool page. Files must also be selectable via a traditional file picker as a fallback.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-dark-light-theme-toggle-the-selected-theme-must-persist-across-page-navigations-within-the-session",
+      "title": "Implement a dark/light theme toggle. The selected theme must persist across page navigations within the session.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-integrate-internet-identity-login-so-that-users-can-authenticate-before-using-the-pdf-tools-show-a-login-prompt-for-unauthenticated-users-and-a-logout-option-for-authenticated-users-in-the-header",
+      "title": "Integrate Internet Identity login so that users can authenticate before using the PDF tools. Show a login prompt for unauthenticated users and a logout option for authenticated users in the header.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-design-the-app-with-a-professional-dark-vault-document-safe-visual-theme-deep-charcoal-and-slate-backgrounds-amber-gold-accents-clean-sans-serif-typography-and-a-card-based-tool-grid-layout-apply-the-theme-consistently-across-all-pages-in-both-dark-and-light-modes",
+      "title": "Design the app with a professional dark vault / document-safe visual theme: deep charcoal and slate backgrounds, amber/gold accents, clean sans-serif typography, and a card-based tool grid layout. Apply the theme consistently across all pages in both dark and light modes.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-redesign-the-header-to-match-the-reference-screenshot-show-the-pdf-vaulty-logo-shield-vault-icon-on-the-left-followed-by-navigation-links-home-analytics-and-my-files-in-the-nav-bar-on-the-right-side-display-a-view-count-e-g-1-views-the-logged-in-user-s-name-a-globe-icon-a-dark-light-mode-toggle-icon-moon-sun-and-a-logout-button-styled-as-a-bordered-pill-the-header-background-must-be-near-black-0d0d0d-or-equivalent-for-unauthenticated-users-replace-the-logout-button-with-a-login-button",
+      "title": "Redesign the Header to match the reference screenshot: show the PDF Vaulty logo (shield/vault icon) on the left, followed by navigation links 'Home', 'Analytics', and 'My Files' in the nav bar. On the right side display a view count (e.g. '1 views'), the logged-in user's name, a globe icon, a dark/light mode toggle icon (moon/sun), and a 'Logout' button styled as a bordered pill. The header background must be near-black (#0d0d0d or equivalent). For unauthenticated users, replace the logout button with a 'Login' button.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-redesign-the-dashboard-login-landing-page-hero-section-to-match-the-reference-screenshot-full-width-dark-hero-area-with-a-large-bold-headline-your-complete-pdf-vaulty-where-pdf-vaulty-is-styled-in-bright-blue-a-subtitle-merge-split-compress-and-manage-your-pdf-files-with-ease-all-tools-in-one-place-and-a-prominent-blue-get-started-cta-button-centered-below-the-subtitle-the-hero-background-must-be-a-very-dark-near-black-with-a-subtle-dark-blue-radial-gradient-behind-the-headline",
+      "title": "Redesign the Dashboard / Login landing page hero section to match the reference screenshot: full-width dark hero area with a large bold headline 'Your Complete PDF Vaulty' where 'PDF Vaulty' is styled in bright blue, a subtitle 'Merge, split, compress, and manage your PDF files with ease. All tools in one place.', and a prominent blue 'Get Started' CTA button centered below the subtitle. The hero background must be a very dark near-black with a subtle dark-blue radial gradient behind the headline.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-redesign-the-tool-grid-on-the-dashboard-home-page-to-match-the-reference-screenshots-use-a-2-column-card-grid-layout-each-card-has-a-dark-1a1a2e-or-similar-background-with-rounded-corners-and-a-subtle-border-each-card-contains-a-small-colored-icon-box-dark-blue-background-with-a-blue-white-icon-in-the-top-left-followed-by-a-bold-white-tool-title-and-a-short-gray-description-below-tool-cards-must-include-merge-pdfs-split-pdfs-compress-pdfs-protect-pdfs-rotate-pdfs-and-convert-into-pdf-grouping-word-excel-and-image-to-pdf-conversions-remove-amber-gold-accents-from-cards-and-replace-with-the-blue-on-dark-color-scheme-shown-in-the-reference",
+      "title": "Redesign the tool grid on the Dashboard/home page to match the reference screenshots: use a 2-column card grid layout. Each card has a dark (#1a1a2e or similar) background with rounded corners and a subtle border. Each card contains a small colored icon box (dark blue background with a blue/white icon) in the top-left, followed by a bold white tool title and a short gray description below. Tool cards must include: Merge PDFs, Split PDFs, Compress PDFs, Protect PDFs, Rotate PDFs, and Convert into PDF (grouping Word, Excel, and Image to PDF conversions). Remove amber/gold accents from cards and replace with the blue-on-dark color scheme shown in the reference.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-why-use-pdf-vaulty-features-strip-below-the-tool-grid-on-the-home-page-matching-the-reference-screenshot-a-dark-background-section-with-three-centered-items-side-by-side-easy-to-use-document-icon-blue-circle-background-secure-private-shield-icon-and-powerful-tools-layers-stack-icon-blue-circle-background-each-item-shows-the-icon-a-bold-white-title-and-a-short-gray-description-beneath",
+      "title": "Add a 'Why Use PDF Vaulty' features strip below the tool grid on the home page, matching the reference screenshot: a dark-background section with three centered items side-by-side: 'Easy to Use' (document icon, blue circle background), 'Secure & Private' (shield icon), and 'Powerful Tools' (layers/stack icon, blue circle background). Each item shows the icon, a bold white title, and a short gray description beneath.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-global-color-tokens-and-tailwind-theme-to-replace-the-amber-gold-vault-accent-color-scheme-with-a-blue-on-dark-scheme-matching-the-reference-screenshots-primary-accent-color-becomes-bright-blue-3b82f6-or-similar-background-colors-remain-near-black-0a0a0a-111111-1a1a2e-card-backgrounds-use-a-slightly-lighter-dark-1c1c2e-or-similar-and-text-uses-white-for-headings-and-light-gray-for-body-apply-this-consistently-across-all-pages-home-tool-pages-header-footer-in-both-dark-and-light-modes",
+      "title": "Update global color tokens and Tailwind theme to replace the amber/gold vault accent color scheme with a blue-on-dark scheme matching the reference screenshots: primary accent color becomes bright blue (#3b82f6 or similar), background colors remain near-black (#0a0a0a, #111111, #1a1a2e), card backgrounds use a slightly lighter dark (#1c1c2e or similar), and text uses white for headings and light gray for body. Apply this consistently across all pages (home, tool pages, header, footer) in both dark and light modes.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-powerful-pdf-tools-section-heading-above-the-tool-card-grid-on-the-home-dashboard-page-matching-the-reference-bold-white-centered-heading-powerful-pdf-tools-with-a-smaller-gray-subtitle-everything-you-need-to-work-with-pdf-files-directly-below-it",
+      "title": "Add a 'Powerful PDF Tools' section heading above the tool card grid on the home/dashboard page, matching the reference: bold white centered heading 'Powerful PDF Tools' with a smaller gray subtitle 'Everything you need to work with PDF files' directly below it.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-dark-light-theme-toggle-button-in-the-header-so-that-clicking-it-correctly-switches-between-dark-and-light-modes-the-toggle-must-update-the-active-theme-immediately-on-click-persist-the-selected-theme-across-page-navigations-within-the-session-and-display-the-correct-moon-sun-icon-reflecting-the-current-mode",
+      "title": "Fix the dark/light theme toggle button in the Header so that clicking it correctly switches between dark and light modes. The toggle must update the active theme immediately on click, persist the selected theme across page navigations within the session, and display the correct moon/sun icon reflecting the current mode.",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-redesign-the-app-s-light-mode-to-match-the-reference-screenshot-white-light-gray-backgrounds-ffffff-f0f4ff-or-similar-near-black-text-for-headings-medium-gray-text-for-body-copy-blue-2563eb-or-similar-accent-for-links-and-the-get-started-cta-button-and-a-clean-white-header-with-dark-text-nav-links-the-dark-mode-color-scheme-must-remain-intact-and-unchanged",
+      "title": "Redesign the app's light mode to match the reference screenshot: white/light-gray backgrounds (#ffffff, #f0f4ff or similar), near-black text for headings, medium-gray text for body copy, blue (#2563eb or similar) accent for links and the 'Get Started' CTA button, and a clean white header with dark text nav links. The dark mode color scheme must remain intact and unchanged.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-header-in-light-mode-to-match-the-reference-screenshot-white-background-dark-text-for-pdf-vaulty-logo-and-nav-links-home-analytics-my-files-the-view-count-and-user-name-displayed-in-dark-text-the-globe-icon-and-theme-toggle-icon-visible-against-the-white-background-and-the-logout-button-rendered-as-a-bordered-pill-with-dark-border-and-dark-text",
+      "title": "Update the header in light mode to match the reference screenshot: white background, dark text for 'PDF Vaulty' logo and nav links (Home, Analytics, My Files), the view count and user name displayed in dark text, the globe icon and theme toggle icon visible against the white background, and the 'Logout' button rendered as a bordered pill with dark border and dark text.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-hero-section-in-light-mode-to-match-the-reference-screenshot-light-near-white-or-very-light-blue-gray-background-instead-of-dark-the-headline-your-complete-pdf-vaulty-with-pdf-vaulty-in-bright-blue-and-the-rest-in-near-black-the-subtitle-text-in-medium-gray-and-the-get-started-button-in-solid-blue-with-white-text",
+      "title": "Update the hero section in light mode to match the reference screenshot: light (near-white or very light blue-gray) background instead of dark, the headline 'Your Complete PDF Vaulty' with 'PDF Vaulty' in bright blue and the rest in near-black, the subtitle text in medium gray, and the 'Get Started' button in solid blue with white text.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-tool-cards-in-light-mode-to-match-the-reference-screenshot-white-card-backgrounds-with-a-subtle-light-gray-border-rounded-corners-dark-near-black-bold-tool-titles-medium-gray-description-text-and-the-icon-box-retaining-its-blue-background-with-a-white-blue-icon",
+      "title": "Update the tool cards in light mode to match the reference screenshot: white card backgrounds with a subtle light-gray border, rounded corners, dark (near-black) bold tool titles, medium-gray description text, and the icon box retaining its blue background with a white/blue icon.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-third-split-mode-option-to-the-split-pdf-tool-called-specific-pages-alongside-the-existing-all-pages-and-page-range-buttons-when-specific-pages-is-selected-display-a-text-input-field-where-the-user-can-type-individual-page-numbers-or-comma-separated-page-numbers-e-g-1-3-5-to-extract-only-those-specific-pages-from-the-pdf-each-selected-page-should-be-extracted-and-made-available-for-download-as-a-separate-pdf-file-or-combined-into-a-single-pdf-containing-only-those-pages-with-a-clearly-labeled-download-button",
+      "title": "Add a third split mode option to the Split PDF tool called 'Specific Pages' (alongside the existing 'All Pages' and 'Page Range' buttons). When 'Specific Pages' is selected, display a text input field where the user can type individual page numbers or comma-separated page numbers (e.g. '1, 3, 5') to extract only those specific pages from the PDF. Each selected page should be extracted and made available for download as a separate PDF file or combined into a single PDF containing only those pages, with a clearly labeled download button.",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-custom-count-split-mode-to-the-split-pdf-tool-that-lets-the-user-specify-how-many-pages-per-chunk-to-split-the-pdf-into-when-this-mode-is-selected-show-a-numeric-input-labeled-pages-per-split-minimum-1-maximum-total-page-count-minus-1-on-download-the-pdf-is-divided-into-sequential-chunks-of-that-size-e-g-entering-2-on-a-6-page-pdf-produces-three-2-page-pdfs-each-offered-as-a-separate-downloadable-file",
+      "title": "Add a 'Custom Count' split mode to the Split PDF tool that lets the user specify how many pages per chunk to split the PDF into. When this mode is selected, show a numeric input labeled 'Pages per split' (minimum 1, maximum = total page count minus 1). On download, the PDF is divided into sequential chunks of that size (e.g. entering '2' on a 6-page PDF produces three 2-page PDFs), each offered as a separate downloadable file.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-google-search-console-html-verification-file-with-the-name-google61423bcf1843cd2d-html-to-the-frontend-public-directory-so-that-it-is-served-as-a-static-file-at-the-path-google61423bcf1843cd2d-html-the-file-content-must-be-exactly-google-site-verification-google61423bcf1843cd2d-html-as-required-by-google-search-console",
+      "title": "Add the Google Search Console HTML verification file with the name 'google61423bcf1843cd2d.html' to the frontend public directory so that it is served as a static file at the path /google61423bcf1843cd2d.html. The file content must be exactly: 'google-site-verification: google61423bcf1843cd2d.html' as required by Google Search Console.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Merge PDF tool",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Split PDF tool",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Compress PDF tool",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Image to PDF conversion",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "PDF to Word conversion",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Word to PDF conversion",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Excel to PDF conversion",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Rotate PDF tool",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Password Protect PDF tool",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Dark/light theme toggle",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Drag-and-drop file upload",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Internet Identity login integration",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-13",
+      "summary": "UI redesign to match a reference design provided by the user",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Split PDF: add options to choose how many pages to extract and to select specific pages to detach",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Add Google Search Console verification file (google61423bcf1843cd2d.html) to the project",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "PDF Vaulty",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

@@ -1,0 +1,24 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Add Google Search Console verification file",
+  "requirements": [
+    {
+      "id": "REQ-28",
+      "summary": "Add Google Search Console HTML verification file to the frontend public directory",
+      "acceptanceCriteria": [
+        "A file named 'google61423bcf1843cd2d.html' exists in the frontend public directory.",
+        "The file is accessible at the URL path /google61423bcf1843cd2d.html when the app is running.",
+        "The file content matches the standard Google Search Console HTML verification format: 'google-site-verification: google61423bcf1843cd2d.html'.",
+        "No existing app functionality or routing is affected by the addition of this file."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/google61423bcf1843cd2d.html",
+          "operation": "create",
+          "description": "Create the Google Search Console HTML verification file with the exact content 'google-site-verification: google61423bcf1843cd2d.html'. This file will be served as a static asset at the path /google61423bcf1843cd2d.html without any React routing involvement."
+        }
+      ]
+    }
+  ]
+}

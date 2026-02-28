@@ -1,37 +1,42 @@
 {
   "kind": "build_request",
-  "title": "Add Google Search Console verification file",
+  "title": "Add High Compression option to Compress PDF tool",
   "projectName": "PDF Vaulty",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-28",
-      "text": "Add the Google Search Console HTML verification file with the name 'google61423bcf1843cd2d.html' to the frontend public directory so that it is served as a static file at the path /google61423bcf1843cd2d.html. The file content must be exactly: 'google-site-verification: google61423bcf1843cd2d.html' as required by Google Search Console.",
+      "id": "REQ-32",
+      "text": "Add a 'High Compression' mode option to the Compress PDF tool in `frontend/src/components/tools/CompressPDFTool.tsx`. The tool must present two selectable compression levels: 'Standard' (existing behavior) and 'High'. When 'High' is selected, apply more aggressive compression: downsample all embedded images to a lower resolution (e.g., max 72 DPI equivalent) and encode them at lower JPEG quality (e.g., quality 0.4–0.5 instead of the standard ~0.7), strip all metadata fields (Title, Author, Subject, Keywords, Creator, Producer), and save with `useObjectStreams: true`. Display the selected compression level label in the UI, and after processing show the before/after file sizes and percentage reduction. If the compressed file is not smaller than the original, inform the user that the file could not be reduced further. The download button must offer the compressed file regardless of compression level selected.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-latest"
         ],
         "quotes": [
-          "google61423bcf1843cd2d.html ( can you add this within the code ) it's a verification code from google search console"
+          "Can we add high compress pdf option"
         ]
       },
       "acceptanceCriteria": [
-        "A file named 'google61423bcf1843cd2d.html' exists in the frontend public directory.",
-        "The file is accessible at the URL path /google61423bcf1843cd2d.html when the app is running.",
-        "The file content matches the standard Google Search Console HTML verification format: 'google-site-verification: google61423bcf1843cd2d.html'.",
-        "No existing app functionality or routing is affected by the addition of this file."
+        "The Compress PDF tool UI shows two compression level options: 'Standard' and 'High'.",
+        "Selecting 'Standard' uses the existing compression behavior.",
+        "Selecting 'High' applies more aggressive image downsampling (lower resolution and JPEG quality ~0.4–0.5) and strips all PDF metadata fields.",
+        "Both modes save the PDF with `useObjectStreams: true`.",
+        "After compression, the UI displays the original file size, compressed file size, and percentage reduction achieved.",
+        "If the output is not smaller than the input, a message informs the user that the file could not be reduced further.",
+        "The Download button is available after processing for both compression levels.",
+        "The UI works correctly in both dark and light modes."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any existing pages, components, or routing logic.",
-    "The verification file must be served as a plain static file, not rendered as a React route."
+    "Do not change the backend.",
+    "Do not modify any files listed under frontend.immutablePaths.",
+    "The existing Standard compression behavior must remain intact and unchanged."
   ],
   "nonGoals": [
-    "Modifying the backend.",
-    "Adding any Google Analytics or Tag Manager scripts.",
-    "Changes to any existing UI components or pages."
+    "Server-side PDF compression.",
+    "Adding additional compression levels beyond Standard and High.",
+    "Changing any other PDF tool."
   ],
   "imageRequirements": {
     "required": [],

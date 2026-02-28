@@ -1,12 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 13,
+  "projectStateVersion": 19,
   "summary": "PDF Vaulty - an all-in-one PDF toolkit app with Merge PDF, Split PDF, Compress PDF, Image to PDF, PDF to Word, Word to PDF, Excel to PDF, Rotate PDF, and Password Protect PDF features. Includes dark/light theme toggle, drag-and-drop upload, and Internet Identity login. Built on Internet Computer with jsPDF installed as npm package.",
   "architectural_notes": [
     "Use jsPDF installed as an npm package (not CDN), with correct initialization before any PDF operations"
   ],
   "known_issues": [
-    "Dark/light theme toggle button is not working"
+    "Dark/light theme toggle button is not working",
+    "Two unspecified options in the app are not working (user reported in Version 6)",
+    "Compress PDF tool is not actually compressing files"
   ],
   "isFixRequest": false,
   "existing_features": [
@@ -233,6 +235,38 @@
         "REQ-28"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-fix-the-analytics-navigation-link-in-the-header-so-that-clicking-it-navigates-to-a-functional-analytics-page-the-analytics-page-should-display-basic-usage-statistics-e-g-number-of-pdf-operations-performed-tools-used-or-a-meaningful-placeholder-if-data-is-not-yet-available-the-link-must-be-visually-active-and-respond-to-clicks-in-both-dark-and-light-modes",
+      "title": "Fix the 'Analytics' navigation link in the Header so that clicking it navigates to a functional Analytics page. The Analytics page should display basic usage statistics (e.g., number of PDF operations performed, tools used) or a meaningful placeholder if data is not yet available. The link must be visually active and respond to clicks in both dark and light modes.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-my-files-navigation-link-in-the-header-so-that-clicking-it-navigates-to-a-functional-my-files-page-the-my-files-page-should-list-files-previously-processed-by-the-user-or-show-a-meaningful-empty-state-if-none-exist-the-link-must-be-visually-active-and-respond-to-clicks-in-both-dark-and-light-modes",
+      "title": "Fix the 'My Files' navigation link in the Header so that clicking it navigates to a functional My Files page. The My Files page should list files previously processed by the user (or show a meaningful empty state if none exist). The link must be visually active and respond to clicks in both dark and light modes.",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-compress-pdf-tool-in-frontend-src-components-tools-compresspdftool-tsx-so-that-it-actually-reduces-the-file-size-of-the-uploaded-pdf-the-current-implementation-using-pdf-lib-re-saves-the-pdf-without-meaningful-size-reduction-replace-the-compression-approach-with-one-that-produces-a-measurably-smaller-output-file-re-serialize-the-pdf-with-pdf-lib-s-pdfdocument-save-useobjectstreams-true-option-and-additionally-strip-or-downsample-embedded-resources-images-metadata-unused-objects-where-possible-after-compression-display-the-before-and-after-file-sizes-and-the-percentage-reduction-achieved-if-the-compressed-file-is-not-smaller-than-the-original-inform-the-user-that-the-file-could-not-be-reduced-further-the-compressed-pdf-must-be-offered-for-download",
+      "title": "Fix the Compress PDF tool in `frontend/src/components/tools/CompressPDFTool.tsx` so that it actually reduces the file size of the uploaded PDF. The current implementation using pdf-lib re-saves the PDF without meaningful size reduction. Replace the compression approach with one that produces a measurably smaller output file: re-serialize the PDF with pdf-lib's `PDFDocument.save({ useObjectStreams: true })` option and additionally strip or downsample embedded resources (images, metadata, unused objects) where possible. After compression, display the before and after file sizes and the percentage reduction achieved. If the compressed file is not smaller than the original, inform the user that the file could not be reduced further. The compressed PDF must be offered for download.",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-high-compression-mode-option-to-the-compress-pdf-tool-in-frontend-src-components-tools-compresspdftool-tsx-the-tool-must-present-two-selectable-compression-levels-standard-existing-behavior-and-high-when-high-is-selected-apply-more-aggressive-compression-downsample-all-embedded-images-to-a-lower-resolution-e-g-max-72-dpi-equivalent-and-encode-them-at-lower-jpeg-quality-e-g-quality-0-4-0-5-instead-of-the-standard-0-7-strip-all-metadata-fields-title-author-subject-keywords-creator-producer-and-save-with-useobjectstreams-true-display-the-selected-compression-level-label-in-the-ui-and-after-processing-show-the-before-after-file-sizes-and-percentage-reduction-if-the-compressed-file-is-not-smaller-than-the-original-inform-the-user-that-the-file-could-not-be-reduced-further-the-download-button-must-offer-the-compressed-file-regardless-of-compression-level-selected",
+      "title": "Add a 'High Compression' mode option to the Compress PDF tool in `frontend/src/components/tools/CompressPDFTool.tsx`. The tool must present two selectable compression levels: 'Standard' (existing behavior) and 'High'. When 'High' is selected, apply more aggressive compression: downsample all embedded images to a lower resolution (e.g., max 72 DPI equivalent) and encode them at lower JPEG quality (e.g., quality 0.4–0.5 instead of the standard ~0.7), strip all metadata fields (Title, Author, Subject, Keywords, Creator, Producer), and save with `useObjectStreams: true`. Display the selected compression level label in the UI, and after processing show the before/after file sizes and percentage reduction. If the compressed file is not smaller than the original, inform the user that the file could not be reduced further. The download button must offer the compressed file regardless of compression level selected.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -323,6 +357,12 @@
     {
       "id": "AR-15",
       "summary": "Add Google Search Console verification file (google61423bcf1843cd2d.html) to the project",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Add a 'High Compression' option to the Compress PDF tool for more aggressive file size reduction",
       "reqIds": [],
       "status": "pending"
     }

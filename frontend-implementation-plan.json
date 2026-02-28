@@ -1,22 +1,26 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Google Search Console verification file",
+  "title": "Add High Compression option to Compress PDF tool",
   "requirements": [
     {
-      "id": "REQ-28",
-      "summary": "Add Google Search Console HTML verification file to the frontend public directory",
+      "id": "REQ-32",
+      "summary": "Add 'High Compression' mode option to the Compress PDF tool with two selectable compression levels: 'Standard' (existing behavior) and 'High' (aggressive downsampling, lower JPEG quality ~0.4-0.5, metadata stripping, useObjectStreams). Display before/after file sizes and percentage reduction. Show message if file cannot be reduced further. Download button available for both levels.",
       "acceptanceCriteria": [
-        "A file named 'google61423bcf1843cd2d.html' exists in the frontend public directory.",
-        "The file is accessible at the URL path /google61423bcf1843cd2d.html when the app is running.",
-        "The file content matches the standard Google Search Console HTML verification format: 'google-site-verification: google61423bcf1843cd2d.html'.",
-        "No existing app functionality or routing is affected by the addition of this file."
+        "The Compress PDF tool UI shows two compression level options: 'Standard' and 'High'.",
+        "Selecting 'Standard' uses the existing compression behavior.",
+        "Selecting 'High' applies more aggressive image downsampling (lower resolution and JPEG quality ~0.4–0.5) and strips all PDF metadata fields.",
+        "Both modes save the PDF with `useObjectStreams: true`.",
+        "After compression, the UI displays the original file size, compressed file size, and percentage reduction achieved.",
+        "If the output is not smaller than the input, a message informs the user that the file could not be reduced further.",
+        "The Download button is available after processing for both compression levels.",
+        "The UI works correctly in both dark and light modes."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/google61423bcf1843cd2d.html",
-          "operation": "create",
-          "description": "Create the Google Search Console HTML verification file with the exact content 'google-site-verification: google61423bcf1843cd2d.html'. This file will be served as a static asset at the path /google61423bcf1843cd2d.html without any React routing involvement."
+          "path": "frontend/src/components/tools/CompressPDFTool.tsx",
+          "operation": "modify",
+          "description": "Add UI radio button group to select between 'Standard' and 'High' compression levels. Refactor the compression logic to support two modes: Standard mode maintains existing behavior (image downsampling with ~0.7 quality, metadata stripping); High mode applies aggressive compression with lower resolution downsampling (max 72 DPI equivalent) and JPEG quality ~0.4-0.5, strips all metadata fields (Title, Author, Subject, Keywords, Creator, Producer), and saves with useObjectStreams: true. Store the original file size before compression. After processing, calculate and display the compressed file size and percentage reduction. If the compressed file is not smaller than the original, show a user-friendly message indicating the file could not be reduced further. Ensure the download button is available for both compression levels. Update state management to track selected compression level and file size metrics. Ensure all UI elements follow the existing dark/light theme styling using Tailwind CSS custom properties."
         }
       ]
     }

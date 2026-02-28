@@ -14,10 +14,19 @@ declare namespace PDFLib {
     save(options?: { useObjectStreams?: boolean }): Promise<Uint8Array>;
     setTitle(title: string): void;
     setAuthor(author: string): void;
+    setSubject(subject: string): void;
+    setKeywords(keywords: string[]): void;
     setCreator(creator: string): void;
     setProducer(producer: string): void;
     setCreationDate(date: Date): void;
     setModificationDate(date: Date): void;
+    // Low-level context access
+    context: PDFContext;
+  }
+
+  interface PDFContext {
+    enumerateIndirectObjects(): Array<[unknown, unknown]>;
+    assign(ref: unknown, obj: unknown): void;
   }
 
   class PDFPage {

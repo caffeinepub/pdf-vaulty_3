@@ -8,6 +8,8 @@ import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import ToolPage from './pages/ToolPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import MyFilesPage from './pages/MyFilesPage';
 import ProfileSetupModal from './components/ProfileSetupModal';
 import { useGetCallerUserProfile } from './hooks/useQueries';
 
@@ -22,9 +24,12 @@ export type ToolId =
   | 'rotate'
   | 'password-protect';
 
+export type AppView = 'dashboard' | 'tool' | 'analytics' | 'myFiles';
+
 export default function App() {
   const { identity, isInitializing } = useInternetIdentity();
   const isAuthenticated = !!identity;
+  const [activeView, setActiveView] = useState<AppView>('dashboard');
   const [activeTool, setActiveTool] = useState<ToolId | null>(null);
   const queryClient = useQueryClient();
 
@@ -35,6 +40,27 @@ export default function App() {
   const handleLogout = async () => {
     queryClient.clear();
     setActiveTool(null);
+    setActiveView('dashboard');
+  };
+
+  const handleNavigateHome = () => {
+    setActiveTool(null);
+    setActiveView('dashboard');
+  };
+
+  const handleSelectTool = (id: ToolId) => {
+    setActiveTool(id);
+    setActiveView('tool');
+  };
+
+  const handleNavigateAnalytics = () => {
+    setActiveTool(null);
+    setActiveView('analytics');
+  };
+
+  const handleNavigateMyFiles = () => {
+    setActiveTool(null);
+    setActiveView('myFiles');
   };
 
   if (isInitializing) {
@@ -50,6 +76,21 @@ export default function App() {
     );
   }
 
+  const renderMain = () => {
+    if (!isAuthenticated) return <LoginPage />;
+
+    if (activeView === 'tool' && activeTool) {
+      return <ToolPage toolId={activeTool} onBack={handleNavigateHome} />;
+    }
+    if (activeView === 'analytics') {
+      return <AnalyticsPage onNavigateToDashboard={handleNavigateHome} />;
+    }
+    if (activeView === 'myFiles') {
+      return <MyFilesPage onNavigateToDashboard={handleNavigateHome} />;
+    }
+    return <Dashboard onSelectTool={handleSelectTool} userName={userProfile?.name} />;
+  };
+
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -57,16 +98,13 @@ export default function App() {
           isAuthenticated={isAuthenticated}
           userName={userProfile?.name}
           onLogout={handleLogout}
-          onNavigateHome={() => setActiveTool(null)}
+          onNavigateHome={handleNavigateHome}
+          onNavigateAnalytics={handleNavigateAnalytics}
+          onNavigateMyFiles={handleNavigateMyFiles}
+          activeView={activeView}
         />
         <main className="flex-1">
-          {!isAuthenticated ? (
-            <LoginPage />
-          ) : activeTool ? (
-            <ToolPage toolId={activeTool} onBack={() => setActiveTool(null)} />
-          ) : (
-            <Dashboard onSelectTool={setActiveTool} userName={userProfile?.name} />
-          )}
+          {renderMain()}
         </main>
         <Footer />
         {showProfileSetup && <ProfileSetupModal />}

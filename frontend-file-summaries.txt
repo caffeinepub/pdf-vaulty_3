@@ -1,7 +1,7 @@
 {
-  "frontend/src/App.tsx": "Root app component with ThemeProvider (dark default), auth state management, routing between LoginPage/Dashboard/ToolPage, profile setup modal, and loading spinner — all using CSS variable-based `bg-background`/`text-foreground` tokens instead of hardcoded inline styles so the theme toggle takes effect.",
+  "frontend/src/App.tsx": "Root app component with ThemeProvider, auth state, and view-based routing (`dashboard`, `tool`, `analytics`, `myFiles`) — passes navigation handlers and `activeView` to Header, renders the correct page per view.",
   "frontend/src/hooks/useQueries.ts": "React Query hooks for fetching and saving the caller's user profile from the backend canister.",
-  "frontend/src/components/Header.tsx": "Sticky header with white background and dark text in light mode (`bg-white`, `text-gray-900`), and near-black background with light text in dark mode; logo, nav links, globe, theme toggle, and Logout button all adapt via explicit light/dark Tailwind classes.",
+  "frontend/src/components/Header.tsx": "Sticky header with logo, nav links (Home, Analytics, My Files) wired to navigation handlers with active-state highlighting, theme toggle, and auth button — Analytics/My Files are disabled for unauthenticated users.",
   "frontend/src/components/Footer.tsx": "App footer with copyright year, privacy note, and caffeine.ai attribution link with UTM tracking.",
   "frontend/src/components/ProfileSetupModal.tsx": "Modal dialog shown on first login to collect the user's display name and save it to the backend profile.",
   "frontend/src/pages/LoginPage.tsx": "Unauthenticated landing page matching Dashboard's light/dark mode styling: light hero with blue-gray gradient, white tool cards with gray borders and dark text in light mode, dark cards in dark mode, and a solid blue login CTA button.",
@@ -10,7 +10,7 @@
   "frontend/src/components/shared/FileUploadZone.tsx": "Reusable drag-and-drop file upload component with file picker fallback, file list display with sizes, and reorder controls for multiple files.",
   "frontend/src/components/tools/MergePDFTool.tsx": "Merge PDF tool that uses `getPDFLib()` to access the CDN-loaded pdf-lib global inside the handler, combining multiple PDFs into one downloadable file.",
   "frontend/src/components/tools/SplitPDFTool.tsx": "Split PDF tool with four modes — All Pages, Page Range, Specific Pages (comma-separated page numbers with validation), and By Page Count (sequential chunks of N pages with preview of chunk count); uses pdf-lib via getPDFLib() CDN accessor and triggers individual file downloads per chunk.",
-  "frontend/src/components/tools/CompressPDFTool.tsx": "Compress PDF tool using `getPDFLib()` to access pdf-lib from the CDN global; shows original vs compressed size comparison after processing.",
+  "frontend/src/components/tools/CompressPDFTool.tsx": "Compress PDF tool with two selectable compression levels — Standard (1024px max, 75% JPEG quality) and High (600px max, 45% JPEG quality with more aggressive replacement threshold) — both stripping metadata and saving with `useObjectStreams: true`; displays original/compressed sizes with percentage reduction, a \"could not compress further\" message when no reduction is achieved, and a level badge on the result card.",
   "frontend/src/components/tools/ImageToPDFTool.tsx": "Image to PDF tool using `getJsPDF()` to access jsPDF from the CDN global; embeds multiple JPG/PNG images into a single PDF.",
   "frontend/src/components/tools/PDFToWordTool.tsx": "PDF to Word tool using pure browser-native text extraction (no external library); generates an RTF file compatible with Word/LibreOffice.",
   "frontend/src/components/tools/WordToPDFTool.tsx": "Word to PDF tool using `getJsPDF()` for PDF generation and a browser-native ZIP parser to extract text from .docx files without any npm dependencies.",
@@ -20,10 +20,12 @@
   "frontend/src/index.css": "Global styles with OKLCH color system; light mode now uses pure white background, near-black foreground, and blue primary tokens, while dark mode retains the original near-black/blue scheme unchanged.",
   "frontend/tailwind.config.js": "Tailwind configuration with Inter font, updated vault design tokens using blue-on-dark scheme (vault-blue, vault-blue-bright), custom glow/card shadows, and backward-compat amber/gold aliases.",
   "frontend/index.html": "HTML entry point that loads pdf-lib, jsPDF, and xlsx from CDN as UMD globals before the React app starts, eliminating the need for npm packages.",
-  "frontend/src/types/pdf-lib.d.ts": "Ambient TypeScript namespace declaration for the `PDFLib` CDN global, providing full type coverage for PDFDocument, PDFPage, degrees, and related APIs.",
+  "frontend/src/types/pdf-lib.d.ts": "Ambient TypeScript namespace declaration for the `PDFLib` CDN global, now including `setSubject`, `setKeywords`, a `PDFContext` interface with `enumerateIndirectObjects`/`assign`, and the `context` property on `PDFDocument`.",
   "frontend/src/types/jspdf.d.ts": "Ambient TypeScript namespace declaration for the `jspdf` CDN global, providing type coverage for the jsPDF class constructor and all methods used in the tools.",
   "frontend/src/types/xlsx.d.ts": "Ambient TypeScript namespace declaration for the `XLSX` CDN global, providing type coverage for WorkBook, WorkSheet, read(), and utils.sheet_to_json().",
   "frontend/src/types/jszip.d.ts": "Minimal ambient namespace declaration kept for reference; JSZip is no longer used since DOCX parsing uses a browser-native ZIP parser.",
   "frontend/src/lib/pdfUtils.ts": "Utility module providing `getPDFLib()`, `getJsPDF()`, and `getXLSX()` accessors for CDN-loaded globals, plus `downloadBytes`, `downloadBlob`, and `formatBytes` helpers.",
-  "frontend/public/google61423bcf1843cd2d.html": "Static Google Search Console HTML verification file served at /google61423bcf1843cd2d.html with the standard verification content."
+  "frontend/public/google61423bcf1843cd2d.html": "Static Google Search Console HTML verification file served at /google61423bcf1843cd2d.html with the standard verification content.",
+  "frontend/src/pages/AnalyticsPage.tsx": "Analytics page showing overview stat cards (Total Operations, Files Processed, Tools Used) and a per-tool usage breakdown, with an empty-state message and a CTA to navigate back to the dashboard.",
+  "frontend/src/pages/MyFilesPage.tsx": "My Files page displaying an empty-state UI with a message (\"No files yet. Start by using a PDF tool.\") and a CTA button that navigates back to the dashboard."
 }

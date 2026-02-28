@@ -2,15 +2,27 @@ import { Sun, Moon, Globe, Eye } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useQueryClient } from '@tanstack/react-query';
+import type { AppView } from '../App';
 
 interface HeaderProps {
   isAuthenticated: boolean;
   userName?: string;
   onLogout: () => void;
   onNavigateHome: () => void;
+  onNavigateAnalytics: () => void;
+  onNavigateMyFiles: () => void;
+  activeView: AppView;
 }
 
-export default function Header({ isAuthenticated, userName, onLogout, onNavigateHome }: HeaderProps) {
+export default function Header({
+  isAuthenticated,
+  userName,
+  onLogout,
+  onNavigateHome,
+  onNavigateAnalytics,
+  onNavigateMyFiles,
+  activeView,
+}: HeaderProps) {
   const { resolvedTheme, setTheme } = useTheme();
   const { login, clear, isLoggingIn } = useInternetIdentity();
   const queryClient = useQueryClient();
@@ -30,6 +42,15 @@ export default function Header({ isAuthenticated, userName, onLogout, onNavigate
   const handleThemeToggle = () => {
     setTheme(isDark ? 'light' : 'dark');
   };
+
+  const navLinkBase =
+    'px-3 py-1.5 text-sm font-medium transition-colors rounded-md';
+  const navLinkActive =
+    'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 underline underline-offset-4';
+  const navLinkInactive =
+    'text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10';
+
+  const isDashboard = activeView === 'dashboard' || activeView === 'tool';
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-[#0d0d0d]">
@@ -57,19 +78,25 @@ export default function Header({ isAuthenticated, userName, onLogout, onNavigate
             <nav className="hidden sm:flex items-center gap-1">
               <button
                 onClick={onNavigateHome}
-                className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white transition-colors rounded-md hover:bg-gray-100 dark:hover:bg-white/10"
+                className={`${navLinkBase} ${isDashboard ? navLinkActive : navLinkInactive}`}
               >
                 Home
               </button>
               <button
-                className="px-3 py-1.5 text-sm font-medium text-gray-400 dark:text-gray-500 cursor-default rounded-md"
-                disabled
+                onClick={isAuthenticated ? onNavigateAnalytics : undefined}
+                disabled={!isAuthenticated}
+                className={`${navLinkBase} ${
+                  activeView === 'analytics' ? navLinkActive : navLinkInactive
+                } disabled:opacity-40 disabled:cursor-not-allowed`}
               >
                 Analytics
               </button>
               <button
-                className="px-3 py-1.5 text-sm font-medium text-gray-400 dark:text-gray-500 cursor-default rounded-md"
-                disabled
+                onClick={isAuthenticated ? onNavigateMyFiles : undefined}
+                disabled={!isAuthenticated}
+                className={`${navLinkBase} ${
+                  activeView === 'myFiles' ? navLinkActive : navLinkInactive
+                } disabled:opacity-40 disabled:cursor-not-allowed`}
               >
                 My Files
               </button>

@@ -1,26 +1,38 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add High Compression option to Compress PDF tool",
+  "title": "Add private per-user PDF file storage frontend",
   "requirements": [
     {
-      "id": "REQ-32",
-      "summary": "Add 'High Compression' mode option to the Compress PDF tool with two selectable compression levels: 'Standard' (existing behavior) and 'High' (aggressive downsampling, lower JPEG quality ~0.4-0.5, metadata stripping, useObjectStreams). Display before/after file sizes and percentage reduction. Show message if file cannot be reduced further. Download button available for both levels.",
+      "id": "REQ-5",
+      "summary": "Replace the placeholder MyFilesPage with a fully functional My Files page that displays stored files, supports upload, and allows deletion",
       "acceptanceCriteria": [
-        "The Compress PDF tool UI shows two compression level options: 'Standard' and 'High'.",
-        "Selecting 'Standard' uses the existing compression behavior.",
-        "Selecting 'High' applies more aggressive image downsampling (lower resolution and JPEG quality ~0.4–0.5) and strips all PDF metadata fields.",
-        "Both modes save the PDF with `useObjectStreams: true`.",
-        "After compression, the UI displays the original file size, compressed file size, and percentage reduction achieved.",
-        "If the output is not smaller than the input, a message informs the user that the file could not be reduced further.",
-        "The Download button is available after processing for both compression levels.",
-        "The UI works correctly in both dark and light modes."
+        "My Files page lists all files returned by getMyFiles with name, size, and upload date",
+        "Upload button allows selecting a PDF and saves it to the backend via saveFile",
+        "Each file has a delete button that calls deleteFile and removes the file from the list",
+        "Loading spinner shown while fetching files",
+        "Empty state message shown when the user has no stored files"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/tools/CompressPDFTool.tsx",
+          "path": "frontend/src/backend.d.ts",
           "operation": "modify",
-          "description": "Add UI radio button group to select between 'Standard' and 'High' compression levels. Refactor the compression logic to support two modes: Standard mode maintains existing behavior (image downsampling with ~0.7 quality, metadata stripping); High mode applies aggressive compression with lower resolution downsampling (max 72 DPI equivalent) and JPEG quality ~0.4-0.5, strips all metadata fields (Title, Author, Subject, Keywords, Creator, Producer), and saves with useObjectStreams: true. Store the original file size before compression. After processing, calculate and display the compressed file size and percentage reduction. If the compressed file is not smaller than the original, show a user-friendly message indicating the file could not be reduced further. Ensure the download button is available for both compression levels. Update state management to track selected compression level and file size metrics. Ensure all UI elements follow the existing dark/light theme styling using Tailwind CSS custom properties."
+          "description": "Verify that the FileRecord type includes id, name, size, uploadedAt, and blob (ExternalBlob) fields. The backend interface already declares getMyFiles, saveFile, and deleteFile methods. Ensure the ExternalBlob class is properly imported and typed."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add three new React Query hooks: useGetMyFiles (query hook that calls actor.getMyFiles and returns an array of FileRecord), useSaveFile (mutation hook that accepts name, size, and blob, calls actor.saveFile, and invalidates the 'myFiles' query on success), and useDeleteFile (mutation hook that accepts fileId, calls actor.deleteFile, and invalidates the 'myFiles' query on success). Follow the existing pattern used for useGetCallerUserProfile and useSaveCallerUserProfile."
+        },
+        {
+          "path": "frontend/src/pages/MyFilesPage.tsx",
+          "operation": "modify",
+          "description": "Replace the placeholder content with a fully functional My Files page. Use useGetMyFiles to fetch and display the user's files in a responsive grid or table layout. Show file name, formatted size (use the formatFileSize helper from lib/pdfUtils.ts), and formatted upload date. Include an upload button that opens a file input restricted to PDF files (accept=\".pdf,application/pdf\"). On file selection, read the file as Uint8Array, create an ExternalBlob using ExternalBlob.fromBytes, and call the useSaveFile mutation with the file name, size, and blob. For each file card, include a delete button that calls the useDeleteFile mutation with the file's id. Show a loading spinner while useGetMyFiles.isLoading is true. Display an empty state message (e.g., 'No files uploaded yet. Upload your first PDF to get started.') when the file list is empty and loading is complete. Use toast notifications to confirm successful uploads and deletions or to show errors. Verify that the blob-storage component's usage instructions are followed when working with ExternalBlob instances."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Ensure the My Files navigation link in the header correctly routes to the MyFilesPage component. Verify that the active view state ('my-files') is handled and renders MyFilesPage. No changes needed if the routing is already complete; otherwise, add the case for 'my-files' in the view-switching logic."
         }
       ]
     }

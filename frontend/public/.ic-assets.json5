@@ -1,0 +1,18 @@
+// Internet Computer asset canister configuration
+// Sets correct Content-Type headers for specific static files
+[
+  {
+    // Serve sitemap.xml with the correct XML content type so Google Search Console can parse it
+    "match": "sitemap.xml",
+    "headers": {
+      "Content-Type": "application/xml"
+    }
+  },
+  {
+    // Serve the Google Search Console HTML verification file with the correct content type
+    "match": "google61423bcf1843cd2d.html",
+    "headers": {
+      "Content-Type": "text/html"
+    }
+  }
+]

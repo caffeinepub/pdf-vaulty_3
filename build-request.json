@@ -1,42 +1,100 @@
 {
   "kind": "build_request",
-  "title": "Add High Compression option to Compress PDF tool",
+  "title": "Add private per-user PDF file storage",
   "projectName": "PDF Vaulty",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-32",
-      "text": "Add a 'High Compression' mode option to the Compress PDF tool in `frontend/src/components/tools/CompressPDFTool.tsx`. The tool must present two selectable compression levels: 'Standard' (existing behavior) and 'High'. When 'High' is selected, apply more aggressive compression: downsample all embedded images to a lower resolution (e.g., max 72 DPI equivalent) and encode them at lower JPEG quality (e.g., quality 0.4–0.5 instead of the standard ~0.7), strip all metadata fields (Title, Author, Subject, Keywords, Creator, Producer), and save with `useObjectStreams: true`. Display the selected compression level label in the UI, and after processing show the before/after file sizes and percentage reduction. If the compressed file is not smaller than the original, inform the user that the file could not be reduced further. The download button must offer the compressed file regardless of compression level selected.",
-      "target": "frontend",
+      "id": "REQ-1",
+      "text": "Add a private per-user PDF file storage system to the backend. Define a `FileRecord` type containing at minimum: `id` (Text), `name` (Text), `size` (Nat), `uploadedAt` (Int), and `data` (Blob). Store files in a `HashMap` keyed by `Principal` mapping to an array/list of `FileRecord`. Require the caller to be an authenticated user (not anonymous) for all file operations.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-20"
         ],
         "quotes": [
-          "Can we add high compress pdf option"
+          "yes lets add it now"
         ]
       },
       "acceptanceCriteria": [
-        "The Compress PDF tool UI shows two compression level options: 'Standard' and 'High'.",
-        "Selecting 'Standard' uses the existing compression behavior.",
-        "Selecting 'High' applies more aggressive image downsampling (lower resolution and JPEG quality ~0.4–0.5) and strips all PDF metadata fields.",
-        "Both modes save the PDF with `useObjectStreams: true`.",
-        "After compression, the UI displays the original file size, compressed file size, and percentage reduction achieved.",
-        "If the output is not smaller than the input, a message informs the user that the file could not be reduced further.",
-        "The Download button is available after processing for both compression levels.",
-        "The UI works correctly in both dark and light modes."
+        "A `FileRecord` type is defined with id, name, size, uploadedAt, and data fields",
+        "A stable or heap-based map keyed by Principal stores each user's file list",
+        "Anonymous callers are rejected with a Runtime.trap on all file functions"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Add a `saveFile` shared update function to the backend that accepts a `FileRecord` and appends it to the calling user's file list. Each file must be assigned a unique ID (e.g., based on a monotonic counter). Only authenticated users (not anonymous) may call this function.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Calling saveFile with a valid PDF blob stores it under the caller's Principal",
+        "The function rejects anonymous callers",
+        "Each saved file receives a unique ID"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add a `getMyFiles` public query function to the backend that returns the list of `FileRecord` objects belonging to the calling Principal. If the caller has no files, return an empty array. Anonymous callers should be rejected.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Calling getMyFiles returns only the files belonging to the authenticated caller",
+        "Returns an empty array if the user has no stored files",
+        "Anonymous callers are rejected"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Add a `deleteFile` shared update function to the backend that accepts a file ID (Text) and removes the matching file from the calling user's file list. If the file ID does not exist or belongs to a different user, the call should be a no-op or trap with an appropriate message.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Calling deleteFile with a valid file ID removes that file from the caller's list",
+        "Files belonging to other users cannot be deleted by the caller",
+        "Anonymous callers are rejected"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Replace the placeholder `MyFilesPage` with a fully functional My Files page. It should: (1) call `getMyFiles` on mount and display the user's stored files in a card or table list showing file name, size, and upload date; (2) include an upload button that opens a file picker accepting PDF files, reads the file as a Blob, and calls `saveFile` to store it in the backend; (3) include a delete button per file that calls `deleteFile`; (4) show a loading state while fetching and an empty-state message when no files exist.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ]
+      },
+      "acceptanceCriteria": [
+        "My Files page lists all files returned by getMyFiles with name, size, and upload date",
+        "Upload button allows selecting a PDF and saves it to the backend via saveFile",
+        "Each file has a delete button that calls deleteFile and removes the file from the list",
+        "Loading spinner shown while fetching files",
+        "Empty state message shown when the user has no stored files"
       ]
     }
   ],
   "constraints": [
-    "Do not change the backend.",
-    "Do not modify any files listed under frontend.immutablePaths.",
-    "The existing Standard compression behavior must remain intact and unchanged."
+    "All Motoko logic must remain in the single main actor (backend/main.mo)",
+    "File data must be stored per-Principal so each user can only access their own files",
+    "Do not modify frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or any files under frontend/src/components/ui"
   ],
   "nonGoals": [
-    "Server-side PDF compression.",
-    "Adding additional compression levels beyond Standard and High.",
-    "Changing any other PDF tool."
+    "External cloud file storage (AWS S3, etc.)",
+    "File sharing between users",
+    "PDF preview or in-browser rendering on the My Files page",
+    "Analytics integration for uploaded files"
   ],
   "imageRequirements": {
     "required": [],

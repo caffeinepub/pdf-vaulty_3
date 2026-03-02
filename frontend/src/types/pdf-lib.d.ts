@@ -20,6 +20,8 @@ declare namespace PDFLib {
     setProducer(producer: string): void;
     setCreationDate(date: Date): void;
     setModificationDate(date: Date): void;
+    embedJpg(jpegData: Uint8Array | ArrayBuffer): Promise<PDFImage>;
+    embedPng(pngData: Uint8Array | ArrayBuffer): Promise<PDFImage>;
     // Low-level context access
     context: PDFContext;
   }
@@ -59,6 +61,42 @@ declare namespace PDFLib {
   }
 }
 
+// pdf.js global (loaded via CDN)
+interface PdfjsLib {
+  GlobalWorkerOptions: { workerSrc: string };
+  getDocument(src: { data: Uint8Array } | string): PdfjsLoadingTask;
+  version: string;
+}
+
+interface PdfjsLoadingTask {
+  promise: Promise<PdfjsPDFDocument>;
+}
+
+interface PdfjsPDFDocument {
+  numPages: number;
+  getPage(pageNumber: number): Promise<PdfjsPage>;
+}
+
+interface PdfjsViewport {
+  width: number;
+  height: number;
+}
+
+interface PdfjsRenderContext {
+  canvasContext: CanvasRenderingContext2D;
+  viewport: PdfjsViewport;
+}
+
+interface PdfjsRenderTask {
+  promise: Promise<void>;
+}
+
+interface PdfjsPage {
+  getViewport(params: { scale: number }): PdfjsViewport;
+  render(renderContext: PdfjsRenderContext): PdfjsRenderTask;
+}
+
 interface Window {
   PDFLib: typeof PDFLib;
+  pdfjsLib: PdfjsLib;
 }

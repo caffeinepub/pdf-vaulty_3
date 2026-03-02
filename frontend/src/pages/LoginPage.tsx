@@ -84,7 +84,7 @@ export default function LoginPage() {
               key={label}
               onClick={login}
               disabled={isLoggingIn}
-              className="group flex flex-col items-start p-6 rounded-xl text-left transition-all duration-200 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-white/[0.08] hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm disabled:opacity-60"
+              className="group flex flex-col items-start p-6 rounded-xl text-left transition-all duration-200 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-white/[0.08] hover:border-blue-300 dark:hover:border-white/20 hover:shadow-md disabled:opacity-60"
             >
               {/* Icon box */}
               <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-blue-50 dark:bg-[#1e3a5f]">
@@ -106,17 +106,16 @@ export default function LoginPage() {
           >
             {isLoggingIn ? (
               <span className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
                 Logging in...
               </span>
             ) : (
-              <span className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                Login with Internet Identity
-              </span>
+              'Login to Get Started'
             )}
           </button>
-          <p className="text-xs text-gray-400 dark:text-white/30 mt-3">Secure, decentralized authentication</p>
         </div>
       </section>
 

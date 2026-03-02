@@ -101,7 +101,7 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
               <button
                 key={tool.id}
                 onClick={() => onSelectTool(tool.id)}
-                className="group flex flex-col items-start p-6 rounded-xl text-left transition-all duration-200 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-white/[0.08] hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm"
+                className="group flex flex-col items-start p-6 rounded-xl text-left transition-all duration-200 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-white/[0.08] hover:border-blue-300 dark:hover:border-white/20 hover:shadow-md"
               >
                 {/* Icon box */}
                 <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-blue-50 dark:bg-[#1e3a5f]">

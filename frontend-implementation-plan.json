@@ -1,38 +1,37 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add private per-user PDF file storage frontend",
+  "title": "Remove PowerPoint to PDF Tool",
   "requirements": [
     {
-      "id": "REQ-5",
-      "summary": "Replace the placeholder MyFilesPage with a fully functional My Files page that displays stored files, supports upload, and allows deletion",
+      "id": "REQ-1",
+      "summary": "Remove the PowerPoint to PDF tool from the application entirely",
       "acceptanceCriteria": [
-        "My Files page lists all files returned by getMyFiles with name, size, and upload date",
-        "Upload button allows selecting a PDF and saves it to the backend via saveFile",
-        "Each file has a delete button that calls deleteFile and removes the file from the list",
-        "Loading spinner shown while fetching files",
-        "Empty state message shown when the user has no stored files"
+        "The PowerPoint to PDF tool card is no longer visible on the dashboard or login page tool grid.",
+        "Navigating to the PowerPoint to PDF tool route/toolId no longer renders the tool.",
+        "No broken imports or references to PowerPointToPDFTool remain in the codebase.",
+        "All other tools continue to function normally."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/backend.d.ts",
+          "path": "frontend/src/pages/Dashboard.tsx",
           "operation": "modify",
-          "description": "Verify that the FileRecord type includes id, name, size, uploadedAt, and blob (ExternalBlob) fields. The backend interface already declares getMyFiles, saveFile, and deleteFile methods. Ensure the ExternalBlob class is properly imported and typed."
+          "description": "Remove the PowerPoint to PDF tool card from the dashboard tool grid. Locate the array or list of tool definitions that render tool cards and remove the entry with id 'powerpoint-to-pdf' or similar identifier."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/pages/LoginPage.tsx",
           "operation": "modify",
-          "description": "Add three new React Query hooks: useGetMyFiles (query hook that calls actor.getMyFiles and returns an array of FileRecord), useSaveFile (mutation hook that accepts name, size, and blob, calls actor.saveFile, and invalidates the 'myFiles' query on success), and useDeleteFile (mutation hook that accepts fileId, calls actor.deleteFile, and invalidates the 'myFiles' query on success). Follow the existing pattern used for useGetCallerUserProfile and useSaveCallerUserProfile."
+          "description": "Remove the PowerPoint to PDF tool card from the login page tool grid. Locate the array or list of tool definitions that render tool cards and remove the entry with id 'powerpoint-to-pdf' or similar identifier."
         },
         {
-          "path": "frontend/src/pages/MyFilesPage.tsx",
+          "path": "frontend/src/pages/ToolPage.tsx",
           "operation": "modify",
-          "description": "Replace the placeholder content with a fully functional My Files page. Use useGetMyFiles to fetch and display the user's files in a responsive grid or table layout. Show file name, formatted size (use the formatFileSize helper from lib/pdfUtils.ts), and formatted upload date. Include an upload button that opens a file input restricted to PDF files (accept=\".pdf,application/pdf\"). On file selection, read the file as Uint8Array, create an ExternalBlob using ExternalBlob.fromBytes, and call the useSaveFile mutation with the file name, size, and blob. For each file card, include a delete button that calls the useDeleteFile mutation with the file's id. Show a loading spinner while useGetMyFiles.isLoading is true. Display an empty state message (e.g., 'No files uploaded yet. Upload your first PDF to get started.') when the file list is empty and loading is complete. Use toast notifications to confirm successful uploads and deletions or to show errors. Verify that the blob-storage component's usage instructions are followed when working with ExternalBlob instances."
+          "description": "Remove the PowerPointToPDFTool import statement and remove the corresponding case/condition that renders PowerPointToPDFTool when the toolId matches 'powerpoint-to-pdf' or similar identifier."
         },
         {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Ensure the My Files navigation link in the header correctly routes to the MyFilesPage component. Verify that the active view state ('my-files') is handled and renders MyFilesPage. No changes needed if the routing is already complete; otherwise, add the case for 'my-files' in the view-switching logic."
+          "path": "frontend/src/components/tools/PowerPointToPDFTool.tsx",
+          "operation": "delete",
+          "description": "Delete the PowerPointToPDFTool component file entirely as it is no longer needed in the application."
         }
       ]
     }

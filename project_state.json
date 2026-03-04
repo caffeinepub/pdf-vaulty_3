@@ -1,68 +1,22 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "PDF Vaulty app on the Internet Computer. Backend currently has user profile storage (per Principal) and access control, but is missing actual PDF file storage. Adding private per-user PDF storage to the backend.",
-  "architectural_notes": [
-    "Backend is Motoko on Internet Computer with main.mo, MixinAuthorization.mo, and access-control.mo",
-    "User profiles stored per Principal in userProfiles map; access control uses admin/user/guest roles",
-    "No PDF/file storage currently exists in the backend — My Files tab is non-functional"
-  ],
-  "known_issues": [
-    "My Files tab has no backend storage — PDFs are not saved or retrieved per user"
-  ],
+  "summary": "New project",
+  "architectural_notes": [],
+  "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-replace-the-placeholder-myfilespage-with-a-fully-functional-my-files-page-it-should-1-call-getmyfiles-on-mount-and-display-the-user-s-stored-files-in-a-card-or-table-list-showing-file-name-size-and-upload-date-2-include-an-upload-button-that-opens-a-file-picker-accepting-pdf-files-reads-the-file-as-a-blob-and-calls-savefile-to-store-it-in-the-backend-3-include-a-delete-button-per-file-that-calls-deletefile-4-show-a-loading-state-while-fetching-and-an-empty-state-message-when-no-files-exist",
-      "title": "Replace the placeholder `MyFilesPage` with a fully functional My Files page. It should: (1) call `getMyFiles` on mount and display the user's stored files in a card or table list showing file name, size, and upload date; (2) include an upload button that opens a file picker accepting PDF files, reads the file as a Blob, and calls `saveFile` to store it in the backend; (3) include a delete button per file that calls `deleteFile`; (4) show a loading state while fetching and an empty-state message when no files exist.",
+      "id": "feature-remove-the-powerpoint-to-pdf-tool-from-the-application-entirely-delete-or-disable-the-powerpointtopdftool-tsx-component-remove-its-entry-from-the-dashboard-tool-grid-dashboard-tsx-and-loginpage-tsx-remove-its-route-case-from-toolpage-tsx-and-remove-any-references-to-it-in-navigation-analytics-or-other-files",
+      "title": "Remove the PowerPoint to PDF tool from the application entirely: delete or disable the PowerPointToPDFTool.tsx component, remove its entry from the dashboard tool grid (Dashboard.tsx and LoginPage.tsx), remove its route/case from ToolPage.tsx, and remove any references to it in navigation, analytics, or other files.",
       "reqIds": [
-        "REQ-5"
+        "REQ-1"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Add private per-user PDF file storage to backend (keyed by Principal) with save and retrieve functions",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Add a private per-user PDF file storage system to the backend. Define a `FileRecord` type containing at minimum: `id` (Text), `name` (Text), `size` (Nat), `uploadedAt` (Int), and `data` (Blob). Store files in a `HashMap` keyed by `Principal` mapping to an array/list of `FileRecord`. Require the caller to be an authenticated user (not anonymous) for all file operations.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Add a `saveFile` shared update function to the backend that accepts a `FileRecord` and appends it to the calling user's file list. Each file must be assigned a unique ID (e.g., based on a monotonic counter). Only authenticated users (not anonymous) may call this function.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Add a `getMyFiles` public query function to the backend that returns the list of `FileRecord` objects belonging to the calling Principal. If the caller has no files, return an empty array. Anonymous callers should be rejected.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Add a `deleteFile` shared update function to the backend that accepts a file ID (Text) and removes the matching file from the calling user's file list. If the file ID does not exist or belongs to a different user, the call should be a no-op or trap with an appropriate message.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "status": "pending"
-    }
-  ],
-  "gameProjectType": "none",
-  "projectName": "PDF Vaulty",
+  "new_feature_requests": [],
+  "projectName": "Remove PowerPoint to PDF tool",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

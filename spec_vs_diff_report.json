@@ -1,49 +1,27 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-03-02T11:08:11.041Z",
-  "summary": "The diff implements most of the required functionality: backend file storage functions (saveFile, getMyFiles, deleteFile), frontend hooks, and a functional MyFilesPage. However, the FileRecord type uses 'blob' (an ExternalBlob) instead of 'data' (a Blob) as specified in REQ-1. The deleteFile function traps on missing file IDs rather than treating it as a no-op. There are also hallucinated extras not requested in the spec.",
+  "generatedAt": "2026-03-03T10:33:56.267Z",
+  "summary": "The diff implements REQ-1 almost completely: the PowerPoint to PDF tool card is removed from Dashboard.tsx and LoginPage.tsx tool arrays, the ToolPage.tsx no longer imports or handles the PowerPointToPDFTool, the ToolId type in App.tsx no longer includes 'powerpoint-to-pdf', and the file-summaries confirm the PowerPointToPDFTool.tsx component file was modified. However, the PowerPointToPDFTool.tsx file is listed as modified rather than removed, meaning it still exists in the codebase.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "FileRecord must have a field named `data` of type `Blob`",
-      "reason": "The implemented FileRecord uses a field named `blob` of type `Storage.ExternalBlob` instead of `data` of type `Blob` as specified.",
+      "requirement": "Delete or disable the PowerPointToPDFTool.tsx component file",
+      "reason": "The diff lists frontend/src/components/tools/PowerPointToPDFTool.tsx as modified, not removed. The file still exists in the codebase. While it may have been emptied, the requirement specifies deletion, and a residual file could be considered an incomplete removal.",
       "evidence": [
-        "backend/main.mo"
+        "frontend/src/components/tools/PowerPointToPDFTool.tsx"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "getFileIdsForUser and getFileById query functions added to the backend",
-      "reason": "These functions were not requested in the build spec. They allow admins or the same caller to retrieve file IDs or a file by ID.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "description": "backend/migration.mo module was added and wired into the actor",
-      "reason": "A migration module was added but no migration requirement was specified in the build request.",
-      "evidence": [
-        "backend/migration.mo",
-        "backend/main.mo"
-      ]
-    },
-    {
-      "description": "Upload progress tracking via withUploadProgress callback added to file upload flow",
-      "reason": "The build request did not request upload progress tracking or a progress indicator during upload.",
-      "evidence": [
-        "frontend/src/pages/MyFilesPage.tsx"
-      ]
-    }
-  ],
-  "confidence": 0.78,
+  "hallucinated_features": [],
+  "confidence": 0.8,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/MyFilesPage.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/components/tools/PowerPointToPDFTool.tsx",
+    "frontend/src/pages/Dashboard.tsx",
+    "frontend/src/pages/LoginPage.tsx",
+    "frontend/src/pages/ToolPage.tsx",
     "project_state.json"
   ]
 }

@@ -39,13 +39,8 @@ export default function App() {
 
   const handleLogout = async () => {
     queryClient.clear();
-    setActiveTool(null);
     setActiveView('dashboard');
-  };
-
-  const handleNavigateHome = () => {
     setActiveTool(null);
-    setActiveView('dashboard');
   };
 
   const handleSelectTool = (id: ToolId) => {
@@ -53,62 +48,59 @@ export default function App() {
     setActiveView('tool');
   };
 
-  const handleNavigateAnalytics = () => {
+  const handleBack = () => {
     setActiveTool(null);
-    setActiveView('analytics');
+    setActiveView('dashboard');
   };
 
-  const handleNavigateMyFiles = () => {
+  const handleNavigateToDashboard = () => {
     setActiveTool(null);
-    setActiveView('myFiles');
+    setActiveView('dashboard');
   };
 
-  if (isInitializing) {
-    return (
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-            <p className="text-foreground/50 text-sm">Loading PDF Vaulty...</p>
-          </div>
+  const renderContent = () => {
+    if (isInitializing) {
+      return (
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
         </div>
-      </ThemeProvider>
-    );
-  }
+      );
+    }
 
-  const renderMain = () => {
-    if (!isAuthenticated) return <LoginPage />;
+    if (!isAuthenticated) {
+      return <LoginPage />;
+    }
 
-    if (activeView === 'tool' && activeTool) {
-      return <ToolPage toolId={activeTool} onBack={handleNavigateHome} />;
+    switch (activeView) {
+      case 'tool':
+        return activeTool ? <ToolPage toolId={activeTool} onBack={handleBack} /> : <Dashboard onSelectTool={handleSelectTool} />;
+      case 'analytics':
+        return <AnalyticsPage onNavigateToDashboard={handleNavigateToDashboard} />;
+      case 'myFiles':
+        return <MyFilesPage onNavigateToDashboard={handleNavigateToDashboard} />;
+      default:
+        return <Dashboard onSelectTool={handleSelectTool} />;
     }
-    if (activeView === 'analytics') {
-      return <AnalyticsPage onNavigateToDashboard={handleNavigateHome} />;
-    }
-    if (activeView === 'myFiles') {
-      return <MyFilesPage onNavigateToDashboard={handleNavigateHome} />;
-    }
-    return <Dashboard onSelectTool={handleSelectTool} userName={userProfile?.name} />;
   };
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-      <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <div className="min-h-screen flex flex-col bg-background text-foreground">
         <Header
           isAuthenticated={isAuthenticated}
-          userName={userProfile?.name}
-          onLogout={handleLogout}
-          onNavigateHome={handleNavigateHome}
-          onNavigateAnalytics={handleNavigateAnalytics}
-          onNavigateMyFiles={handleNavigateMyFiles}
           activeView={activeView}
+          onNavigateHome={handleNavigateToDashboard}
+          onNavigateAnalytics={() => setActiveView('analytics')}
+          onNavigateMyFiles={() => setActiveView('myFiles')}
+          onLogout={handleLogout}
+          userName={userProfile?.name}
         />
         <main className="flex-1">
-          {renderMain()}
+          {renderContent()}
         </main>
         <Footer />
         {showProfileSetup && <ProfileSetupModal />}
-        <Toaster richColors position="top-right" />
+        <Toaster />
       </div>
     </ThemeProvider>
   );

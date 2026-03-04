@@ -1,0 +1,137 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light Theme */
+    --radius: 0.75rem;
+
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.1 0.005 260);
+
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.1 0.005 260);
+
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.1 0.005 260);
+
+    --primary: oklch(0.55 0.22 250);
+    --primary-foreground: oklch(1 0 0);
+
+    --secondary: oklch(0.96 0.008 240);
+    --secondary-foreground: oklch(0.15 0.01 260);
+
+    --muted: oklch(0.96 0.008 240);
+    --muted-foreground: oklch(0.45 0.01 260);
+
+    --accent: oklch(0.94 0.01 240);
+    --accent-foreground: oklch(0.15 0.01 260);
+
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.985 0 0);
+
+    --border: oklch(0.9 0.008 240);
+    --input: oklch(0.9 0.008 240);
+    --ring: oklch(0.55 0.22 250);
+
+    --chart-1: oklch(0.55 0.22 250);
+    --chart-2: oklch(0.6 0.118 184.704);
+    --chart-3: oklch(0.398 0.07 227.392);
+    --chart-4: oklch(0.828 0.189 84.429);
+    --chart-5: oklch(0.769 0.188 70.08);
+
+    --sidebar: oklch(0.97 0.005 240);
+    --sidebar-foreground: oklch(0.1 0.005 260);
+    --sidebar-primary: oklch(0.55 0.22 250);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: oklch(0.94 0.01 240);
+    --sidebar-accent-foreground: oklch(0.15 0.01 260);
+    --sidebar-border: oklch(0.9 0.008 240);
+    --sidebar-ring: oklch(0.55 0.22 250);
+
+    /* Custom tokens — light mode */
+    --vault-bg: oklch(1 0 0);
+    --vault-surface: oklch(1 0 0);
+    --vault-hover: oklch(0.96 0.008 240);
+    --vault-border: oklch(0.9 0.008 240);
+    --vault-muted: oklch(0.45 0.01 260);
+    --vault-blue: oklch(0.55 0.22 250);
+    --vault-blue-bright: oklch(0.6 0.24 250);
+    /* backward-compat aliases */
+    --vault-amber: oklch(0.55 0.22 250);
+    --vault-gold: oklch(0.5 0.22 250);
+  }
+
+  .dark {
+    /* Dark Theme — near-black with blue accents */
+    --background: oklch(0.1 0.005 260);
+    --foreground: oklch(0.93 0.005 240);
+
+    --card: oklch(0.15 0.008 260);
+    --card-foreground: oklch(0.93 0.005 240);
+
+    --popover: oklch(0.18 0.008 260);
+    --popover-foreground: oklch(0.93 0.005 240);
+
+    --primary: oklch(0.6 0.2 250);
+    --primary-foreground: oklch(1 0 0);
+
+    --secondary: oklch(0.2 0.01 260);
+    --secondary-foreground: oklch(0.93 0.005 240);
+
+    --muted: oklch(0.2 0.01 260);
+    --muted-foreground: oklch(0.55 0.01 260);
+
+    --accent: oklch(0.22 0.01 260);
+    --accent-foreground: oklch(0.93 0.005 240);
+
+    --destructive: oklch(0.65 0.22 25);
+    --destructive-foreground: oklch(0.93 0.005 240);
+
+    --border: oklch(0.3 0.008 260);
+    --input: oklch(0.25 0.008 260);
+    --ring: oklch(0.6 0.2 250);
+
+    --chart-1: oklch(0.6 0.2 250);
+    --chart-2: oklch(0.696 0.17 162.48);
+    --chart-3: oklch(0.769 0.188 70.08);
+    --chart-4: oklch(0.627 0.265 303.9);
+    --chart-5: oklch(0.645 0.246 16.439);
+
+    --sidebar: oklch(0.15 0.008 260);
+    --sidebar-foreground: oklch(0.93 0.005 240);
+    --sidebar-primary: oklch(0.6 0.2 250);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: oklch(0.2 0.01 260);
+    --sidebar-accent-foreground: oklch(0.93 0.005 240);
+    --sidebar-border: oklch(0.3 0.008 260);
+    --sidebar-ring: oklch(0.6 0.2 250);
+
+    /* Custom tokens dark */
+    --vault-bg: oklch(0.1 0.005 260);
+    --vault-surface: oklch(0.15 0.008 260);
+    --vault-hover: oklch(0.2 0.01 260);
+    --vault-border: oklch(0.3 0.008 260);
+    --vault-muted: oklch(0.55 0.01 260);
+    --vault-blue: oklch(0.6 0.2 250);
+    --vault-blue-bright: oklch(0.65 0.22 250);
+    /* backward-compat aliases */
+    --vault-amber: oklch(0.6 0.2 250);
+    --vault-gold: oklch(0.55 0.22 250);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}

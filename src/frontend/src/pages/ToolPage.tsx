@@ -7,8 +7,7 @@ import CompressPDFTool from "../components/tools/CompressPDFTool";
 import ExcelToPDFTool from "../components/tools/ExcelToPDFTool";
 import ImageToPDFTool from "../components/tools/ImageToPDFTool";
 import MergePDFTool from "../components/tools/MergePDFTool";
-import PDFToExcelTool from "../components/tools/PDFToExcelTool";
-import PDFToImageTool from "../components/tools/PDFToImageTool";
+import PDFConverterTool from "../components/tools/PDFConverterTool";
 import PDFToWordTool from "../components/tools/PDFToWordTool";
 import PasswordProtectPDFTool from "../components/tools/PasswordProtectPDFTool";
 import RotatePDFTool from "../components/tools/RotatePDFTool";
@@ -25,8 +24,7 @@ const toolTitles: Record<ToolId, string> = {
   "excel-to-pdf": "Excel to PDF",
   rotate: "Rotate PDF",
   "password-protect": "Password Protect PDF",
-  "pdf-to-excel": "PDF to Excel",
-  "pdf-to-image": "PDF to Image",
+  "pdf-converter": "PDF Converter",
   "add-page-numbers": "Add Page Numbers",
   "add-watermark": "Add Watermark",
 };
@@ -57,10 +55,8 @@ export default function ToolPage({ toolId, onBack }: ToolPageProps) {
         return <RotatePDFTool />;
       case "password-protect":
         return <PasswordProtectPDFTool />;
-      case "pdf-to-excel":
-        return <PDFToExcelTool />;
-      case "pdf-to-image":
-        return <PDFToImageTool />;
+      case "pdf-converter":
+        return <PDFConverterTool />;
       case "add-page-numbers":
         return <AddPageNumbersTool />;
       case "add-watermark":

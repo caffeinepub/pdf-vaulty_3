@@ -23,8 +23,7 @@ export type ToolId =
   | "excel-to-pdf"
   | "rotate"
   | "password-protect"
-  | "pdf-to-excel"
-  | "pdf-to-image"
+  | "pdf-converter"
   | "add-page-numbers"
   | "add-watermark";
 

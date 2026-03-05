@@ -1,15 +1,14 @@
 import {
+  ArrowRightLeft,
   FileInput,
   FileText,
   Hash,
-  Image,
   Layers,
   Lock,
   Minimize2,
   RotateCw,
   Shield,
   Stamp,
-  Table2,
   Zap,
 } from "lucide-react";
 import type { ToolId } from "../App";
@@ -60,16 +59,10 @@ const tools: Tool[] = [
     description: "Convert Word, Excel, and images to PDF",
   },
   {
-    id: "pdf-to-excel",
-    icon: Table2,
-    label: "PDF to Excel",
-    description: "Convert PDF documents to editable Excel spreadsheets",
-  },
-  {
-    id: "pdf-to-image",
-    icon: Image,
-    label: "PDF to Image",
-    description: "Export PDF pages as JPG or PNG images",
+    id: "pdf-converter",
+    icon: ArrowRightLeft,
+    label: "PDF Converter",
+    description: "Convert PDF to Excel spreadsheet or JPG/PNG images",
   },
   {
     id: "add-page-numbers",

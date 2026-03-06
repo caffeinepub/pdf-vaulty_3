@@ -9,7 +9,11 @@ import {
   Loader2,
 } from "lucide-react";
 import { useState } from "react";
-import { downloadBlob } from "../../lib/pdfUtils";
+import {
+  downloadBlob,
+  ensureJSZipLoaded,
+  ensurePdfjsLoaded,
+} from "../../lib/pdfUtils";
 import FileUploadZone from "../shared/FileUploadZone";
 
 interface UploadedFile {
@@ -18,18 +22,6 @@ interface UploadedFile {
 }
 
 type ImageFormat = "jpeg" | "png";
-
-function getPdfjsLib(): PdfjsLib {
-  const lib = window.pdfjsLib;
-  if (!lib) throw new Error("pdf.js is not loaded. Please refresh the page.");
-  return lib;
-}
-
-function getJSZip(): new () => JSZipNS.JSZip {
-  const ctor = window.JSZip;
-  if (!ctor) throw new Error("JSZip is not loaded. Please refresh the page.");
-  return ctor;
-}
 
 export default function PDFToImageTool() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
@@ -58,7 +50,9 @@ export default function PDFToImageTool() {
 
     try {
       const file = uploadedFiles[0].file;
-      const pdfjsLib = getPdfjsLib();
+      await ensurePdfjsLoaded();
+      await ensureJSZipLoaded();
+      const pdfjsLib = window.pdfjsLib as PdfjsLib;
 
       setProgress("Loading PDF…");
       const arrayBuffer = await file.arrayBuffer();
@@ -114,7 +108,7 @@ export default function PDFToImageTool() {
         setProgress("");
       } else {
         setProgress("Creating ZIP archive…");
-        const JSZip = getJSZip();
+        const JSZip = window.JSZip as new () => JSZipNS.JSZip;
         const zip = new JSZip();
         for (const { name, blob } of pageBlobs) {
           zip.file(name, blob);

@@ -5,7 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Download, Eye, EyeOff, Info, Lock } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { downloadBytes, getPDFLib } from "../../lib/pdfUtils";
+import {
+  downloadBytes,
+  ensurePdfLibLoaded,
+  getPDFLib,
+} from "../../lib/pdfUtils";
 import FileUploadZone from "../shared/FileUploadZone";
 
 interface UploadedFile {
@@ -42,7 +46,7 @@ export default function PasswordProtectPDFTool() {
     try {
       const ab = await files[0].file.arrayBuffer();
 
-      // Initialize PDFDocument from CDN global inside the handler
+      await ensurePdfLibLoaded();
       const { PDFDocument } = getPDFLib();
       const pdfDoc = await PDFDocument.load(ab, { ignoreEncryption: true });
 

@@ -1,17 +1,19 @@
 import { Toaster } from "@/components/ui/sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
-import { useState } from "react";
+import { Suspense, lazy, useState } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import ProfileSetupModal from "./components/ProfileSetupModal";
+import { LanguageProvider } from "./contexts/LanguageContext";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import { useGetCallerUserProfile } from "./hooks/useQueries";
-import AnalyticsPage from "./pages/AnalyticsPage";
-import Dashboard from "./pages/Dashboard";
-import LoginPage from "./pages/LoginPage";
-import MyFilesPage from "./pages/MyFilesPage";
-import ToolPage from "./pages/ToolPage";
+
+const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const MyFilesPage = lazy(() => import("./pages/MyFilesPage"));
+const ToolPage = lazy(() => import("./pages/ToolPage"));
 
 export type ToolId =
   | "merge"
@@ -66,56 +68,76 @@ export default function App() {
     setActiveView("dashboard");
   };
 
+  const pageFallback = (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+    </div>
+  );
+
   const renderContent = () => {
     if (isInitializing) {
-      return (
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-        </div>
-      );
+      return pageFallback;
     }
 
     if (!isAuthenticated) {
-      return <LoginPage />;
+      return (
+        <Suspense fallback={pageFallback}>
+          <LoginPage />
+        </Suspense>
+      );
     }
 
     switch (activeView) {
       case "tool":
-        return activeTool ? (
-          <ToolPage toolId={activeTool} onBack={handleBack} />
-        ) : (
-          <Dashboard onSelectTool={handleSelectTool} />
+        return (
+          <Suspense fallback={pageFallback}>
+            {activeTool ? (
+              <ToolPage toolId={activeTool} onBack={handleBack} />
+            ) : (
+              <Dashboard onSelectTool={handleSelectTool} />
+            )}
+          </Suspense>
         );
       case "analytics":
         return (
-          <AnalyticsPage onNavigateToDashboard={handleNavigateToDashboard} />
+          <Suspense fallback={pageFallback}>
+            <AnalyticsPage onNavigateToDashboard={handleNavigateToDashboard} />
+          </Suspense>
         );
       case "myFiles":
         return (
-          <MyFilesPage onNavigateToDashboard={handleNavigateToDashboard} />
+          <Suspense fallback={pageFallback}>
+            <MyFilesPage onNavigateToDashboard={handleNavigateToDashboard} />
+          </Suspense>
         );
       default:
-        return <Dashboard onSelectTool={handleSelectTool} />;
+        return (
+          <Suspense fallback={pageFallback}>
+            <Dashboard onSelectTool={handleSelectTool} />
+          </Suspense>
+        );
     }
   };
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <div className="min-h-screen flex flex-col bg-background text-foreground">
-        <Header
-          isAuthenticated={isAuthenticated}
-          activeView={activeView}
-          onNavigateHome={handleNavigateToDashboard}
-          onNavigateAnalytics={() => setActiveView("analytics")}
-          onNavigateMyFiles={() => setActiveView("myFiles")}
-          onLogout={handleLogout}
-          userName={userProfile?.name}
-        />
-        <main className="flex-1">{renderContent()}</main>
-        <Footer />
-        {showProfileSetup && <ProfileSetupModal />}
-        <Toaster />
-      </div>
+      <LanguageProvider>
+        <div className="min-h-screen flex flex-col bg-background text-foreground">
+          <Header
+            isAuthenticated={isAuthenticated}
+            activeView={activeView}
+            onNavigateHome={handleNavigateToDashboard}
+            onNavigateAnalytics={() => setActiveView("analytics")}
+            onNavigateMyFiles={() => setActiveView("myFiles")}
+            onLogout={handleLogout}
+            userName={userProfile?.name}
+          />
+          <main className="flex-1">{renderContent()}</main>
+          <Footer />
+          {showProfileSetup && <ProfileSetupModal />}
+          <Toaster />
+        </div>
+      </LanguageProvider>
     </ThemeProvider>
   );
 }

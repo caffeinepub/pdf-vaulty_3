@@ -13,7 +13,13 @@ import {
   Table2,
 } from "lucide-react";
 import { useState } from "react";
-import { downloadBlob, getXLSX } from "../../lib/pdfUtils";
+import {
+  downloadBlob,
+  ensureJSZipLoaded,
+  ensurePdfjsLoaded,
+  ensureXLSXLoaded,
+  getXLSX,
+} from "../../lib/pdfUtils";
 import FileUploadZone from "../shared/FileUploadZone";
 
 interface UploadedFile {
@@ -22,20 +28,6 @@ interface UploadedFile {
 }
 
 type ConvertFormat = "excel" | "jpg" | "png";
-
-// ─── PDF.js helpers ─────────────────────────────────────────────────────────
-
-function getPdfjsLib(): PdfjsLib {
-  const lib = window.pdfjsLib;
-  if (!lib) throw new Error("pdf.js is not loaded. Please refresh the page.");
-  return lib;
-}
-
-function getJSZip(): new () => JSZipNS.JSZip {
-  const ctor = window.JSZip;
-  if (!ctor) throw new Error("JSZip is not loaded. Please refresh the page.");
-  return ctor;
-}
 
 // ─── Excel extraction helpers (from PDFToExcelTool) ──────────────────────────
 
@@ -90,8 +82,10 @@ export default function PDFConverterTool() {
   // ─── Convert to Excel ──────────────────────────────────────────────────────
 
   const handleConvertExcel = async (file: File) => {
+    await ensureXLSXLoaded();
+    await ensurePdfjsLoaded();
     const XLSX = getXLSX();
-    const pdfjsLib = getPdfjsLib();
+    const pdfjsLib = window.pdfjsLib as PdfjsLib;
 
     setProgress("Loading PDF…");
     const arrayBuffer = await file.arrayBuffer();
@@ -176,7 +170,9 @@ export default function PDFConverterTool() {
   // ─── Convert to Image ──────────────────────────────────────────────────────
 
   const handleConvertImage = async (file: File, fmt: "jpg" | "png") => {
-    const pdfjsLib = getPdfjsLib();
+    await ensurePdfjsLoaded();
+    await ensureJSZipLoaded();
+    const pdfjsLib = window.pdfjsLib as PdfjsLib;
 
     setProgress("Loading PDF…");
     const arrayBuffer = await file.arrayBuffer();
@@ -230,7 +226,7 @@ export default function PDFConverterTool() {
       setResultBlobs(pageBlobs);
     } else {
       setProgress("Creating ZIP archive…");
-      const JSZip = getJSZip();
+      const JSZip = window.JSZip as new () => JSZipNS.JSZip;
       const zip = new JSZip();
       for (const { name, blob } of pageBlobs) {
         zip.file(name, blob);

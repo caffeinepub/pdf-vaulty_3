@@ -6,26 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PDF Vaulty – Your Secure PDF Toolkit</title>
     <meta name="description" content="PDF Vaulty: merge, split, compress, convert, rotate, and protect your PDF files securely in the browser." />
-    <!-- pdf-lib -->
-    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-    <!-- jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- xlsx -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- pdf.js for canvas-based rendering (used by CompressPDF, PDFToImage) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <!-- JSZip for multi-page PDF to image ZIP export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script>
-      // Set pdf.js worker
-      if (window.pdfjsLib) {
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-      }
+    <!-- Preconnect hints for faster CDN loading -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link rel="dns-prefetch" href="https://unpkg.com" />
+    <!-- Preload logo -->
+    <link rel="preload" as="image" href="/assets/generated/pdf-vaulty-logo.dim_256x256.png" />
+    <!-- Structured data -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "PDF Vaulty",
+  "url": "https://pdfvaulty-dqb.caffeine.xyz",
+  "description": "Free online PDF toolkit. Merge, split, compress, convert, rotate and protect PDF files securely in your browser.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
     </script>
   </head>
   <body>
     <div id="root"></div>
+    <!-- PDF libraries are loaded lazily when tools are first used (no render-blocking) -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

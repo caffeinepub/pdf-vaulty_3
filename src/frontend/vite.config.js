@@ -17,7 +17,17 @@ export default defineConfig({
   build: {
     emptyOutDir: true,
     sourcemap: false,
-    minify: false,
+    minify: "esbuild",
+    cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom"],
+          "icp-agent": ["@dfinity/agent", "@dfinity/auth-client", "@dfinity/identity", "@dfinity/principal", "@dfinity/candid"],
+          "ui-vendor": ["lucide-react", "next-themes", "sonner"],
+        },
+      },
+    },
   },
   css: {
     postcss: "./postcss.config.js",

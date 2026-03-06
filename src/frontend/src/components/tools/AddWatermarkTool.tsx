@@ -9,7 +9,11 @@ import {
   Stamp,
 } from "lucide-react";
 import { useState } from "react";
-import { downloadBytes, getPDFLib } from "../../lib/pdfUtils";
+import {
+  downloadBytes,
+  ensurePdfLibLoaded,
+  getPDFLib,
+} from "../../lib/pdfUtils";
 import FileUploadZone from "../shared/FileUploadZone";
 
 interface UploadedFile {
@@ -69,6 +73,7 @@ export default function AddWatermarkTool() {
 
     try {
       const file = uploadedFiles[0].file;
+      await ensurePdfLibLoaded();
       const PDFLib = getPDFLib();
 
       setProgress("Loading PDF…");

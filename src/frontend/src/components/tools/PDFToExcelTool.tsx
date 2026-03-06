@@ -9,18 +9,17 @@ import {
   Table2,
 } from "lucide-react";
 import { useState } from "react";
-import { downloadBlob, getXLSX } from "../../lib/pdfUtils";
+import {
+  downloadBlob,
+  ensurePdfjsLoaded,
+  ensureXLSXLoaded,
+  getXLSX,
+} from "../../lib/pdfUtils";
 import FileUploadZone from "../shared/FileUploadZone";
 
 interface UploadedFile {
   file: File;
   id: string;
-}
-
-function getPdfjsLib(): PdfjsLib {
-  const lib = window.pdfjsLib;
-  if (!lib) throw new Error("pdf.js is not loaded. Please refresh the page.");
-  return lib;
 }
 
 function extractTextLinesFromPage(rawText: string): string[] {
@@ -68,8 +67,10 @@ export default function PDFToExcelTool() {
 
     try {
       const file = uploadedFiles[0].file;
+      await ensureXLSXLoaded();
+      await ensurePdfjsLoaded();
       const XLSX = getXLSX();
-      const pdfjsLib = getPdfjsLib();
+      const pdfjsLib = window.pdfjsLib as PdfjsLib;
 
       setProgress("Loading PDF…");
       const arrayBuffer = await file.arrayBuffer();

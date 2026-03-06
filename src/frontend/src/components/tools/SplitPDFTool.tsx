@@ -4,7 +4,11 @@ import { Label } from "@/components/ui/label";
 import { AlertCircle, Download, FileText, Scissors } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { downloadBytes, getPDFLib } from "../../lib/pdfUtils";
+import {
+  downloadBytes,
+  ensurePdfLibLoaded,
+  getPDFLib,
+} from "../../lib/pdfUtils";
 import FileUploadZone from "../shared/FileUploadZone";
 
 interface UploadedFile {
@@ -41,6 +45,7 @@ export default function SplitPDFTool() {
     if (newFiles.length > 0) {
       try {
         const ab = await newFiles[0].file.arrayBuffer();
+        await ensurePdfLibLoaded();
         const { PDFDocument } = getPDFLib();
         const pdf = await PDFDocument.load(ab);
         const count = pdf.getPageCount();
@@ -106,6 +111,7 @@ export default function SplitPDFTool() {
     setIsProcessing(true);
     try {
       const ab = await files[0].file.arrayBuffer();
+      await ensurePdfLibLoaded();
       const { PDFDocument } = getPDFLib();
       const srcPdf = await PDFDocument.load(ab);
       const total = srcPdf.getPageCount();

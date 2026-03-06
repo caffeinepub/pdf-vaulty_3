@@ -3,13 +3,79 @@
  * All PDF library instances are created inside functions to ensure
  * proper initialization before any PDF operations are called.
  *
- * Libraries (pdf-lib, jspdf, xlsx) are loaded via CDN in index.html
- * and accessed through window globals.
+ * Libraries (pdf-lib, jspdf, xlsx, pdf.js, jszip) are loaded lazily via CDN
+ * only when a tool is first used, avoiding render-blocking on page load.
  */
 
+// ─── Dynamic script loader ────────────────────────────────────────────────────
+
+const loadedScripts = new Set<string>();
+
+function loadScript(src: string): Promise<void> {
+  if (loadedScripts.has(src)) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${src}"]`);
+    if (existing) {
+      loadedScripts.add(src);
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = () => {
+      loadedScripts.add(src);
+      resolve();
+    };
+    script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+    document.head.appendChild(script);
+  });
+}
+
+// ─── Lazy library loaders ─────────────────────────────────────────────────────
+
+export async function ensurePdfLibLoaded(): Promise<void> {
+  if (window.PDFLib) return;
+  await loadScript("https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js");
+}
+
+export async function ensureJsPDFLoaded(): Promise<void> {
+  if (window.jspdf) return;
+  await loadScript(
+    "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+  );
+}
+
+export async function ensureXLSXLoaded(): Promise<void> {
+  if (window.XLSX) return;
+  await loadScript(
+    "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js",
+  );
+}
+
+export async function ensurePdfjsLoaded(): Promise<void> {
+  if (window.pdfjsLib) return;
+  await loadScript(
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+  );
+  // Set worker after library loads
+  const pdfjs = window.pdfjsLib as PdfjsLib | undefined;
+  if (pdfjs && !pdfjs.GlobalWorkerOptions.workerSrc) {
+    pdfjs.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+}
+
+export async function ensureJSZipLoaded(): Promise<void> {
+  if (window.JSZip) return;
+  await loadScript(
+    "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+  );
+}
+
+// ─── Synchronous accessors (call after ensuring library is loaded) ────────────
+
 /**
- * Returns the PDFLib global (loaded via CDN).
- * Throws a clear error if the library hasn't loaded yet.
+ * Returns the PDFLib global. Call ensurePdfLibLoaded() first.
  */
 export function getPDFLib(): typeof PDFLib {
   if (!window.PDFLib) {
@@ -21,8 +87,7 @@ export function getPDFLib(): typeof PDFLib {
 }
 
 /**
- * Returns the jsPDF constructor (loaded via CDN).
- * Throws a clear error if the library hasn't loaded yet.
+ * Returns the jsPDF constructor. Call ensureJsPDFLoaded() first.
  */
 export function getJsPDF(): typeof jspdf.jsPDF {
   const lib = window.jspdf;
@@ -35,8 +100,7 @@ export function getJsPDF(): typeof jspdf.jsPDF {
 }
 
 /**
- * Returns the XLSX global (loaded via CDN).
- * Throws a clear error if the library hasn't loaded yet.
+ * Returns the XLSX global. Call ensureXLSXLoaded() first.
  */
 export function getXLSX(): typeof XLSXLib {
   if (!window.XLSX) {

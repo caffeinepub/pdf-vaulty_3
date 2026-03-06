@@ -2,7 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Download, FileText, RotateCw } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { downloadBytes, getPDFLib } from "../../lib/pdfUtils";
+import {
+  downloadBytes,
+  ensurePdfLibLoaded,
+  getPDFLib,
+} from "../../lib/pdfUtils";
 import FileUploadZone from "../shared/FileUploadZone";
 
 interface UploadedFile {
@@ -28,6 +32,7 @@ export default function RotatePDFTool() {
     if (newFiles.length > 0) {
       try {
         const ab = await newFiles[0].file.arrayBuffer();
+        await ensurePdfLibLoaded();
         const { PDFDocument } = getPDFLib();
         const pdf = await PDFDocument.load(ab);
         setPageCount(pdf.getPageCount());
@@ -45,7 +50,7 @@ export default function RotatePDFTool() {
     setIsProcessing(true);
     try {
       const ab = await files[0].file.arrayBuffer();
-      // Initialize PDFDocument and degrees from CDN global inside the handler
+      await ensurePdfLibLoaded();
       const { PDFDocument, degrees } = getPDFLib();
       const pdfDoc = await PDFDocument.load(ab);
       const pages = pdfDoc.getPages();

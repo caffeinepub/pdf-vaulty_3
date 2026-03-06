@@ -1,5 +1,6 @@
 import {
   ArrowRightLeft,
+  ChevronDown,
   FileInput,
   FileText,
   Hash,
@@ -11,7 +12,9 @@ import {
   Stamp,
   Zap,
 } from "lucide-react";
+import { useMemo, useState } from "react";
 import type { ToolId } from "../App";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface Tool {
   id: ToolId;
@@ -20,74 +23,126 @@ interface Tool {
   description: string;
 }
 
-const tools: Tool[] = [
-  {
-    id: "merge",
-    icon: Layers,
-    label: "Merge PDFs",
-    description: "Combine multiple PDF files into a single document",
-  },
-  {
-    id: "split",
-    icon: FileText,
-    label: "Split PDFs",
-    description:
-      "Extract specific pages or split documents into separate files",
-  },
-  {
-    id: "compress",
-    icon: Minimize2,
-    label: "Compress PDFs",
-    description: "Reduce file size while maintaining quality",
-  },
-  {
-    id: "password-protect",
-    icon: Lock,
-    label: "Protect PDFs",
-    description: "Add or remove password protection from your documents",
-  },
-  {
-    id: "rotate",
-    icon: RotateCw,
-    label: "Rotate PDFs",
-    description: "Rotate PDF pages by 90, 180, or 270 degrees",
-  },
-  {
-    id: "image-to-pdf",
-    icon: FileInput,
-    label: "Convert into PDF",
-    description: "Convert Word, Excel, and images to PDF",
-  },
-  {
-    id: "pdf-converter",
-    icon: ArrowRightLeft,
-    label: "PDF Converter",
-    description: "Convert PDF to Excel spreadsheet or JPG/PNG images",
-  },
-  {
-    id: "add-page-numbers",
-    icon: Hash,
-    label: "Add Page Numbers",
-    description: "Stamp page numbers onto your PDF document",
-  },
-  {
-    id: "add-watermark",
-    icon: Stamp,
-    label: "Add Watermark",
-    description: "Overlay custom watermark text on your PDF",
-  },
-];
-
 interface DashboardProps {
   onSelectTool: (id: ToolId) => void;
   userName?: string;
 }
 
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
 export default function Dashboard({ onSelectTool }: DashboardProps) {
+  const { t } = useLanguage();
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const tools: Tool[] = useMemo(
+    () => [
+      {
+        id: "merge",
+        icon: Layers,
+        label: t("tool.merge.label"),
+        description: t("tool.merge.desc"),
+      },
+      {
+        id: "split",
+        icon: FileText,
+        label: t("tool.split.label"),
+        description: t("tool.split.desc"),
+      },
+      {
+        id: "compress",
+        icon: Minimize2,
+        label: t("tool.compress.label"),
+        description: t("tool.compress.desc"),
+      },
+      {
+        id: "password-protect",
+        icon: Lock,
+        label: t("tool.protect.label"),
+        description: t("tool.protect.desc"),
+      },
+      {
+        id: "rotate",
+        icon: RotateCw,
+        label: t("tool.rotate.label"),
+        description: t("tool.rotate.desc"),
+      },
+      {
+        id: "image-to-pdf",
+        icon: FileInput,
+        label: t("tool.imageToPdf.label"),
+        description: t("tool.imageToPdf.desc"),
+      },
+      {
+        id: "pdf-converter",
+        icon: ArrowRightLeft,
+        label: t("tool.converter.label"),
+        description: t("tool.converter.desc"),
+      },
+      {
+        id: "add-page-numbers",
+        icon: Hash,
+        label: t("tool.pageNumbers.label"),
+        description: t("tool.pageNumbers.desc"),
+      },
+      {
+        id: "add-watermark",
+        icon: Stamp,
+        label: t("tool.watermark.label"),
+        description: t("tool.watermark.desc"),
+      },
+    ],
+    [t],
+  );
+
+  const faqItems: FaqItem[] = useMemo(
+    () => [
+      {
+        question: t("faq.q1"),
+        answer: t("faq.a1"),
+      },
+      {
+        question: t("faq.q2"),
+        answer: t("faq.a2"),
+      },
+      {
+        question: t("faq.q3"),
+        answer: t("faq.a3"),
+      },
+      {
+        question: t("faq.q4"),
+        answer: t("faq.a4"),
+      },
+      {
+        question: t("faq.q5"),
+        answer: t("faq.a5"),
+      },
+      {
+        question: t("faq.q6"),
+        answer: t("faq.a6"),
+      },
+      {
+        question: t("faq.q7"),
+        answer: t("faq.a7"),
+      },
+      {
+        question: t("faq.q8"),
+        answer: t("faq.a8"),
+      },
+    ],
+    [t],
+  );
+
   const scrollToTools = () => {
     document
       .getElementById("tools-section")
       ?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const toggleFaq = (idx: number) => {
+    setOpenFaq((prev) => (prev === idx ? null : idx));
   };
 
   return (
@@ -104,19 +159,28 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
         />
         <div className="relative z-10 max-w-3xl mx-auto">
           <h1 className="text-5xl sm:text-6xl font-black text-gray-900 dark:text-white mb-5 leading-tight tracking-tight">
-            Your Complete{" "}
-            <span className="text-blue-600 dark:text-blue-400">PDF Vaulty</span>
+            {t("hero.title").split("PDF Vaulty").length > 1 ? (
+              <>
+                {t("hero.title").split("PDF Vaulty")[0]}
+                <span className="text-blue-600 dark:text-blue-400">
+                  PDF Vaulty
+                </span>
+                {t("hero.title").split("PDF Vaulty")[1]}
+              </>
+            ) : (
+              t("hero.title")
+            )}
           </h1>
           <p className="text-lg text-gray-500 dark:text-white/60 mb-8 max-w-xl mx-auto leading-relaxed">
-            Merge, split, compress, and manage your PDF files with ease. All
-            tools in one place.
+            {t("hero.subtitle")}
           </p>
           <button
             type="button"
             onClick={scrollToTools}
+            data-ocid="dashboard.primary_button"
             className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors text-base shadow-md shadow-blue-600/20"
           >
-            Get Started
+            {t("hero.cta")}
           </button>
         </div>
       </section>
@@ -129,22 +193,26 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
         {/* Section heading */}
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Powerful PDF Tools
+            {t("tools.heading")}
           </h2>
           <p className="text-blue-600 dark:text-white/50 text-base">
-            Everything you need to work with PDF files
+            {t("tools.subheading")}
           </p>
         </div>
 
         {/* 2-column tool grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {tools.map((tool) => {
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          data-ocid="dashboard.tools.list"
+        >
+          {tools.map((tool, idx) => {
             const Icon = tool.icon;
             return (
               <button
                 type="button"
                 key={tool.id}
                 onClick={() => onSelectTool(tool.id)}
+                data-ocid={`dashboard.tools.item.${idx + 1}`}
                 className="group flex flex-col items-start p-6 rounded-xl text-left transition-all duration-200 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-white/[0.08] hover:border-blue-300 dark:hover:border-white/20 hover:shadow-md"
               >
                 {/* Icon box */}
@@ -173,10 +241,10 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
             </div>
             <div>
               <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1">
-                Easy to Use
+                {t("feature.easy.title")}
               </h3>
               <p className="text-gray-500 dark:text-white/50 text-sm leading-relaxed">
-                Simple and intuitive interface for all your PDF needs
+                {t("feature.easy.desc")}
               </p>
             </div>
           </div>
@@ -188,10 +256,10 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
             </div>
             <div>
               <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1">
-                Secure &amp; Private
+                {t("feature.secure.title")}
               </h3>
               <p className="text-gray-500 dark:text-white/50 text-sm leading-relaxed">
-                Your files are processed securely and never shared
+                {t("feature.secure.desc")}
               </p>
             </div>
           </div>
@@ -203,12 +271,65 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
             </div>
             <div>
               <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1">
-                Powerful Tools
+                {t("feature.powerful.title")}
               </h3>
               <p className="text-gray-500 dark:text-white/50 text-sm leading-relaxed">
-                Professional-grade PDF tools at your fingertips
+                {t("feature.powerful.desc")}
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section
+        className="py-16 px-4 bg-white dark:bg-[#0a0a0a]"
+        data-ocid="dashboard.faq.section"
+      >
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              {t("faq.heading")}
+            </h2>
+            <p className="text-gray-500 dark:text-white/50 text-base">
+              {t("faq.subheading")}
+            </p>
+          </div>
+
+          <div
+            className="divide-y divide-gray-200 dark:divide-white/[0.08]"
+            data-ocid="dashboard.faq.list"
+          >
+            {faqItems.map((item, idx) => (
+              <div
+                key={item.question}
+                data-ocid={`dashboard.faq.item.${idx + 1}`}
+              >
+                <button
+                  type="button"
+                  onClick={() => toggleFaq(idx)}
+                  data-ocid={`dashboard.faq.toggle.${idx + 1}`}
+                  className="w-full flex items-center justify-between py-5 text-left gap-4 group"
+                  aria-expanded={openFaq === idx}
+                >
+                  <span className="font-semibold text-gray-900 dark:text-white text-base leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {item.question}
+                  </span>
+                  <ChevronDown
+                    className={`w-5 h-5 flex-shrink-0 text-gray-400 dark:text-white/40 transition-transform duration-200 ${
+                      openFaq === idx ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {openFaq === idx && (
+                  <div className="pb-5">
+                    <p className="text-gray-500 dark:text-white/60 text-sm leading-relaxed">
+                      {item.answer}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>

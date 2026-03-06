@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Image as ImageIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { getJsPDF } from "../../lib/pdfUtils";
+import { ensureJsPDFLoaded, getJsPDF } from "../../lib/pdfUtils";
 import FileUploadZone from "../shared/FileUploadZone";
 
 interface UploadedFile {
@@ -41,7 +41,7 @@ export default function ImageToPDFTool() {
     }
     setIsProcessing(true);
     try {
-      // Initialize jsPDF from CDN global inside the handler
+      await ensureJsPDFLoaded();
       const JsPDF = getJsPDF();
       const doc = new JsPDF({ unit: "px", hotfixes: ["px_scaling"] });
       let isFirstPage = true;

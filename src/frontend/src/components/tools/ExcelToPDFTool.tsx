@@ -3,7 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Download, FileSpreadsheet, Info } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { getJsPDF, getXLSX } from "../../lib/pdfUtils";
+import {
+  ensureJsPDFLoaded,
+  ensureXLSXLoaded,
+  getJsPDF,
+  getXLSX,
+} from "../../lib/pdfUtils";
 import FileUploadZone from "../shared/FileUploadZone";
 
 interface UploadedFile {
@@ -24,7 +29,8 @@ export default function ExcelToPDFTool() {
     try {
       const ab = await files[0].file.arrayBuffer();
 
-      // Get XLSX and jsPDF from CDN globals inside the handler
+      await ensureXLSXLoaded();
+      await ensureJsPDFLoaded();
       const XLSX = getXLSX();
       const workbook = XLSX.read(ab, { type: "array" });
 

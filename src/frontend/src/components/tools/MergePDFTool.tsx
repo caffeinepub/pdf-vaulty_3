@@ -2,7 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Download, Merge } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { downloadBytes, getPDFLib } from "../../lib/pdfUtils";
+import {
+  downloadBytes,
+  ensurePdfLibLoaded,
+  getPDFLib,
+} from "../../lib/pdfUtils";
 import FileUploadZone from "../shared/FileUploadZone";
 
 interface UploadedFile {
@@ -21,7 +25,7 @@ export default function MergePDFTool() {
     }
     setIsProcessing(true);
     try {
-      // Initialize PDFDocument from CDN global inside the handler
+      await ensurePdfLibLoaded();
       const { PDFDocument } = getPDFLib();
       const mergedPdf = await PDFDocument.create();
 

@@ -8,44 +8,49 @@ import {
   Shield,
   Zap,
 } from "lucide-react";
+import { useMemo } from "react";
+import { useLanguage } from "../contexts/LanguageContext";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
-
-const tools = [
-  {
-    icon: Layers,
-    label: "Merge PDFs",
-    description: "Combine multiple PDF files into a single document",
-  },
-  {
-    icon: FileText,
-    label: "Split PDFs",
-    description:
-      "Extract specific pages or split documents into separate files",
-  },
-  {
-    icon: Minimize2,
-    label: "Compress PDFs",
-    description: "Reduce file size while maintaining quality",
-  },
-  {
-    icon: Lock,
-    label: "Protect PDFs",
-    description: "Add or remove password protection from your documents",
-  },
-  {
-    icon: RotateCw,
-    label: "Rotate PDFs",
-    description: "Rotate PDF pages by 90, 180, or 270 degrees",
-  },
-  {
-    icon: FileInput,
-    label: "Convert into PDF",
-    description: "Convert Word, Excel, and images to PDF",
-  },
-];
 
 export default function LoginPage() {
   const { login, isLoggingIn } = useInternetIdentity();
+  const { t } = useLanguage();
+
+  const tools = useMemo(
+    () => [
+      {
+        icon: Layers,
+        label: t("tool.merge.label"),
+        description: t("tool.merge.desc"),
+      },
+      {
+        icon: FileText,
+        label: t("tool.split.label"),
+        description: t("tool.split.desc"),
+      },
+      {
+        icon: Minimize2,
+        label: t("tool.compress.label"),
+        description: t("tool.compress.desc"),
+      },
+      {
+        icon: Lock,
+        label: t("tool.protect.label"),
+        description: t("tool.protect.desc"),
+      },
+      {
+        icon: RotateCw,
+        label: t("tool.rotate.label"),
+        description: t("tool.rotate.desc"),
+      },
+      {
+        icon: FileInput,
+        label: t("tool.imageToPdf.label"),
+        description: t("tool.imageToPdf.desc"),
+      },
+    ],
+    [t],
+  );
 
   const scrollToTools = () => {
     document
@@ -67,19 +72,28 @@ export default function LoginPage() {
         />
         <div className="relative z-10 max-w-3xl mx-auto">
           <h1 className="text-5xl sm:text-6xl font-black text-gray-900 dark:text-white mb-5 leading-tight tracking-tight">
-            Your Complete{" "}
-            <span className="text-blue-600 dark:text-blue-400">PDF Vaulty</span>
+            {t("login.title").split("PDF Vaulty").length > 1 ? (
+              <>
+                {t("login.title").split("PDF Vaulty")[0]}
+                <span className="text-blue-600 dark:text-blue-400">
+                  PDF Vaulty
+                </span>
+                {t("login.title").split("PDF Vaulty")[1]}
+              </>
+            ) : (
+              t("login.title")
+            )}
           </h1>
           <p className="text-lg text-gray-500 dark:text-white/60 mb-8 max-w-xl mx-auto leading-relaxed">
-            Merge, split, compress, and manage your PDF files with ease. All
-            tools in one place.
+            {t("login.subtitle")}
           </p>
           <button
             type="button"
             onClick={scrollToTools}
+            data-ocid="login.primary_button"
             className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors text-base shadow-md shadow-blue-600/20"
           >
-            Get Started
+            {t("hero.cta")}
           </button>
         </div>
       </section>
@@ -92,10 +106,10 @@ export default function LoginPage() {
         {/* Section heading */}
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Powerful PDF Tools
+            {t("tools.heading")}
           </h2>
           <p className="text-blue-600 dark:text-white/50 text-base">
-            Everything you need to work with PDF files
+            {t("tools.subheading")}
           </p>
         </div>
 
@@ -126,12 +140,13 @@ export default function LoginPage() {
         {/* Login CTA */}
         <div className="mt-10 text-center">
           <p className="text-gray-500 dark:text-white/50 text-sm mb-4">
-            Sign in to start using all PDF tools
+            {t("login.cta")}
           </p>
           <button
             type="button"
             onClick={login}
             disabled={isLoggingIn}
+            data-ocid="login.submit_button"
             className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors text-base shadow-md shadow-blue-600/20 disabled:opacity-50"
           >
             {isLoggingIn ? (
@@ -156,10 +171,10 @@ export default function LoginPage() {
                     d="M4 12a8 8 0 018-8v8H4z"
                   />
                 </svg>
-                Logging in...
+                {t("nav.loggingIn")}
               </span>
             ) : (
-              "Login to Get Started"
+              t("login.button")
             )}
           </button>
         </div>
@@ -175,10 +190,10 @@ export default function LoginPage() {
             </div>
             <div>
               <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1">
-                Easy to Use
+                {t("feature.easy.title")}
               </h3>
               <p className="text-gray-500 dark:text-white/50 text-sm leading-relaxed">
-                Simple and intuitive interface for all your PDF needs
+                {t("feature.easy.desc")}
               </p>
             </div>
           </div>
@@ -190,10 +205,10 @@ export default function LoginPage() {
             </div>
             <div>
               <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1">
-                Secure &amp; Private
+                {t("feature.secure.title")}
               </h3>
               <p className="text-gray-500 dark:text-white/50 text-sm leading-relaxed">
-                Your files are processed securely and never shared
+                {t("feature.secure.desc")}
               </p>
             </div>
           </div>
@@ -205,10 +220,10 @@ export default function LoginPage() {
             </div>
             <div>
               <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1">
-                Powerful Tools
+                {t("feature.powerful.title")}
               </h3>
               <p className="text-gray-500 dark:text-white/50 text-sm leading-relaxed">
-                Professional-grade PDF tools at your fingertips
+                {t("feature.powerful.desc")}
               </p>
             </div>
           </div>

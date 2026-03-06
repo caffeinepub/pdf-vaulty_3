@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Download, FileText, Info } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { getJsPDF } from "../../lib/pdfUtils";
+import { ensureJsPDFLoaded, getJsPDF } from "../../lib/pdfUtils";
 import FileUploadZone from "../shared/FileUploadZone";
 
 interface UploadedFile {
@@ -25,7 +25,7 @@ export default function WordToPDFTool() {
       const ab = await files[0].file.arrayBuffer();
       const text = await extractTextFromDocx(ab);
 
-      // Initialize jsPDF from CDN global inside the handler
+      await ensureJsPDFLoaded();
       const JsPDF = getJsPDF();
       const doc = new JsPDF({ unit: "mm", format: "a4" });
       const pageWidth = doc.internal.pageSize.getWidth();

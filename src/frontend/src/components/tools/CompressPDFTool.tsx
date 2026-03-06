@@ -1,6 +1,11 @@
 import FileUploadZone from "@/components/shared/FileUploadZone";
 import { Button } from "@/components/ui/button";
-import { formatBytes, getPDFLib } from "@/lib/pdfUtils";
+import {
+  ensurePdfLibLoaded,
+  ensurePdfjsLoaded,
+  formatBytes,
+  getPDFLib,
+} from "@/lib/pdfUtils";
 import { AlertCircle, CheckCircle, Download, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 
@@ -16,16 +21,13 @@ interface CompressionResult {
   fileName: string;
 }
 
-// Access pdf.js from CDN global
-function getPdfjsLib(): PdfjsLib {
-  const lib = window.pdfjsLib;
-  if (!lib) throw new Error("pdf.js not loaded. Please refresh the page.");
-  return lib;
-}
-
 async function compressPDFCanvas(file: File): Promise<CompressionResult> {
+  // Load libraries on demand
+  await ensurePdfLibLoaded();
+  await ensurePdfjsLoaded();
+
   const PDFLib = getPDFLib();
-  const pdfjsLib = getPdfjsLib();
+  const pdfjsLib = window.pdfjsLib as PdfjsLib;
 
   // Standard compression settings
   const scale = 0.85;

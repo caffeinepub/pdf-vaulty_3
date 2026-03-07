@@ -1,5 +1,11 @@
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
-import { Eye, Globe, Moon, Sun } from "lucide-react";
+import { Globe, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import type { AppView } from "../App";
@@ -115,48 +121,74 @@ export default function Header({
             </button>
 
             {/* Nav links */}
-            <nav className="hidden sm:flex flex-row items-center gap-1">
-              <button
-                type="button"
-                onClick={onNavigateHome}
-                data-ocid="nav.home.button"
-                className={`${navLinkBase} ${isDashboard ? navLinkActive : navLinkInactive}`}
-              >
-                {t("nav.home")}
-              </button>
-              <button
-                type="button"
-                onClick={isAuthenticated ? onNavigateAnalytics : undefined}
-                disabled={!isAuthenticated}
-                data-ocid="nav.analytics.button"
-                className={`${navLinkBase} ${
-                  activeView === "analytics" ? navLinkActive : navLinkInactive
-                } disabled:opacity-40 disabled:cursor-not-allowed`}
-              >
-                {t("nav.analytics")}
-              </button>
-              <button
-                type="button"
-                onClick={isAuthenticated ? onNavigateMyFiles : undefined}
-                disabled={!isAuthenticated}
-                data-ocid="nav.myfiles.button"
-                className={`${navLinkBase} ${
-                  activeView === "myFiles" ? navLinkActive : navLinkInactive
-                } disabled:opacity-40 disabled:cursor-not-allowed`}
-              >
-                {t("nav.myFiles")}
-              </button>
-            </nav>
+            <TooltipProvider delayDuration={300}>
+              <nav className="hidden sm:flex flex-row items-center gap-1">
+                <button
+                  type="button"
+                  onClick={onNavigateHome}
+                  data-ocid="nav.home.button"
+                  className={`${navLinkBase} ${isDashboard ? navLinkActive : navLinkInactive}`}
+                >
+                  {t("nav.home")}
+                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <button
+                        type="button"
+                        onClick={
+                          isAuthenticated ? onNavigateAnalytics : undefined
+                        }
+                        disabled={!isAuthenticated}
+                        data-ocid="nav.analytics.button"
+                        className={`${navLinkBase} ${
+                          activeView === "analytics"
+                            ? navLinkActive
+                            : navLinkInactive
+                        } disabled:opacity-40 disabled:cursor-not-allowed`}
+                      >
+                        {t("nav.analytics")}
+                      </button>
+                    </span>
+                  </TooltipTrigger>
+                  {!isAuthenticated && (
+                    <TooltipContent data-ocid="nav.analytics.tooltip">
+                      <p>Login required</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <button
+                        type="button"
+                        onClick={
+                          isAuthenticated ? onNavigateMyFiles : undefined
+                        }
+                        disabled={!isAuthenticated}
+                        data-ocid="nav.myfiles.button"
+                        className={`${navLinkBase} ${
+                          activeView === "myFiles"
+                            ? navLinkActive
+                            : navLinkInactive
+                        } disabled:opacity-40 disabled:cursor-not-allowed`}
+                      >
+                        {t("nav.myFiles")}
+                      </button>
+                    </span>
+                  </TooltipTrigger>
+                  {!isAuthenticated && (
+                    <TooltipContent data-ocid="nav.myfiles.tooltip">
+                      <p>Login required</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </nav>
+            </TooltipProvider>
           </div>
 
           {/* Right side */}
           <div className="flex flex-row items-center gap-2 flex-shrink-0">
-            {/* View count */}
-            <div className="hidden sm:flex flex-row items-center gap-1.5 text-gray-500 dark:text-gray-400 text-sm whitespace-nowrap">
-              <Eye className="w-4 h-4 flex-shrink-0" />
-              <span>1 views</span>
-            </div>
-
             {/* User name */}
             {isAuthenticated && userName && (
               <span className="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">

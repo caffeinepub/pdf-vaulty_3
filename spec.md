@@ -1,24 +1,49 @@
 # PDF Vaulty
 
 ## Current State
-The app requires users to log in before accessing anything. `App.tsx` renders `<LoginPage />` for all unauthenticated users (lines 82–88), blocking access to the dashboard and all PDF tools. The app's own copy says login is only needed for "My Files", but the code enforces login universally. There is no guest-friendly flow.
+- Full-stack PDF toolkit with 12 tools: Merge, Split, Compress, Image to PDF, PDF to Word, Word to PDF, Excel to PDF, Rotate, Password Protect, PDF Converter, Add Page Numbers, Add Watermark
+- Multi-language support (EN, AR, FR, ES, HI, PT) with RTL for Arabic
+- Internet Identity login with per-user private file storage (My Files)
+- Dark/light theme toggle
+- Analytics page exists but shows hardcoded zeros — no real tracking
+- Header shows hardcoded "1 views" text — never updates
+- Orphaned tool files in components/tools/: PDFToExcelTool.tsx, PDFToImageTool.tsx, PowerPointToPDFTool.tsx (never imported or used)
+- Analytics and My Files nav buttons are disabled for guests with no explanation tooltip
+- ToolPage already has one-time save banner logic and login gate removed from the app router — but the App.tsx router previously had an issue forcing login; currently the code looks correct (only myFiles/analytics redirect to login)
+- Performance is sub-optimal: mobile ~63, desktop ~64 due to render-blocking and large bundles
+- All pages are already lazy-loaded via React.lazy in App.tsx
+- Backend has real file storage (saveFile, getMyFiles, deleteFile) but no analytics tracking endpoints
 
 ## Requested Changes (Diff)
 
 ### Add
-- A one-time "Save to My Files" banner/toast shown to guest users **after** a PDF conversion completes — displayed only once per browser session (stored in `sessionStorage`). The banner invites the user to log in to save their file, with a login button. It never appears again during the same session, even if they use multiple tools.
+- Real analytics tracking: use localStorage to persist per-user tool usage counts (totalOperations, filesProcessed, toolsUsed map keyed by toolId) — since backend has no analytics endpoint, use localStorage with a custom hook `useAnalytics`
+- `useAnalytics` hook: exports `trackToolUse(toolId)` and `getAnalytics()` functions, reads/writes from localStorage key `pdfvaulty_analytics`
+- Wire `trackToolUse` into ToolPage so every time a tool download completes (or tool is used), it records the event
+- AnalyticsPage: read real data from `useAnalytics` hook and display live counts
+- Tooltip wrapper on disabled Analytics and My Files nav buttons: show "Login required" tooltip on hover for guest users
+- Performance: move tool component imports in ToolPage.tsx from static imports to dynamic `React.lazy` imports inside `renderTool()`, so each PDF tool only loads when opened
 
 ### Modify
-- `App.tsx`: Remove the login gate. Unauthenticated users should see the Dashboard and can use all tools freely. Only navigating to "My Files" or "Analytics" should redirect to the login page.
-- `App.tsx`: Pass `isAuthenticated` down to `ToolPage` so tools can trigger the one-time save recommendation after conversion.
-- `ToolPage.tsx`: Accept `isAuthenticated` and an `onRequestLogin` callback prop. After a successful conversion (download), show the one-time save recommendation banner if the user is not authenticated and the session flag has not been set.
-- The `LoginPage` remains accessible for direct navigation but is no longer shown as a full-page gate on first load.
+- Header.tsx: remove the hardcoded "1 views" / Eye icon block entirely (lines 155–158)
+- ToolPage.tsx: replace 12 static tool imports at the top with lazy dynamic imports; pass `trackToolUse` call into tool download events
+- AnalyticsPage.tsx: replace all hardcoded `0` values with real data from `useAnalytics` hook
+- Header.tsx: wrap disabled Analytics and My Files buttons with a tooltip that says "Login required to access"
 
 ### Remove
-- Nothing is removed from existing features. The login page remains as a reachable page (when user clicks Login from header or is redirected from My Files).
+- `frontend/src/components/tools/PDFToExcelTool.tsx` — orphaned, never used
+- `frontend/src/components/tools/PDFToImageTool.tsx` — orphaned, never used
+- `frontend/src/components/tools/PowerPointToPDFTool.tsx` — orphaned, never used
 
 ## Implementation Plan
-1. In `App.tsx`, change `renderContent()` so unauthenticated users see the `Dashboard` (not `LoginPage`). Only redirect to `LoginPage` when `activeView === "myFiles"` or `"analytics"` and user is not authenticated.
-2. Pass `isAuthenticated` and a `handleRequestLogin` callback (which sets `activeView` to a login state or triggers `login()`) into `ToolPage`.
-3. In `ToolPage.tsx`, after a tool signals conversion complete, check: is guest? has the session flag `pdfvaulty_save_prompt_shown` been set in `sessionStorage`? If not, display a dismissible inline banner prompting login, then set the flag so it never shows again this session.
-4. The banner should be subtle — a small card below the download button, not a modal. It should have a "Log in to save" button and an "X" dismiss. Once dismissed or after login is initiated, set the sessionStorage flag.
+1. Create `frontend/src/hooks/useAnalytics.ts` — localStorage-based analytics hook with `trackToolUse(toolId)` and `getAnalytics()` returning `{ totalOperations, filesProcessed, byTool: Record<ToolId, number> }`
+2. Update `ToolPage.tsx`:
+   - Replace 12 static tool imports with React.lazy dynamic imports (each tool loads only when needed)
+   - Accept optional `onToolUsed?: (toolId: ToolId) => void` prop or call `trackToolUse` directly on download detection
+3. Update `App.tsx`: pass `trackToolUse` from `useAnalytics` down to `ToolPage` via prop
+4. Update `AnalyticsPage.tsx`: call `getAnalytics()` from hook, show real counts in stat cards and per-tool breakdown bars
+5. Update `Header.tsx`:
+   - Remove hardcoded "1 views" Eye icon block
+   - Wrap disabled Analytics and My Files buttons with a Tooltip component showing "Login required"
+6. Delete orphaned files: PDFToExcelTool.tsx, PDFToImageTool.tsx, PowerPointToPDFTool.tsx
+7. Validate: typecheck, lint, build

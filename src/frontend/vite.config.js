@@ -17,21 +17,7 @@ export default defineConfig({
   build: {
     emptyOutDir: true,
     sourcemap: false,
-    minify: "esbuild",
-    cssMinify: true,
-    chunkSizeWarningLimit: 600,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // Core React runtime — tiny, cached immediately
-          "vendor-react": ["react", "react-dom"],
-          // ICP/auth — large but only loaded once
-          "vendor-icp": ["@dfinity/agent", "@dfinity/identity", "@dfinity/auth-client", "@dfinity/candid", "@dfinity/principal"],
-          // UI library
-          "vendor-ui": ["lucide-react", "next-themes", "motion"],
-        },
-      },
-    },
+    minify: false,
   },
   css: {
     postcss: "./postcss.config.js",

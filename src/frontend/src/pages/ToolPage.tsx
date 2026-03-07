@@ -1,20 +1,39 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BookmarkPlus, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import type { ToolId } from "../App";
-import AddPageNumbersTool from "../components/tools/AddPageNumbersTool";
-import AddWatermarkTool from "../components/tools/AddWatermarkTool";
-import CompressPDFTool from "../components/tools/CompressPDFTool";
-import ExcelToPDFTool from "../components/tools/ExcelToPDFTool";
-import ImageToPDFTool from "../components/tools/ImageToPDFTool";
-import MergePDFTool from "../components/tools/MergePDFTool";
-import PDFConverterTool from "../components/tools/PDFConverterTool";
-import PDFToWordTool from "../components/tools/PDFToWordTool";
-import PasswordProtectPDFTool from "../components/tools/PasswordProtectPDFTool";
-import RotatePDFTool from "../components/tools/RotatePDFTool";
-import SplitPDFTool from "../components/tools/SplitPDFTool";
-import WordToPDFTool from "../components/tools/WordToPDFTool";
+import { useAnalytics } from "../hooks/useAnalytics";
+
+const AddPageNumbersTool = lazy(
+  () => import("../components/tools/AddPageNumbersTool"),
+);
+const AddWatermarkTool = lazy(
+  () => import("../components/tools/AddWatermarkTool"),
+);
+const CompressPDFTool = lazy(
+  () => import("../components/tools/CompressPDFTool"),
+);
+const ExcelToPDFTool = lazy(() => import("../components/tools/ExcelToPDFTool"));
+const ImageToPDFTool = lazy(() => import("../components/tools/ImageToPDFTool"));
+const MergePDFTool = lazy(() => import("../components/tools/MergePDFTool"));
+const PDFConverterTool = lazy(
+  () => import("../components/tools/PDFConverterTool"),
+);
+const PDFToWordTool = lazy(() => import("../components/tools/PDFToWordTool"));
+const PasswordProtectPDFTool = lazy(
+  () => import("../components/tools/PasswordProtectPDFTool"),
+);
+const RotatePDFTool = lazy(() => import("../components/tools/RotatePDFTool"));
+const SplitPDFTool = lazy(() => import("../components/tools/SplitPDFTool"));
+const WordToPDFTool = lazy(() => import("../components/tools/WordToPDFTool"));
 
 interface ToolMeta {
   title: string;
@@ -86,6 +105,12 @@ const toolMeta: Record<ToolId, ToolMeta> = {
 
 const SESSION_KEY = "pdfvaulty_save_prompt_shown";
 
+const toolSpinner = (
+  <div className="flex items-center justify-center py-16">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+  </div>
+);
+
 interface ToolPageProps {
   toolId: ToolId;
   onBack: () => void;
@@ -100,6 +125,7 @@ export default function ToolPage({
   onRequestLogin,
 }: ToolPageProps) {
   const meta = toolMeta[toolId];
+  const { trackToolUse } = useAnalytics();
 
   // One-time save banner state
   const [bannerVisible, setBannerVisible] = useState(false);
@@ -115,9 +141,6 @@ export default function ToolPage({
   // Listen for any download action inside the tool area
   const handleToolAreaClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (isAuthenticated) return;
-      if (sessionStorage.getItem(SESSION_KEY)) return;
-
       const target = e.target as HTMLElement;
 
       // Walk up to 5 ancestor levels to find a download button or anchor
@@ -133,14 +156,20 @@ export default function ToolPage({
           (text.includes("download") || text.includes("save"));
 
         if (isDownloadLink || isDownloadButton) {
-          // Small delay so the download starts before banner appears
-          setTimeout(() => setBannerVisible(true), 400);
+          // Track tool usage in analytics
+          trackToolUse(toolId);
+
+          // Show one-time save banner for unauthenticated users
+          if (!isAuthenticated && !sessionStorage.getItem(SESSION_KEY)) {
+            // Small delay so the download starts before banner appears
+            setTimeout(() => setBannerVisible(true), 400);
+          }
           break;
         }
         el = el.parentElement;
       }
     },
-    [isAuthenticated],
+    [isAuthenticated, toolId, trackToolUse],
   );
 
   const dismissBanner = useCallback(() => {
@@ -205,10 +234,10 @@ export default function ToolPage({
         {meta.description}
       </p>
 
-      {/* Tool area — listens for download actions to trigger one-time banner */}
+      {/* Tool area — listens for download actions to trigger analytics + one-time banner */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: click capture on container, not an interactive element */}
       <div ref={toolAreaRef} onClick={handleToolAreaClick}>
-        {renderTool()}
+        <Suspense fallback={toolSpinner}>{renderTool()}</Suspense>
       </div>
 
       {/* One-time "Save to My Files" recommendation banner */}

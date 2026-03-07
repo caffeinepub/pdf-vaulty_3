@@ -1,24 +1,24 @@
 # PDF Vaulty
 
 ## Current State
-The app has 9 PDF tools, multi-language support (6 languages), private file storage per user, FAQ, dark/light theme, and Internet Identity login. The main performance bottleneck is 5 large CDN scripts in `index.html` that load synchronously, blocking all page rendering for ~4000ms on mobile (PageSpeed score ~39 mobile, ~63 desktop). Vite is also configured with `minify: false`.
+The app requires users to log in before accessing anything. `App.tsx` renders `<LoginPage />` for all unauthenticated users (lines 82–88), blocking access to the dashboard and all PDF tools. The app's own copy says login is only needed for "My Files", but the code enforces login universally. There is no guest-friendly flow.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Dynamic loading of PDF libraries (pdf-lib, jsPDF, pdf.js, JSZip, xlsx) inside each tool component only when the tool is actually opened/used -- not on initial page load.
-- Utility module `src/utils/loadLibs.ts` with lazy-loader functions for each CDN library.
+- A one-time "Save to My Files" banner/toast shown to guest users **after** a PDF conversion completes — displayed only once per browser session (stored in `sessionStorage`). The banner invites the user to log in to save their file, with a login button. It never appears again during the same session, even if they use multiple tools.
 
 ### Modify
-- `index.html`: Remove all 5 synchronous CDN `<script>` tags (pdf-lib, jsPDF, xlsx, pdf.js, JSZip) and the pdf.js worker inline script. Keep only preconnect hints, structured data, and the Vite entry point.
-- `vite.config.js`: Enable minification (`minify: 'esbuild'`), enable CSS code splitting, add rollup manual chunks to split vendor bundles.
-- `ToolPage.tsx`: Use the lazy-loader utility to load required libraries on tool open.
+- `App.tsx`: Remove the login gate. Unauthenticated users should see the Dashboard and can use all tools freely. Only navigating to "My Files" or "Analytics" should redirect to the login page.
+- `App.tsx`: Pass `isAuthenticated` down to `ToolPage` so tools can trigger the one-time save recommendation after conversion.
+- `ToolPage.tsx`: Accept `isAuthenticated` and an `onRequestLogin` callback prop. After a successful conversion (download), show the one-time save recommendation banner if the user is not authenticated and the session flag has not been set.
+- The `LoginPage` remains accessible for direct navigation but is no longer shown as a full-page gate on first load.
 
 ### Remove
-- Synchronous CDN script tags from `index.html` that cause render-blocking.
+- Nothing is removed from existing features. The login page remains as a reachable page (when user clicks Login from header or is redirected from My Files).
 
 ## Implementation Plan
-1. Update `vite.config.js`: set `minify: 'esbuild'`, add `cssCodeSplit: true`, add rollupOptions with `output.manualChunks` to split React, ICP agent, and tool logic into separate chunks.
-2. Create `src/utils/loadLibs.ts`: async functions that dynamically inject CDN scripts only when called, with caching so each library only loads once.
-3. Update `index.html`: Remove all CDN `<script>` tags. Keep preconnect/dns-prefetch hints and structured data.
-4. Update `ToolPage.tsx` (or the individual tool components): call `loadPdfLib()`, `loadJsPDF()`, `loadPdfJs()`, `loadJSZip()`, `loadXlsx()` as needed at the start of each operation, awaiting them before processing.
+1. In `App.tsx`, change `renderContent()` so unauthenticated users see the `Dashboard` (not `LoginPage`). Only redirect to `LoginPage` when `activeView === "myFiles"` or `"analytics"` and user is not authenticated.
+2. Pass `isAuthenticated` and a `handleRequestLogin` callback (which sets `activeView` to a login state or triggers `login()`) into `ToolPage`.
+3. In `ToolPage.tsx`, after a tool signals conversion complete, check: is guest? has the session flag `pdfvaulty_save_prompt_shown` been set in `sessionStorage`? If not, display a dismissible inline banner prompting login, then set the flag so it never shows again this session.
+4. The banner should be subtle — a small card below the download button, not a modal. It should have a "Log in to save" button and an "X" dismiss. Once dismissed or after login is initiated, set the sessionStorage flag.

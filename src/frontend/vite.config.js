@@ -18,13 +18,17 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: false,
     minify: "esbuild",
-    cssCodeSplit: true,
+    cssMinify: true,
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
         manualChunks: {
-          "react-vendor": ["react", "react-dom"],
-          "icp-agent": ["@dfinity/agent", "@dfinity/auth-client", "@dfinity/identity", "@dfinity/principal", "@dfinity/candid"],
-          "ui-vendor": ["lucide-react", "next-themes", "sonner"],
+          // Core React runtime — tiny, cached immediately
+          "vendor-react": ["react", "react-dom"],
+          // ICP/auth — large but only loaded once
+          "vendor-icp": ["@dfinity/agent", "@dfinity/identity", "@dfinity/auth-client", "@dfinity/candid", "@dfinity/principal"],
+          // UI library
+          "vendor-ui": ["lucide-react", "next-themes", "motion"],
         },
       },
     },

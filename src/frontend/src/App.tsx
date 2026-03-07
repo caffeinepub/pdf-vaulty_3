@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
-import { Suspense, lazy, useState } from "react";
+import { Suspense, lazy, useCallback, useState } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import ProfileSetupModal from "./components/ProfileSetupModal";
@@ -32,11 +32,15 @@ export type ToolId =
 export type AppView = "dashboard" | "tool" | "analytics" | "myFiles";
 
 export default function App() {
-  const { identity, isInitializing } = useInternetIdentity();
+  const { identity, login, isInitializing } = useInternetIdentity();
   const isAuthenticated = !!identity;
   const [activeView, setActiveView] = useState<AppView>("dashboard");
   const [activeTool, setActiveTool] = useState<ToolId | null>(null);
   const queryClient = useQueryClient();
+
+  const handleRequestLogin = useCallback(() => {
+    login();
+  }, [login]);
 
   const {
     data: userProfile,
@@ -79,7 +83,11 @@ export default function App() {
       return pageFallback;
     }
 
-    if (!isAuthenticated) {
+    // Protected views — redirect unauthenticated users to login
+    if (
+      !isAuthenticated &&
+      (activeView === "myFiles" || activeView === "analytics")
+    ) {
       return (
         <Suspense fallback={pageFallback}>
           <LoginPage />
@@ -92,7 +100,12 @@ export default function App() {
         return (
           <Suspense fallback={pageFallback}>
             {activeTool ? (
-              <ToolPage toolId={activeTool} onBack={handleBack} />
+              <ToolPage
+                toolId={activeTool}
+                onBack={handleBack}
+                isAuthenticated={isAuthenticated}
+                onRequestLogin={handleRequestLogin}
+              />
             ) : (
               <Dashboard onSelectTool={handleSelectTool} />
             )}

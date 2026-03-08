@@ -95,7 +95,7 @@ export default function Header({
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-[#0d0d0d]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-row items-center justify-between h-14 gap-4">
+        <div className="flex flex-row items-center justify-between h-14 gap-4 min-h-0">
           {/* Left: Logo + Nav */}
           <div className="flex flex-row items-center gap-4 min-w-0 flex-shrink-0">
             {/* Logo */}
@@ -301,6 +301,111 @@ export default function Header({
           </div>
         </div>
       </div>
+
+      {/* Mobile bottom nav row — only visible on portrait/small screens */}
+      <TooltipProvider delayDuration={300}>
+        <nav
+          className="flex sm:hidden flex-row items-center justify-around border-t border-gray-200 dark:border-white/10 bg-white dark:bg-[#0d0d0d]"
+          aria-label="Mobile navigation"
+        >
+          <button
+            type="button"
+            onClick={onNavigateHome}
+            data-ocid="mobile.nav.home.button"
+            className={`flex-1 flex items-center justify-center py-2.5 text-xs font-medium transition-colors min-h-[44px] ${
+              isDashboard
+                ? "text-blue-600 dark:text-blue-400 border-t-2 border-blue-500 dark:border-blue-400 -mt-px"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border-t-2 border-transparent -mt-px"
+            }`}
+          >
+            {t("nav.home")}
+          </button>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="flex-1">
+                <button
+                  type="button"
+                  onClick={isAuthenticated ? onNavigateAnalytics : undefined}
+                  disabled={!isAuthenticated}
+                  data-ocid="mobile.nav.analytics.button"
+                  className={`w-full flex items-center justify-center py-2.5 text-xs font-medium transition-colors min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed ${
+                    activeView === "analytics"
+                      ? "text-blue-600 dark:text-blue-400 border-t-2 border-blue-500 dark:border-blue-400 -mt-px"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border-t-2 border-transparent -mt-px"
+                  }`}
+                >
+                  {t("nav.analytics")}
+                  {!isAuthenticated && (
+                    <svg
+                      className="ml-1 w-3 h-3 opacity-50"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      aria-hidden="true"
+                    >
+                      <title>Login required</title>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </span>
+            </TooltipTrigger>
+            {!isAuthenticated && (
+              <TooltipContent data-ocid="mobile.nav.analytics.tooltip">
+                <p>Login required</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="flex-1">
+                <button
+                  type="button"
+                  onClick={isAuthenticated ? onNavigateMyFiles : undefined}
+                  disabled={!isAuthenticated}
+                  data-ocid="mobile.nav.myfiles.button"
+                  className={`w-full flex items-center justify-center py-2.5 text-xs font-medium transition-colors min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed ${
+                    activeView === "myFiles"
+                      ? "text-blue-600 dark:text-blue-400 border-t-2 border-blue-500 dark:border-blue-400 -mt-px"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border-t-2 border-transparent -mt-px"
+                  }`}
+                >
+                  {t("nav.myFiles")}
+                  {!isAuthenticated && (
+                    <svg
+                      className="ml-1 w-3 h-3 opacity-50"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      aria-hidden="true"
+                    >
+                      <title>Login required</title>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </span>
+            </TooltipTrigger>
+            {!isAuthenticated && (
+              <TooltipContent data-ocid="mobile.nav.myfiles.tooltip">
+                <p>Login required</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </nav>
+      </TooltipProvider>
     </header>
   );
 }

@@ -1,0 +1,94 @@
+const pt: Record<string, string> = {
+  "nav.home": "Início",
+  "nav.analytics": "Análise",
+  "nav.myFiles": "Meus Arquivos",
+  "nav.login": "Entrar",
+  "nav.logout": "Sair",
+  "nav.loggingIn": "Entrando...",
+  "hero.title": "Seu PDF Vaulty Completo",
+  "hero.subtitle":
+    "Mescle, divida, comprima e gerencie seus arquivos PDF com facilidade. Todas as ferramentas em um só lugar.",
+  "hero.cta": "Começar",
+  "tools.heading": "Ferramentas PDF Poderosas",
+  "tools.subheading": "Tudo que você precisa para trabalhar com arquivos PDF",
+  "tool.merge.label": "Mesclar PDFs",
+  "tool.merge.desc": "Combinar múltiplos arquivos PDF em um único documento",
+  "tool.split.label": "Dividir PDFs",
+  "tool.split.desc":
+    "Extrair páginas específicas ou dividir documentos em arquivos separados",
+  "tool.compress.label": "Comprimir PDFs",
+  "tool.compress.desc": "Reduzir o tamanho do arquivo mantendo a qualidade",
+  "tool.protect.label": "Proteger PDFs",
+  "tool.protect.desc":
+    "Adicionar ou remover proteção por senha dos seus documentos",
+  "tool.rotate.label": "Girar PDFs",
+  "tool.rotate.desc": "Girar páginas PDF em 90, 180 ou 270 graus",
+  "tool.imageToPdf.label": "Converter para PDF",
+  "tool.imageToPdf.desc": "Converter Word, Excel e imagens para PDF",
+  "tool.converter.label": "Conversor PDF",
+  "tool.converter.desc": "Converter PDF para planilha Excel ou imagens JPG/PNG",
+  "tool.pageNumbers.label": "Adicionar Números de Página",
+  "tool.pageNumbers.desc": "Carimbar números de página no seu documento PDF",
+  "tool.watermark.label": "Adicionar Marca d'Água",
+  "tool.watermark.desc":
+    "Sobrepor texto de marca d'água personalizado no seu PDF",
+  "feature.easy.title": "Fácil de usar",
+  "feature.easy.desc":
+    "Interface simples e intuitiva para todas as suas necessidades de PDF",
+  "feature.secure.title": "Seguro e Privado",
+  "feature.secure.desc":
+    "Seus arquivos são processados com segurança e nunca compartilhados",
+  "feature.powerful.title": "Ferramentas Poderosas",
+  "feature.powerful.desc":
+    "Ferramentas PDF de nível profissional ao seu alcance",
+  "footer.rights": "Todos os direitos reservados.",
+  "footer.tagline": "Construído com amor usando",
+  "lang.en": "English",
+  "lang.ar": "العربية",
+  "lang.fr": "Français",
+  "lang.es": "Español",
+  "lang.hi": "हिन्दी",
+  "lang.pt": "Português",
+  "login.title": "Seu PDF Vaulty Completo",
+  "login.subtitle":
+    "Mescle, divida, comprima e gerencie seus arquivos PDF com facilidade. Todas as ferramentas em um só lugar.",
+  "login.button": "Entrar para começar",
+  "login.feature1": "Mesclar e dividir PDFs",
+  "login.feature2": "Seguro e Privado",
+  "login.feature3": "Ferramentas Profissionais",
+  "common.upload": "Enviar",
+  "common.download": "Baixar",
+  "common.processing": "Processando...",
+  "common.back": "Voltar",
+  "common.save": "Salvar",
+  "login.cta": "Entre para começar a usar todas as ferramentas PDF",
+  "login.getStarted": "Começar",
+  "faq.heading": "Perguntas Frequentes",
+  "faq.subheading": "Tudo o que você precisa saber sobre o PDF Vaulty",
+  "faq.q1": "O PDF Vaulty é gratuito?",
+  "faq.a1":
+    "Sim, o PDF Vaulty é completamente gratuito. Todas as ferramentas PDF estão disponíveis sem custo.",
+  "faq.q2": "Meus arquivos PDF estão seguros?",
+  "faq.a2":
+    "Seus arquivos são processados inteiramente no seu navegador. Nunca os armazenamos ou compartilhamos.",
+  "faq.q3": "Preciso criar uma conta?",
+  "faq.a3":
+    "Não é necessária conta para usar a maioria das ferramentas. O login é opcional.",
+  "faq.q4": "Qual tamanho de arquivo posso enviar?",
+  "faq.a4":
+    "O PDF Vaulty suporta a maioria dos arquivos PDF padrão. Para melhores resultados, use arquivos menores que 50 MB.",
+  "faq.q5": "Posso usar o PDF Vaulty no celular?",
+  "faq.a5":
+    "Sim, o PDF Vaulty é totalmente responsivo e funciona em smartphones, tablets e computadores.",
+  "faq.q6": "Como mesclo vários PDFs?",
+  "faq.a6":
+    "Clique na ferramenta Mesclar PDF, envie dois ou mais arquivos e clique no botão Mesclar.",
+  "faq.q7": "O PDF Vaulty funciona offline?",
+  "faq.a7":
+    "O PDF Vaulty requer conexão com a Internet para carregar, mas todo o processamento de PDF ocorre localmente no seu navegador.",
+  "faq.q8": "Para quais formatos posso converter PDFs?",
+  "faq.a8":
+    "Com o conversor PDF, você pode exportar PDFs como planilhas Excel ou imagens JPG ou PNG.",
+};
+
+export default pt;

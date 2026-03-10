@@ -33,7 +33,15 @@ actor {
     blob : Storage.ExternalBlob;
   };
 
+  // Analytics record
+  public type AnalyticsRecord = {
+    totalOperations : Nat;
+    filesProcessed : Nat;
+    byTool : [(Text, Nat)];
+  };
+
   let files = Map.empty<Principal, List.List<FileRecord>>();
+  let analytics = Map.empty<Principal, AnalyticsRecord>();
   var nextId = 0;
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
@@ -136,6 +144,40 @@ actor {
       };
       case (null) { null };
     };
+  };
+
+  public shared ({ caller }) func renameFile(fileId : Text, newName : Text) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: You must be signed in and authenticated to rename files");
+    };
+
+    switch (files.get(caller)) {
+      case (?list) {
+        let updatedFiles = list.map<FileRecord, FileRecord>(
+          func(f) {
+            if (f.id == fileId) { { f with name = newName } } else { f };
+          }
+        );
+        files.add(caller, updatedFiles);
+      };
+      case (null) {
+        Runtime.trap("File list does not exist for this user");
+      };
+    };
+  };
+
+  public shared ({ caller }) func saveAnalytics(record : AnalyticsRecord) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can save analytics records");
+    };
+    analytics.add(caller, record);
+  };
+
+  public query ({ caller }) func getMyAnalytics() : async ?AnalyticsRecord {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can get analytics");
+    };
+    analytics.get(caller);
   };
 };
 

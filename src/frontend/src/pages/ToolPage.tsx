@@ -129,14 +129,53 @@ export default function ToolPage({
 
   // One-time save banner state
   const [bannerVisible, setBannerVisible] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const toolAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     document.title = `${meta.title} – PDF Vaulty`;
+
+    // Inject JSON-LD structured data for the tool
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = "tool-jsonld";
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: `${meta.title} – PDF Vaulty`,
+      description: meta.description,
+      applicationCategory: "UtilityApplication",
+      operatingSystem: "Web",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+    });
+    document.head.appendChild(script);
+
     return () => {
       document.title = "PDF Vaulty – Your Secure PDF Toolkit";
+      document.getElementById("tool-jsonld")?.remove();
     };
-  }, [meta.title]);
+  }, [meta.title, meta.description]);
+
+  // Listen for file input change events in tool area to show processing indicator
+  useEffect(() => {
+    const el = toolAreaRef.current;
+    if (!el) return;
+    const onFileChange = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === "INPUT" &&
+        (target as HTMLInputElement).type === "file"
+      ) {
+        setIsProcessing(true);
+      }
+    };
+    el.addEventListener("change", onFileChange, true);
+    return () => el.removeEventListener("change", onFileChange, true);
+  }, []);
 
   // Listen for any download action inside the tool area
   const handleToolAreaClick = useCallback(
@@ -158,6 +197,9 @@ export default function ToolPage({
         if (isDownloadLink || isDownloadButton) {
           // Track tool usage in analytics
           trackToolUse(toolId);
+
+          // Hide processing indicator on download
+          setIsProcessing(false);
 
           // Show one-time save banner for unauthenticated users
           if (!isAuthenticated && !sessionStorage.getItem(SESSION_KEY)) {
@@ -239,6 +281,17 @@ export default function ToolPage({
       <div ref={toolAreaRef} onClick={handleToolAreaClick}>
         <Suspense fallback={toolSpinner}>{renderTool()}</Suspense>
       </div>
+
+      {/* Processing indicator */}
+      {isProcessing && (
+        <div
+          data-ocid="tool.processing.loading_state"
+          className="mt-4 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400"
+        >
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 dark:border-blue-400" />
+          <span>Processing your PDF…</span>
+        </div>
+      )}
 
       {/* One-time "Save to My Files" recommendation banner */}
       <AnimatePresence>

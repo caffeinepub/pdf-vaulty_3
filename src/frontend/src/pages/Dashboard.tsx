@@ -213,16 +213,16 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
                 key={tool.id}
                 onClick={() => onSelectTool(tool.id)}
                 data-ocid={`dashboard.tools.item.${idx + 1}`}
-                className="group flex flex-col items-start p-6 rounded-xl text-left transition-all duration-200 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-white/[0.08] hover:border-blue-300 dark:hover:border-white/20 hover:shadow-md"
+                className="group flex flex-col items-start p-6 rounded-xl text-left transition-all duration-200 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-white/[0.08] hover:border-blue-300 dark:hover:border-white/20 hover:shadow-md h-[160px] overflow-hidden"
               >
                 {/* Icon box */}
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-blue-50 dark:bg-[#1e3a5f]">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-blue-50 dark:bg-[#1e3a5f]">
                   <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1.5">
+                <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1.5 truncate w-full">
                   {tool.label}
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-white/50 leading-snug">
+                <p className="text-sm text-gray-500 dark:text-white/50 leading-snug line-clamp-2">
                   {tool.description}
                 </p>
               </button>

@@ -33,6 +33,11 @@ export const FileRecord = IDL.Record({
   'size' : IDL.Nat,
   'uploadedAt' : IDL.Int,
 });
+export const AnalyticsRecord = IDL.Record({
+  'byTool' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat)),
+  'totalOperations' : IDL.Nat,
+  'filesProcessed' : IDL.Nat,
+});
 
 export const idlService = IDL.Service({
   '_caffeineStorageBlobIsLive' : IDL.Func(
@@ -72,6 +77,7 @@ export const idlService = IDL.Service({
       [IDL.Vec(IDL.Text)],
       ['query'],
     ),
+  'getMyAnalytics' : IDL.Func([], [IDL.Opt(AnalyticsRecord)], ['query']),
   'getMyFiles' : IDL.Func([], [IDL.Vec(FileRecord)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
@@ -79,6 +85,8 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'renameFile' : IDL.Func([IDL.Text, IDL.Text], [], []),
+  'saveAnalytics' : IDL.Func([AnalyticsRecord], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'saveFile' : IDL.Func([IDL.Text, IDL.Nat, ExternalBlob], [], []),
 });
@@ -110,6 +118,11 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Text,
     'size' : IDL.Nat,
     'uploadedAt' : IDL.Int,
+  });
+  const AnalyticsRecord = IDL.Record({
+    'byTool' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat)),
+    'totalOperations' : IDL.Nat,
+    'filesProcessed' : IDL.Nat,
   });
   
   return IDL.Service({
@@ -150,6 +163,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Text)],
         ['query'],
       ),
+    'getMyAnalytics' : IDL.Func([], [IDL.Opt(AnalyticsRecord)], ['query']),
     'getMyFiles' : IDL.Func([], [IDL.Vec(FileRecord)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
@@ -157,6 +171,8 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'renameFile' : IDL.Func([IDL.Text, IDL.Text], [], []),
+    'saveAnalytics' : IDL.Func([AnalyticsRecord], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'saveFile' : IDL.Func([IDL.Text, IDL.Nat, ExternalBlob], [], []),
   });

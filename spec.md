@@ -1,49 +1,44 @@
 # PDF Vaulty
 
 ## Current State
-- Full-stack PDF toolkit with 12 tools: Merge, Split, Compress, Image to PDF, PDF to Word, Word to PDF, Excel to PDF, Rotate, Password Protect, PDF Converter, Add Page Numbers, Add Watermark
-- Multi-language support (EN, AR, FR, ES, HI, PT) with RTL for Arabic
-- Internet Identity login with per-user private file storage (My Files)
-- Dark/light theme toggle
-- Analytics page exists but shows hardcoded zeros — no real tracking
-- Header shows hardcoded "1 views" text — never updates
-- Orphaned tool files in components/tools/: PDFToExcelTool.tsx, PDFToImageTool.tsx, PowerPointToPDFTool.tsx (never imported or used)
-- Analytics and My Files nav buttons are disabled for guests with no explanation tooltip
-- ToolPage already has one-time save banner logic and login gate removed from the app router — but the App.tsx router previously had an issue forcing login; currently the code looks correct (only myFiles/analytics redirect to login)
-- Performance is sub-optimal: mobile ~63, desktop ~64 due to render-blocking and large bundles
-- All pages are already lazy-loaded via React.lazy in App.tsx
-- Backend has real file storage (saveFile, getMyFiles, deleteFile) but no analytics tracking endpoints
+
+- Full-stack PDF toolkit on Internet Computer with Motoko backend and React/TypeScript frontend.
+- 12 PDF tools, all lazy-loaded per tool component.
+- Authentication via Internet Identity; tools accessible to guests; My Files and Analytics require login.
+- Backend supports: saveFile (with ExternalBlob actual bytes), getMyFiles, deleteFile, renameFile, saveAnalytics, getMyAnalytics.
+- Frontend: lazy lang loading (only active language loaded), analytics synced to backend, file delete/rename/search/viewer all present in MyFilesPage.
+- Save-to-My-Files one-time guest banner present in ToolPage.
+- Mobile bottom nav with lock icons for guests.
+- Tooltips on disabled nav buttons.
+- `vite.config.js` has `minify: false` — JS/CSS shipped completely uncompressed (critical performance bug).
+- No manual chunk splitting in vite config.
+- Layout shifts detected (CLS 0.132) from tool cards on Dashboard.
+- No structured data (JSON-LD) on individual tool pages.
+- No per-tool processing/loading indicator while PDF operation is in progress.
+- Speed Index 9.3s mobile, TBT 1200ms mobile.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Real analytics tracking: use localStorage to persist per-user tool usage counts (totalOperations, filesProcessed, toolsUsed map keyed by toolId) — since backend has no analytics endpoint, use localStorage with a custom hook `useAnalytics`
-- `useAnalytics` hook: exports `trackToolUse(toolId)` and `getAnalytics()` functions, reads/writes from localStorage key `pdfvaulty_analytics`
-- Wire `trackToolUse` into ToolPage so every time a tool download completes (or tool is used), it records the event
-- AnalyticsPage: read real data from `useAnalytics` hook and display live counts
-- Tooltip wrapper on disabled Analytics and My Files nav buttons: show "Login required" tooltip on hover for guest users
-- Performance: move tool component imports in ToolPage.tsx from static imports to dynamic `React.lazy` imports inside `renderTool()`, so each PDF tool only loads when opened
+- JSON-LD structured data (SoftwareApplication schema) on each tool page for better SEO rich results.
+- Processing/loading overlay or spinner in ToolPage while a tool is actively processing a PDF (listen for a processing state from tool context or show a subtle indicator).
+- Preconnect resource hints in index.html for blob.caffeine.ai and identity.internetcomputer.org.
+- Manual chunk splitting in vite.config.js to separate vendor libraries into cacheable chunks.
 
 ### Modify
-- Header.tsx: remove the hardcoded "1 views" / Eye icon block entirely (lines 155–158)
-- ToolPage.tsx: replace 12 static tool imports at the top with lazy dynamic imports; pass `trackToolUse` call into tool download events
-- AnalyticsPage.tsx: replace all hardcoded `0` values with real data from `useAnalytics` hook
-- Header.tsx: wrap disabled Analytics and My Files buttons with a tooltip that says "Login required to access"
+- `vite.config.js`: change `minify: false` to `minify: 'esbuild'` and add `cssMinify: true` (CRITICAL — biggest single performance win).
+- `vite.config.js`: add `build.rollupOptions.output.manualChunks` to split pdf-lib, pdfjs, jspdf, xlsx, jszip into separate vendor chunks.
+- `Dashboard.tsx`: add explicit `height` constraint to tool card grid items to reduce layout shift (ensure icon boxes and card content have fixed/explicit dimensions).
+- `ToolPage.tsx`: inject JSON-LD `<script type="application/ld+json">` into document head dynamically per tool.
+- `index.html`: add `<link rel="preconnect">` for key external domains.
 
 ### Remove
-- `frontend/src/components/tools/PDFToExcelTool.tsx` — orphaned, never used
-- `frontend/src/components/tools/PDFToImageTool.tsx` — orphaned, never used
-- `frontend/src/components/tools/PowerPointToPDFTool.tsx` — orphaned, never used
+- Nothing removed.
 
 ## Implementation Plan
-1. Create `frontend/src/hooks/useAnalytics.ts` — localStorage-based analytics hook with `trackToolUse(toolId)` and `getAnalytics()` returning `{ totalOperations, filesProcessed, byTool: Record<ToolId, number> }`
-2. Update `ToolPage.tsx`:
-   - Replace 12 static tool imports with React.lazy dynamic imports (each tool loads only when needed)
-   - Accept optional `onToolUsed?: (toolId: ToolId) => void` prop or call `trackToolUse` directly on download detection
-3. Update `App.tsx`: pass `trackToolUse` from `useAnalytics` down to `ToolPage` via prop
-4. Update `AnalyticsPage.tsx`: call `getAnalytics()` from hook, show real counts in stat cards and per-tool breakdown bars
-5. Update `Header.tsx`:
-   - Remove hardcoded "1 views" Eye icon block
-   - Wrap disabled Analytics and My Files buttons with a Tooltip component showing "Login required"
-6. Delete orphaned files: PDFToExcelTool.tsx, PDFToImageTool.tsx, PowerPointToPDFTool.tsx
-7. Validate: typecheck, lint, build
+
+1. **vite.config.js** — Enable `minify: 'esbuild'`, `cssMinify: true`, add manualChunks splitting pdf-lib/pdfjs-dist/jspdf/xlsx/jszip into `vendor-pdf` chunk and react/react-dom/tanstack into `vendor-react` chunk.
+2. **index.html** — Add `<link rel="preconnect" href="https://blob.caffeine.ai">` and `<link rel="preconnect" href="https://identity.internetcomputer.org">`.
+3. **ToolPage.tsx** — On tool mount, inject a `<script type="application/ld+json">` tag into `<head>` with SoftwareApplication schema per tool (name, description, applicationCategory: "UtilityApplication"). Remove on unmount.
+4. **Dashboard.tsx** — Add `will-change: auto` and explicit `min-h` with `h-full` to tool cards; ensure icon boxes use `w-12 h-12 flex-shrink-0` consistently to prevent layout shift.
+5. **ToolPage.tsx** — Expose a `ProcessingContext` or use a simpler approach: add a `data-processing` attribute wrapper that tools can signal; alternatively add a subtle fixed bottom toast-style indicator when file operations are underway (detect via click + timeout pattern similar to existing download detection).

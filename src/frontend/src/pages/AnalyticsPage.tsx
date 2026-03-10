@@ -3,13 +3,15 @@ import {
   FileInput,
   FileText,
   Layers,
+  Loader2,
   Lock,
   Minimize2,
   RotateCw,
   TrendingUp,
 } from "lucide-react";
 import type { ToolId } from "../App";
-import { useAnalytics } from "../hooks/useAnalytics";
+import { useAnalytics, useSyncAnalytics } from "../hooks/useAnalytics";
+import { useGetMyAnalytics } from "../hooks/useQueries";
 
 interface AnalyticsPageProps {
   onNavigateToDashboard: () => void;
@@ -43,8 +45,15 @@ const TOOL_STATS: ToolStat[] = [
 export default function AnalyticsPage({
   onNavigateToDashboard,
 }: AnalyticsPageProps) {
+  // Sync backend analytics with localStorage on mount
+  useSyncAnalytics();
+
   const { getAnalytics } = useAnalytics();
-  const analytics = getAnalytics();
+  const { getMergedAnalytics } = useSyncAnalytics();
+  const { isLoading: backendLoading } = useGetMyAnalytics();
+
+  // Use merged analytics (backend + localStorage)
+  const analytics = getMergedAnalytics();
 
   const toolsUsedCount = Object.keys(analytics.byTool).length;
 
@@ -56,6 +65,9 @@ export default function AnalyticsPage({
   const maxCount = Math.max(...toolStatsWithCounts.map((s) => s.count), 1);
 
   const isEmpty = analytics.totalOperations === 0;
+
+  // Suppress unused warning — getAnalytics is kept for compatibility
+  void getAnalytics;
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
@@ -76,13 +88,25 @@ export default function AnalyticsPage({
             Analytics
           </h1>
           <p className="text-base text-gray-500 dark:text-white/60 max-w-md mx-auto leading-relaxed">
-            Track your PDF tool usage and activity over time.
+            Track your PDF tool usage and activity — synced across all your
+            devices.
           </p>
         </div>
       </section>
 
       {/* Stats overview */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        {/* Backend sync loading indicator */}
+        {backendLoading && (
+          <div
+            data-ocid="analytics.loading_state"
+            className="flex items-center gap-2 text-sm text-blue-500 dark:text-blue-400 mb-6"
+          >
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Syncing analytics from cloud…</span>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
           {[
             {

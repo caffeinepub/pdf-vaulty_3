@@ -14,6 +14,11 @@ export class ExternalBlob {
     static fromBytes(blob: Uint8Array<ArrayBuffer>): ExternalBlob;
     withUploadProgress(onProgress: (percentage: number) => void): ExternalBlob;
 }
+export interface AnalyticsRecord {
+    byTool: Array<[string, bigint]>;
+    totalOperations: bigint;
+    filesProcessed: bigint;
+}
 export interface FileRecord {
     id: string;
     blob: ExternalBlob;
@@ -36,9 +41,12 @@ export interface backendInterface {
     getCallerUserRole(): Promise<UserRole>;
     getFileById(fileId: string): Promise<FileRecord | null>;
     getFileIdsForUser(user: Principal): Promise<Array<string>>;
+    getMyAnalytics(): Promise<AnalyticsRecord | null>;
     getMyFiles(): Promise<Array<FileRecord>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
+    renameFile(fileId: string, newName: string): Promise<void>;
+    saveAnalytics(record: AnalyticsRecord): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveFile(name: string, size: bigint, blob: ExternalBlob): Promise<void>;
 }

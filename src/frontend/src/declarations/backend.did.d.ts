@@ -10,6 +10,11 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface AnalyticsRecord {
+  'byTool' : Array<[string, bigint]>,
+  'totalOperations' : bigint,
+  'filesProcessed' : bigint,
+}
 export type ExternalBlob = Uint8Array;
 export interface FileRecord {
   'id' : string,
@@ -56,9 +61,12 @@ export interface _SERVICE {
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getFileById' : ActorMethod<[string], [] | [FileRecord]>,
   'getFileIdsForUser' : ActorMethod<[Principal], Array<string>>,
+  'getMyAnalytics' : ActorMethod<[], [] | [AnalyticsRecord]>,
   'getMyFiles' : ActorMethod<[], Array<FileRecord>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'renameFile' : ActorMethod<[string, string], undefined>,
+  'saveAnalytics' : ActorMethod<[AnalyticsRecord], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'saveFile' : ActorMethod<[string, bigint, ExternalBlob], undefined>,
 }

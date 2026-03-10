@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { FileRecord, UserProfile } from "../backend";
+import type { AnalyticsRecord, FileRecord, UserProfile } from "../backend";
 import type { ExternalBlob } from "../backend";
 import { useActor } from "./useActor";
 
@@ -85,6 +85,55 @@ export function useDeleteFile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["myFiles"] });
+    },
+  });
+}
+
+export function useRenameFile() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      fileId,
+      newName,
+    }: {
+      fileId: string;
+      newName: string;
+    }) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.renameFile(fileId, newName);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myFiles"] });
+    },
+  });
+}
+
+export function useGetMyAnalytics() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<AnalyticsRecord | null>({
+    queryKey: ["myAnalytics"],
+    queryFn: async () => {
+      if (!actor) return null;
+      return actor.getMyAnalytics();
+    },
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+export function useSaveAnalytics() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (record: AnalyticsRecord) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.saveAnalytics(record);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myAnalytics"] });
     },
   });
 }

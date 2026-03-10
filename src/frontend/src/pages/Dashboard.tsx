@@ -148,7 +148,7 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
       {/* Hero Section */}
-      <section className="relative flex flex-col items-center justify-center text-center px-4 py-20 overflow-hidden bg-gradient-to-b from-blue-50/80 to-white dark:from-transparent dark:to-transparent dark:bg-[#0a0a0a]">
+      <section className="relative flex flex-col items-center justify-center text-center px-4 py-20 overflow-hidden bg-white dark:bg-[#0a0a0a]">
         {/* Radial blue glow — dark mode only */}
         <div
           className="absolute inset-0 pointer-events-none hidden dark:block"
@@ -213,13 +213,13 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
                 key={tool.id}
                 onClick={() => onSelectTool(tool.id)}
                 data-ocid={`dashboard.tools.item.${idx + 1}`}
-                className="group flex flex-col items-start p-6 rounded-xl text-left transition-all duration-200 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-white/[0.08] hover:border-blue-300 dark:hover:border-white/20 hover:shadow-md h-[160px] overflow-hidden"
+                className="group flex flex-col items-start p-6 rounded-xl text-left transition-all duration-200 bg-white dark:bg-[#1a1a2e] border-2 border-black dark:border-white/[0.08] hover:border-gray-700 dark:hover:border-white/20 hover:shadow-md shadow-sm dark:shadow-none min-h-[140px] overflow-hidden"
               >
                 {/* Icon box */}
                 <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-blue-50 dark:bg-[#1e3a5f]">
                   <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1.5 truncate w-full">
+                <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1.5 leading-tight w-full">
                   {tool.label}
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-white/50 leading-snug line-clamp-2">

@@ -105,9 +105,9 @@ export default function Header({
               className="flex flex-row items-center gap-2 group flex-shrink-0"
               data-ocid="nav.home.link"
             >
-              <div className="w-7 h-7 flex-shrink-0 rounded overflow-hidden bg-white flex items-center justify-center">
+              <div className="w-7 h-7 flex-shrink-0 rounded overflow-hidden flex items-center justify-center">
                 <img
-                  src="/assets/generated/pdf-vaulty-logo.dim_256x256.png"
+                  src="/assets/generated/pdf-vaulty-logo-v3-transparent.dim_256x256.png"
                   alt="PDF Vaulty"
                   className="w-7 h-7 object-contain"
                   onError={(e) => {

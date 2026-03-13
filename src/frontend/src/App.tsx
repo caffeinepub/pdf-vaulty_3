@@ -13,6 +13,7 @@ const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const MyFilesPage = lazy(() => import("./pages/MyFilesPage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const ToolPage = lazy(() => import("./pages/ToolPage"));
 
 export type ToolId =
@@ -27,9 +28,16 @@ export type ToolId =
   | "password-protect"
   | "pdf-converter"
   | "add-page-numbers"
-  | "add-watermark";
+  | "add-watermark"
+  | "crop-pdf"
+  | "flatten-pdf";
 
-export type AppView = "dashboard" | "tool" | "analytics" | "myFiles";
+export type AppView =
+  | "dashboard"
+  | "tool"
+  | "analytics"
+  | "myFiles"
+  | "profile";
 
 export default function App() {
   const { identity, login, isInitializing } = useInternetIdentity();
@@ -86,7 +94,9 @@ export default function App() {
     // Protected views — redirect unauthenticated users to login
     if (
       !isAuthenticated &&
-      (activeView === "myFiles" || activeView === "analytics")
+      (activeView === "myFiles" ||
+        activeView === "analytics" ||
+        activeView === "profile")
     ) {
       return (
         <Suspense fallback={pageFallback}>
@@ -123,6 +133,12 @@ export default function App() {
             <MyFilesPage onNavigateToDashboard={handleNavigateToDashboard} />
           </Suspense>
         );
+      case "profile":
+        return (
+          <Suspense fallback={pageFallback}>
+            <ProfilePage onNavigateToDashboard={handleNavigateToDashboard} />
+          </Suspense>
+        );
       default:
         return (
           <Suspense fallback={pageFallback}>
@@ -142,6 +158,7 @@ export default function App() {
             onNavigateHome={handleNavigateToDashboard}
             onNavigateAnalytics={() => setActiveView("analytics")}
             onNavigateMyFiles={() => setActiveView("myFiles")}
+            onNavigateProfile={() => setActiveView("profile")}
             onLogout={handleLogout}
             userName={userProfile?.name}
           />

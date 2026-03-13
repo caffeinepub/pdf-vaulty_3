@@ -133,3 +133,20 @@
     -moz-osx-font-smoothing: grayscale;
   }
 }
+
+/* Smooth theme transitions — applied globally except animations */
+*,
+*::before,
+*::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s
+    ease;
+}
+
+/* Don't slow down transforms, animations, or opacity changes */
+[class*="animate-"],
+.animate-spin,
+.animate-ping,
+.animate-bounce,
+.animate-pulse {
+  transition: none !important;
+}

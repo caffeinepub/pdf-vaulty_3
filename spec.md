@@ -1,44 +1,38 @@
 # PDF Vaulty
 
 ## Current State
-
-- Full-stack PDF toolkit on Internet Computer with Motoko backend and React/TypeScript frontend.
-- 12 PDF tools, all lazy-loaded per tool component.
-- Authentication via Internet Identity; tools accessible to guests; My Files and Analytics require login.
-- Backend supports: saveFile (with ExternalBlob actual bytes), getMyFiles, deleteFile, renameFile, saveAnalytics, getMyAnalytics.
-- Frontend: lazy lang loading (only active language loaded), analytics synced to backend, file delete/rename/search/viewer all present in MyFilesPage.
-- Save-to-My-Files one-time guest banner present in ToolPage.
-- Mobile bottom nav with lock icons for guests.
-- Tooltips on disabled nav buttons.
-- `vite.config.js` has `minify: false` — JS/CSS shipped completely uncompressed (critical performance bug).
-- No manual chunk splitting in vite config.
-- Layout shifts detected (CLS 0.132) from tool cards on Dashboard.
-- No structured data (JSON-LD) on individual tool pages.
-- No per-tool processing/loading indicator while PDF operation is in progress.
-- Speed Index 9.3s mobile, TBT 1200ms mobile.
+- 9 PDF tools on dashboard (merge, split, compress, password-protect, rotate, image-to-pdf, pdf-converter, add-page-numbers, add-watermark)
+- My Files page: upload, view, rename, search, delete files — no file sharing
+- No user profile page
+- No crop PDF or flatten PDF forms tools
+- Backend has: saveFile, getMyFiles, deleteFile, renameFile, getCallerUserProfile, saveAnalytics, getMyAnalytics
+- App.tsx ToolId union does not include crop or flatten
 
 ## Requested Changes (Diff)
 
 ### Add
-- JSON-LD structured data (SoftwareApplication schema) on each tool page for better SEO rich results.
-- Processing/loading overlay or spinner in ToolPage while a tool is actively processing a PDF (listen for a processing state from tool context or show a subtle indicator).
-- Preconnect resource hints in index.html for blob.caffeine.ai and identity.internetcomputer.org.
-- Manual chunk splitting in vite.config.js to separate vendor libraries into cacheable chunks.
+- **Crop PDF tool** (`CropPDFTool.tsx`): frontend-only tool, lets user define crop margins (top/bottom/left/right in mm) and applies to all pages using pdf-lib
+- **Flatten PDF Forms tool** (`FlattenPDFTool.tsx`): frontend-only tool, uses pdf-lib to flatten all form fields (making them non-editable)
+- **Profile page** (`ProfilePage.tsx`): shows username, principal ID, total files stored, total storage used (sum of file sizes), and total operations from analytics
+- **File sharing** in MyFilesPage: per-file share button that opens a small dialog letting user choose Public (copy direct URL) or Private (note: files are stored on blob storage with a direct URL — sharing is done by copying the blob's getDirectURL())
+- New ToolIds: `"crop-pdf"` and `"flatten-pdf"` added to App.tsx union and routing
+- New `AppView`: `"profile"` added to App.tsx
+- Navigation: add Profile link in Header for authenticated users
 
 ### Modify
-- `vite.config.js`: change `minify: false` to `minify: 'esbuild'` and add `cssMinify: true` (CRITICAL — biggest single performance win).
-- `vite.config.js`: add `build.rollupOptions.output.manualChunks` to split pdf-lib, pdfjs, jspdf, xlsx, jszip into separate vendor chunks.
-- `Dashboard.tsx`: add explicit `height` constraint to tool card grid items to reduce layout shift (ensure icon boxes and card content have fixed/explicit dimensions).
-- `ToolPage.tsx`: inject JSON-LD `<script type="application/ld+json">` into document head dynamically per tool.
-- `index.html`: add `<link rel="preconnect">` for key external domains.
+- `App.tsx`: add `crop-pdf` and `flatten-pdf` to ToolId union; add `profile` to AppView; lazy-load ProfilePage; add navigation handler; pass profile nav to Header
+- `Dashboard.tsx`: add crop PDF and flatten PDF form tool cards
+- `Header.tsx`: add Profile nav item for authenticated users
+- `MyFilesPage.tsx`: add share button per file row that copies blob direct URL with a public/private note
 
 ### Remove
-- Nothing removed.
+- Nothing removed
 
 ## Implementation Plan
-
-1. **vite.config.js** — Enable `minify: 'esbuild'`, `cssMinify: true`, add manualChunks splitting pdf-lib/pdfjs-dist/jspdf/xlsx/jszip into `vendor-pdf` chunk and react/react-dom/tanstack into `vendor-react` chunk.
-2. **index.html** — Add `<link rel="preconnect" href="https://blob.caffeine.ai">` and `<link rel="preconnect" href="https://identity.internetcomputer.org">`.
-3. **ToolPage.tsx** — On tool mount, inject a `<script type="application/ld+json">` tag into `<head>` with SoftwareApplication schema per tool (name, description, applicationCategory: "UtilityApplication"). Remove on unmount.
-4. **Dashboard.tsx** — Add `will-change: auto` and explicit `min-h` with `h-full` to tool cards; ensure icon boxes use `w-12 h-12 flex-shrink-0` consistently to prevent layout shift.
-5. **ToolPage.tsx** — Expose a `ProcessingContext` or use a simpler approach: add a `data-processing` attribute wrapper that tools can signal; alternatively add a subtle fixed bottom toast-style indicator when file operations are underway (detect via click + timeout pattern similar to existing download detection).
+1. Add `CropPDFTool.tsx` — file upload, crop margin inputs (top/right/bottom/left in mm), apply with pdf-lib, download result
+2. Add `FlattenPDFTool.tsx` — file upload, flatten all AcroForm fields with pdf-lib, download result
+3. Add `ProfilePage.tsx` — query getCallerUserProfile, getMyFiles, getMyAnalytics; display name, principal, file count, total storage, total operations
+4. Update `App.tsx` — add new ToolIds, profile view, lazy imports, handlers
+5. Update `Dashboard.tsx` — add crop and flatten tool cards
+6. Update `Header.tsx` — add Profile nav button for authenticated users
+7. Update `MyFilesPage.tsx` — add share icon per file, clicking it copies the blob getDirectURL() to clipboard with a toast confirmation

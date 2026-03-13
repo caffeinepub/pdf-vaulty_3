@@ -5,7 +5,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
-import { Globe, Moon, Sun } from "lucide-react";
+import { Globe, Moon, Sun, User } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import type { AppView } from "../App";
@@ -20,6 +20,7 @@ interface HeaderProps {
   onNavigateHome: () => void;
   onNavigateAnalytics: () => void;
   onNavigateMyFiles: () => void;
+  onNavigateProfile?: () => void;
   activeView: AppView;
 }
 
@@ -39,6 +40,7 @@ export default function Header({
   onNavigateHome,
   onNavigateAnalytics,
   onNavigateMyFiles,
+  onNavigateProfile,
   activeView,
 }: HeaderProps) {
   const { resolvedTheme, setTheme } = useTheme();
@@ -51,7 +53,6 @@ export default function Header({
 
   const isDark = resolvedTheme === "dark";
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
       if (
@@ -75,13 +76,9 @@ export default function Header({
     onLogout();
   };
 
-  const handleLogin = () => {
-    login();
-  };
+  const handleLogin = () => login();
 
-  const handleThemeToggle = () => {
-    setTheme(isDark ? "light" : "dark");
-  };
+  const handleThemeToggle = () => setTheme(isDark ? "light" : "dark");
 
   const navLinkBase =
     "px-3 py-1.5 text-sm font-medium transition-colors rounded-md whitespace-nowrap";
@@ -105,13 +102,21 @@ export default function Header({
               className="flex flex-row items-center gap-2 group flex-shrink-0"
               data-ocid="nav.home.link"
             >
-              <div className="w-7 h-7 flex-shrink-0 rounded overflow-hidden flex items-center justify-center">
+              {/* Logo container with gradient background so it's visible on both light and dark */}
+              <div className="w-7 h-7 flex-shrink-0 rounded overflow-hidden flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600 p-0.5">
                 <img
                   src="/assets/generated/pdf-vaulty-logo-v3-transparent.dim_256x256.png"
                   alt="PDF Vaulty"
-                  className="w-7 h-7 object-contain"
+                  className="w-full h-full object-contain"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
+                    // Fallback: show initials if image fails
+                    const el = e.target as HTMLImageElement;
+                    el.style.display = "none";
+                    const parent = el.parentElement;
+                    if (parent) {
+                      parent.innerHTML =
+                        '<span style="color:white;font-weight:900;font-size:11px;line-height:1">PV</span>';
+                    }
                   }}
                 />
               </div>
@@ -183,13 +188,23 @@ export default function Header({
                     </TooltipContent>
                   )}
                 </Tooltip>
+                {isAuthenticated && (
+                  <button
+                    type="button"
+                    onClick={onNavigateProfile}
+                    data-ocid="nav.profile.button"
+                    className={`${navLinkBase} ${activeView === "profile" ? navLinkActive : navLinkInactive} flex items-center gap-1.5`}
+                  >
+                    <User className="w-3.5 h-3.5" />
+                    Profile
+                  </button>
+                )}
               </nav>
             </TooltipProvider>
           </div>
 
           {/* Right side */}
           <div className="flex flex-row items-center gap-2 flex-shrink-0">
-            {/* User name */}
             {isAuthenticated && userName && (
               <span className="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                 {userName}
@@ -263,11 +278,12 @@ export default function Header({
               )}
             </div>
 
-            {/* Theme toggle */}
+            {/* Theme toggle — transition-none prevents flash when switching themes */}
             <button
               type="button"
               onClick={handleThemeToggle}
-              className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors rounded-md hover:bg-gray-100 dark:hover:bg-white/10 flex-shrink-0"
+              data-ocid="header.theme.toggle"
+              className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white rounded-md hover:bg-gray-100 dark:hover:bg-white/10 flex-shrink-0 [transition:color_0.15s_ease]"
               aria-label="Toggle theme"
             >
               {isDark ? (
@@ -302,7 +318,7 @@ export default function Header({
         </div>
       </div>
 
-      {/* Mobile bottom nav row — only visible on portrait/small screens */}
+      {/* Mobile bottom nav row */}
       <TooltipProvider delayDuration={300}>
         <nav
           className="flex sm:hidden flex-row items-center justify-around border-t border-gray-200 dark:border-white/10 bg-white dark:bg-[#0d0d0d]"

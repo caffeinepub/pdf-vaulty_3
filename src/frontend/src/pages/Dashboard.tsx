@@ -1,6 +1,8 @@
 import {
   ArrowRightLeft,
   ChevronDown,
+  Crop,
+  FileCheck,
   FileInput,
   FileText,
   Hash,
@@ -92,6 +94,19 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
         icon: Stamp,
         label: t("tool.watermark.label"),
         description: t("tool.watermark.desc"),
+      },
+      {
+        id: "crop-pdf",
+        icon: Crop,
+        label: "Crop PDF",
+        description: "Trim margins from every page of your PDF precisely.",
+      },
+      {
+        id: "flatten-pdf",
+        icon: FileCheck,
+        label: "Flatten PDF Forms",
+        description:
+          "Convert interactive form fields into static, non-editable content.",
       },
     ],
     [t],

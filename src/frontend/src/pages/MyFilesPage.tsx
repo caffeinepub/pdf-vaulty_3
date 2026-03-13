@@ -6,8 +6,11 @@ import {
   FileText,
   FolderOpen,
   Loader2,
+  Lock,
   Pencil,
   Search,
+  Share2,
+  Shield,
   Trash2,
   Upload,
   X,
@@ -28,7 +31,6 @@ interface MyFilesPageProps {
 }
 
 function formatDate(uploadedAt: bigint): string {
-  // uploadedAt is nanoseconds from Time.now() on IC
   const ms = Number(uploadedAt / 1_000_000n);
   return new Date(ms).toLocaleDateString(undefined, {
     year: "numeric",
@@ -46,7 +48,6 @@ interface PdfViewerModalProps {
 }
 
 function PdfViewerModal({ fileName, fileUrl, onClose }: PdfViewerModalProps) {
-  // Close on Escape key
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -62,7 +63,6 @@ function PdfViewerModal({ fileName, fileUrl, onClose }: PdfViewerModalProps) {
       className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-sm w-screen h-screen max-w-none max-h-none m-0 p-0 border-0"
       aria-label={`Viewing ${fileName}`}
     >
-      {/* Modal header */}
       <div className="flex items-center justify-between px-4 py-3 bg-gray-900/90 border-b border-white/10 flex-shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-950/60 flex-shrink-0">
@@ -82,8 +82,6 @@ function PdfViewerModal({ fileName, fileUrl, onClose }: PdfViewerModalProps) {
           <X className="w-5 h-5" />
         </button>
       </div>
-
-      {/* PDF iframe */}
       <div className="flex-1 overflow-hidden">
         <iframe
           src={fileUrl}
@@ -206,34 +204,25 @@ export default function MyFilesPage({
   const saveFile = useSaveFile();
   const deleteFile = useDeleteFile();
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
+  const handleUploadClick = () => fileInputRef.current?.click();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Reset input so same file can be re-selected
     e.target.value = "";
-
     setUploadingFileName(file.name);
     setUploadProgress(0);
-
     try {
       const arrayBuffer = await file.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
-
       const blob = ExternalBlob.fromBytes(bytes).withUploadProgress((pct) => {
         setUploadProgress(pct);
       });
-
       await saveFile.mutateAsync({
         name: file.name,
         size: BigInt(file.size),
         blob,
       });
-
       toast.success(`"${file.name}" uploaded successfully`);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Upload failed";
@@ -257,18 +246,30 @@ export default function MyFilesPage({
     }
   };
 
-  const handleViewPdf = (fileName: string, fileUrl: string) => {
-    setViewerFile({ name: fileName, url: fileUrl });
+  const handleViewPdf = async (fileName: string, fileUrl: string) => {
+    try {
+      const res = await fetch(fileUrl);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(
+        new Blob([blob], { type: "application/pdf" }),
+      );
+      setViewerFile({ name: fileName, url: objectUrl });
+    } catch {
+      // fallback: use direct URL
+      setViewerFile({ name: fileName, url: fileUrl });
+    }
   };
 
   const handleCloseViewer = () => {
+    if (viewerFile?.url.startsWith("blob:")) {
+      URL.revokeObjectURL(viewerFile.url);
+    }
     setViewerFile(null);
   };
 
   const isUploading = !!uploadingFileName;
   const fileCount = files?.length ?? 0;
 
-  // Filter files based on search query
   const filteredFiles = files?.filter((f) =>
     f.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
@@ -276,7 +277,6 @@ export default function MyFilesPage({
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
-      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -285,7 +285,6 @@ export default function MyFilesPage({
         onChange={handleFileChange}
       />
 
-      {/* PDF Viewer Modal */}
       {viewerFile && (
         <PdfViewerModal
           fileName={viewerFile.name}
@@ -304,14 +303,15 @@ export default function MyFilesPage({
           }}
         />
         <div className="relative z-10 max-w-2xl mx-auto">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 bg-blue-50 dark:bg-[#1e3a5f]">
-            <FolderOpen className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 bg-gradient-to-br from-blue-600 to-purple-600">
+            <FolderOpen className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white mb-4 leading-tight tracking-tight">
             My Files
           </h1>
           <p className="text-base text-gray-500 dark:text-white/60 max-w-md mx-auto leading-relaxed">
-            Your private PDF vault — securely stored and accessible only to you.
+            Your private PDF vault — encrypted and accessible only to you,
+            stored securely on the Internet Computer.
           </p>
         </div>
       </section>
@@ -401,22 +401,39 @@ export default function MyFilesPage({
           </div>
         )}
 
-        {/* Empty state */}
+        {/* Enhanced empty state */}
         {!isLoading && !isError && fileCount === 0 && (
           <div
             data-ocid="files.empty_state"
-            className="flex flex-col items-center justify-center py-16 rounded-2xl border border-dashed border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#111111] text-center px-6"
+            className="flex flex-col items-center justify-center py-16 rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-[#111111] text-center px-6"
           >
-            <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-5 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-white/[0.08] shadow-sm">
-              <FileText className="w-9 h-9 text-gray-300 dark:text-white/20" />
+            {/* Illustration */}
+            <div className="relative mb-6">
+              <div className="w-24 h-24 rounded-2xl flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/40 dark:to-purple-950/40 border border-blue-100 dark:border-blue-900/30">
+                <FileText className="w-10 h-10 text-blue-400 dark:text-blue-500" />
+              </div>
+              {/* Shield badge */}
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <Shield className="w-4 h-4 text-white" />
+              </div>
             </div>
-            <p className="text-gray-700 dark:text-white/70 text-lg font-semibold mb-2">
+
+            <p className="text-gray-800 dark:text-white/80 text-xl font-bold mb-2">
               No files uploaded yet
             </p>
-            <p className="text-gray-400 dark:text-white/30 text-sm mb-8 max-w-xs">
+            <p className="text-gray-500 dark:text-white/40 text-sm mb-3 max-w-xs leading-relaxed">
               Upload your first PDF to get started, or use a PDF tool and save
               the result here.
             </p>
+
+            {/* Privacy assurance row */}
+            <div className="flex items-center gap-2 mb-8 px-4 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/30">
+              <Lock className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 flex-shrink-0" />
+              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                Files are private — only you can access them
+              </span>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
@@ -444,7 +461,6 @@ export default function MyFilesPage({
         {/* File list with search */}
         {!isLoading && !isError && fileCount > 0 && (
           <>
-            {/* Search input */}
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/30 pointer-events-none" />
               <input
@@ -468,7 +484,6 @@ export default function MyFilesPage({
               )}
             </div>
 
-            {/* No search results */}
             {searchQuery && !hasSearchResults && (
               <div
                 data-ocid="files.empty_state"
@@ -488,19 +503,16 @@ export default function MyFilesPage({
               </div>
             )}
 
-            {/* File rows */}
             {(searchQuery ? filteredFiles : files)?.map((file, idx) => (
               <div
                 key={file.id}
                 data-ocid={`files.item.${idx + 1}`}
                 className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-4 rounded-xl border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-[#111111] hover:border-blue-300 dark:hover:border-blue-800/60 transition-colors group mb-3 last:mb-0"
               >
-                {/* Icon */}
                 <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50 dark:bg-[#1e3a5f]">
                   <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
 
-                {/* Info — shows rename input or static text */}
                 <div className="flex-1 min-w-0">
                   {renamingId === file.id ? (
                     <RenameInput
@@ -521,10 +533,27 @@ export default function MyFilesPage({
                   )}
                 </div>
 
-                {/* Action buttons — hidden during rename */}
                 {renamingId !== file.id && (
                   <div className="flex items-center gap-1 flex-shrink-0">
-                    {/* View PDF */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard
+                          .writeText(file.blob.getDirectURL())
+                          .then(() => {
+                            toast.success("Link copied to clipboard");
+                          })
+                          .catch(() => {
+                            toast.error("Failed to copy link");
+                          });
+                      }}
+                      data-ocid={`files.share_button.${idx + 1}`}
+                      className="p-2 rounded-lg text-gray-400 dark:text-white/30 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/40 transition-colors"
+                      title="Copy shareable link"
+                      aria-label={`Copy link for ${file.name}`}
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
                     <button
                       type="button"
                       onClick={() =>
@@ -538,7 +567,6 @@ export default function MyFilesPage({
                       <Eye className="w-4 h-4" />
                     </button>
 
-                    {/* Download */}
                     <a
                       href={file.blob.getDirectURL()}
                       download={file.name}
@@ -564,7 +592,6 @@ export default function MyFilesPage({
                       </svg>
                     </a>
 
-                    {/* Rename */}
                     <button
                       type="button"
                       onClick={() => setRenamingId(file.id)}
@@ -576,7 +603,6 @@ export default function MyFilesPage({
                       <Pencil className="w-4 h-4" />
                     </button>
 
-                    {/* Delete */}
                     <button
                       type="button"
                       onClick={() => handleDelete(file.id, file.name)}
@@ -599,7 +625,6 @@ export default function MyFilesPage({
           </>
         )}
 
-        {/* Footer note */}
         {!isLoading && fileCount > 0 && (
           <p className="text-center text-xs text-gray-400 dark:text-white/25 mt-8">
             Files are stored privately on the Internet Computer — only you can

@@ -34,6 +34,8 @@ const PasswordProtectPDFTool = lazy(
 const RotatePDFTool = lazy(() => import("../components/tools/RotatePDFTool"));
 const SplitPDFTool = lazy(() => import("../components/tools/SplitPDFTool"));
 const WordToPDFTool = lazy(() => import("../components/tools/WordToPDFTool"));
+const CropPDFTool = lazy(() => import("../components/tools/CropPDFTool"));
+const FlattenPDFTool = lazy(() => import("../components/tools/FlattenPDFTool"));
 
 interface ToolMeta {
   title: string;
@@ -101,6 +103,207 @@ const toolMeta: Record<ToolId, ToolMeta> = {
     description:
       "Overlay custom text watermarks on your PDF pages. Mark documents as Confidential, Draft, or any text you choose.",
   },
+  "crop-pdf": {
+    title: "Crop PDF",
+    description:
+      "Trim and adjust page margins on every page of your PDF. Remove unwanted whitespace or narrow the visible area precisely.",
+  },
+  "flatten-pdf": {
+    title: "Flatten PDF Forms",
+    description:
+      "Convert interactive form fields into static, non-editable content. Useful for archiving completed forms.",
+  },
+};
+
+const faqSchema: Record<ToolId, Array<{ q: string; a: string }>> = {
+  merge: [
+    {
+      q: "How do I merge PDF files online?",
+      a: "Upload your PDF files using the Merge PDF tool, arrange them in your preferred order, and click Download to get a single combined PDF.",
+    },
+    {
+      q: "Is there a limit to how many PDFs I can merge?",
+      a: "You can merge multiple PDF files at once. For best performance, keep total file size under 50MB.",
+    },
+    {
+      q: "Will merging PDFs reduce quality?",
+      a: "No. PDF Vaulty merges files without re-encoding content, so the original quality is preserved.",
+    },
+  ],
+  split: [
+    {
+      q: "How do I split a PDF into separate pages?",
+      a: "Upload your PDF, choose which pages to extract or how to split, then download the resulting files.",
+    },
+    {
+      q: "Can I extract specific pages from a PDF?",
+      a: "Yes. Use the Split PDF tool to select individual pages or page ranges to extract.",
+    },
+    {
+      q: "Does splitting a PDF change the content?",
+      a: "No. Splitting only separates pages; all text, images, and formatting remain unchanged.",
+    },
+  ],
+  compress: [
+    {
+      q: "How much can I compress a PDF?",
+      a: "Compression results vary by content, but typical PDFs can be reduced by 20–60% without noticeable quality loss.",
+    },
+    {
+      q: "Does compressing a PDF affect text quality?",
+      a: "Text quality is preserved. Compression primarily reduces embedded image sizes.",
+    },
+    {
+      q: "Is the compressed PDF still readable?",
+      a: "Yes. The Compress PDF tool maintains readability while shrinking the file for easier sharing.",
+    },
+  ],
+  "image-to-pdf": [
+    {
+      q: "Which image formats can I convert to PDF?",
+      a: "PDF Vaulty supports JPG, PNG, and other common image formats.",
+    },
+    {
+      q: "Can I combine multiple images into one PDF?",
+      a: "Yes. Upload multiple images and they will be combined into a single PDF document.",
+    },
+    {
+      q: "Will the image quality be preserved?",
+      a: "Images are embedded at their original resolution.",
+    },
+  ],
+  "pdf-to-word": [
+    {
+      q: "Can I edit a PDF after converting to Word?",
+      a: "Yes. Converting to Word produces an editable .docx file you can open in Microsoft Word or Google Docs.",
+    },
+    {
+      q: "Does PDF to Word conversion preserve formatting?",
+      a: "Basic formatting is preserved. Complex layouts may require minor adjustments after conversion.",
+    },
+    {
+      q: "Is my PDF data safe during conversion?",
+      a: "Yes. Processing happens in your browser; your files are never uploaded to external servers.",
+    },
+  ],
+  "word-to-pdf": [
+    {
+      q: "How do I convert a Word document to PDF?",
+      a: "Upload your .docx or .doc file and click Convert. Your PDF will be ready to download instantly.",
+    },
+    {
+      q: "Does the Word to PDF converter preserve formatting?",
+      a: "Yes. Fonts, images, tables, and layout are preserved in the output PDF.",
+    },
+    {
+      q: "What Word file formats are supported?",
+      a: "Both .docx and .doc formats are supported.",
+    },
+  ],
+  "excel-to-pdf": [
+    {
+      q: "How do I convert an Excel spreadsheet to PDF?",
+      a: "Upload your Excel file and click Convert. The tool generates a clean PDF preserving your data.",
+    },
+    {
+      q: "Does the Excel to PDF tool support multiple sheets?",
+      a: "All sheets in the workbook are included in the output PDF.",
+    },
+    {
+      q: "Will my data be safe?",
+      a: "Yes. Conversion is handled locally in your browser; data is not sent to any server.",
+    },
+  ],
+  rotate: [
+    {
+      q: "How do I rotate pages in a PDF?",
+      a: "Upload your PDF, select the rotation angle (90°, 180°, or 270°), and download the corrected file.",
+    },
+    {
+      q: "Can I rotate individual pages or the whole document?",
+      a: "You can rotate all pages at once or choose specific pages to rotate.",
+    },
+    {
+      q: "Does rotating a PDF affect its content?",
+      a: "No. Only the page orientation changes; all content remains intact.",
+    },
+  ],
+  "password-protect": [
+    {
+      q: "How do I add a password to a PDF?",
+      a: "Upload your PDF, set a password, and download the encrypted file. Anyone opening it will need to enter the password.",
+    },
+    {
+      q: "Is password-protected PDF encryption strong?",
+      a: "Yes. PDF Vaulty uses standard AES PDF encryption for password protection.",
+    },
+    {
+      q: "Can I remove the password later?",
+      a: "You would need the original password to unlock and remove protection from the file.",
+    },
+  ],
+  "pdf-converter": [
+    {
+      q: "What formats can I convert a PDF to?",
+      a: "Use the PDF Converter tool to convert PDFs to Excel spreadsheets or export pages as JPG or PNG images.",
+    },
+    {
+      q: "Can I export all pages as images at once?",
+      a: "Yes. The tool exports all pages as a ZIP archive of individual images.",
+    },
+    {
+      q: "Will the Excel conversion include all my PDF data?",
+      a: "The tool extracts tabular data from your PDF into an Excel-compatible format.",
+    },
+  ],
+  "add-page-numbers": [
+    {
+      q: "How do I add page numbers to a PDF?",
+      a: "Upload your PDF, choose the position and starting number, then download the numbered document.",
+    },
+    {
+      q: "Can I choose where page numbers appear?",
+      a: "Yes. You can place numbers at the top or bottom, and left, center, or right of each page.",
+    },
+    {
+      q: "Does adding page numbers change the PDF layout?",
+      a: "Page numbers are added as a small overlay; the rest of the content remains unchanged.",
+    },
+  ],
+  "crop-pdf": [
+    {
+      q: "What does cropping a PDF do?",
+      a: "Cropping removes visible margins from each page by adjusting the PDF's crop box. The original content is preserved; only the visible area changes.",
+    },
+    {
+      q: "Will cropping reduce file size?",
+      a: "Cropping adjusts the visible page area but does not remove underlying content, so file size remains similar.",
+    },
+  ],
+  "flatten-pdf": [
+    {
+      q: "What does flattening a PDF mean?",
+      a: "Flattening converts all interactive form fields (text inputs, checkboxes, signatures) into static content so they can no longer be edited.",
+    },
+    {
+      q: "Is the appearance preserved after flattening?",
+      a: "Yes. The visual appearance of the filled-in form is preserved exactly; only interactivity is removed.",
+    },
+  ],
+  "add-watermark": [
+    {
+      q: "How do I add a watermark to a PDF?",
+      a: "Upload your PDF, type your watermark text (e.g. Confidential), choose size and opacity, then download.",
+    },
+    {
+      q: "Can I customize the watermark text?",
+      a: "Yes. You can enter any text and adjust its size, opacity, and angle.",
+    },
+    {
+      q: "Does the watermark affect the original content?",
+      a: "The watermark is overlaid on top of existing content without altering it.",
+    },
+  ],
 };
 
 const SESSION_KEY = "pdfvaulty_save_prompt_shown";
@@ -154,11 +357,30 @@ export default function ToolPage({
     });
     document.head.appendChild(script);
 
+    // Inject FAQ structured data for this tool
+    const faqItems = faqSchema[toolId];
+    if (faqItems) {
+      const faqScript = document.createElement("script");
+      faqScript.type = "application/ld+json";
+      faqScript.id = "tool-faq-jsonld";
+      faqScript.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqItems.map(({ q, a }) => ({
+          "@type": "Question",
+          name: q,
+          acceptedAnswer: { "@type": "Answer", text: a },
+        })),
+      });
+      document.head.appendChild(faqScript);
+    }
+
     return () => {
       document.title = "PDF Vaulty – Your Secure PDF Toolkit";
       document.getElementById("tool-jsonld")?.remove();
+      document.getElementById("tool-faq-jsonld")?.remove();
     };
-  }, [meta.title, meta.description]);
+  }, [meta.title, meta.description, toolId]);
 
   // Listen for file input change events in tool area to show processing indicator
   useEffect(() => {
@@ -251,6 +473,10 @@ export default function ToolPage({
         return <AddPageNumbersTool />;
       case "add-watermark":
         return <AddWatermarkTool />;
+      case "crop-pdf":
+        return <CropPDFTool />;
+      case "flatten-pdf":
+        return <FlattenPDFTool />;
       default:
         return null;
     }

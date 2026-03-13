@@ -1,5 +1,5 @@
 // Language code type — used throughout the app
-export type LangCode = "en" | "ar" | "fr" | "es" | "hi" | "pt";
+export type LangCode = "en" | "ar" | "fr" | "es" | "hi" | "pt" | "mr" | "bn";
 
 // translations object kept for any legacy imports (only English bundled inline)
 // Individual language chunks are lazy-loaded via LanguageContext
@@ -11,4 +11,6 @@ export const translations: Record<LangCode, Record<string, string>> = {
   es: {},
   hi: {},
   pt: {},
+  mr: {},
+  bn: {},
 };

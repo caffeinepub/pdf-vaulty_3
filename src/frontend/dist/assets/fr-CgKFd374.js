@@ -1,4 +1,4 @@
-const fr: Record<string, string> = {
+const fr = {
   "nav.home": "Accueil",
   "nav.analytics": "Analytique",
   "nav.myFiles": "Mes Fichiers",
@@ -6,23 +6,18 @@ const fr: Record<string, string> = {
   "nav.logout": "Déconnexion",
   "nav.loggingIn": "Connexion en cours...",
   "hero.title": "Votre PDF Vaulty Complet",
-  "hero.subtitle":
-    "Fusionnez, divisez, compressez et gérez vos fichiers PDF facilement. Tous les outils en un seul endroit.",
+  "hero.subtitle": "Fusionnez, divisez, compressez et gérez vos fichiers PDF facilement. Tous les outils en un seul endroit.",
   "hero.cta": "Commencer",
   "tools.heading": "Outils PDF Puissants",
-  "tools.subheading":
-    "Tout ce dont vous avez besoin pour travailler avec des fichiers PDF",
+  "tools.subheading": "Tout ce dont vous avez besoin pour travailler avec des fichiers PDF",
   "tool.merge.label": "Fusionner des PDF",
   "tool.merge.desc": "Combiner plusieurs fichiers PDF en un seul document",
   "tool.split.label": "Diviser des PDF",
-  "tool.split.desc":
-    "Extraire des pages spécifiques ou diviser des documents en fichiers séparés",
+  "tool.split.desc": "Extraire des pages spécifiques ou diviser des documents en fichiers séparés",
   "tool.compress.label": "Compresser des PDF",
-  "tool.compress.desc":
-    "Réduire la taille du fichier tout en maintenant la qualité",
+  "tool.compress.desc": "Réduire la taille du fichier tout en maintenant la qualité",
   "tool.protect.label": "Protéger des PDF",
-  "tool.protect.desc":
-    "Ajouter ou supprimer la protection par mot de passe de vos documents",
+  "tool.protect.desc": "Ajouter ou supprimer la protection par mot de passe de vos documents",
   "tool.rotate.label": "Faire pivoter des PDF",
   "tool.rotate.desc": "Faire pivoter les pages PDF de 90, 180 ou 270 degrés",
   "tool.imageToPdf.label": "Convertir en PDF",
@@ -30,20 +25,15 @@ const fr: Record<string, string> = {
   "tool.converter.label": "Convertisseur PDF",
   "tool.converter.desc": "Convertir PDF en tableur Excel ou images JPG/PNG",
   "tool.pageNumbers.label": "Ajouter des numéros de page",
-  "tool.pageNumbers.desc":
-    "Tamponner des numéros de page sur votre document PDF",
+  "tool.pageNumbers.desc": "Tamponner des numéros de page sur votre document PDF",
   "tool.watermark.label": "Ajouter un filigrane",
-  "tool.watermark.desc":
-    "Superposer un texte de filigrane personnalisé sur votre PDF",
+  "tool.watermark.desc": "Superposer un texte de filigrane personnalisé sur votre PDF",
   "feature.easy.title": "Facile à utiliser",
-  "feature.easy.desc":
-    "Interface simple et intuitive pour tous vos besoins PDF",
+  "feature.easy.desc": "Interface simple et intuitive pour tous vos besoins PDF",
   "feature.secure.title": "Sécurisé & Privé",
-  "feature.secure.desc":
-    "Vos fichiers sont traités en toute sécurité et ne sont jamais partagés",
+  "feature.secure.desc": "Vos fichiers sont traités en toute sécurité et ne sont jamais partagés",
   "feature.powerful.title": "Outils Puissants",
-  "feature.powerful.desc":
-    "Outils PDF de qualité professionnelle à portée de main",
+  "feature.powerful.desc": "Outils PDF de qualité professionnelle à portée de main",
   "footer.rights": "Tous droits réservés.",
   "footer.tagline": "Construit avec amour en utilisant",
   "lang.en": "English",
@@ -55,8 +45,7 @@ const fr: Record<string, string> = {
   "lang.mr": "मराठी",
   "lang.bn": "বাংলা",
   "login.title": "Votre PDF Vaulty Complet",
-  "login.subtitle":
-    "Fusionnez, divisez, compressez et gérez vos fichiers PDF facilement. Tous les outils en un seul endroit.",
+  "login.subtitle": "Fusionnez, divisez, compressez et gérez vos fichiers PDF facilement. Tous les outils en un seul endroit.",
   "login.button": "Se connecter pour commencer",
   "login.feature1": "Fusionner et diviser des PDF",
   "login.feature2": "Sécurisé et Privé",
@@ -71,29 +60,22 @@ const fr: Record<string, string> = {
   "faq.heading": "Questions Fréquentes",
   "faq.subheading": "Tout ce que vous devez savoir sur PDF Vaulty",
   "faq.q1": "PDF Vaulty est-il gratuit?",
-  "faq.a1":
-    "Oui, PDF Vaulty est entièrement gratuit. Tous les outils PDF sont disponibles sans frais.",
+  "faq.a1": "Oui, PDF Vaulty est entièrement gratuit. Tous les outils PDF sont disponibles sans frais.",
   "faq.q2": "Mes fichiers PDF sont-ils sécurisés?",
-  "faq.a2":
-    "Vos fichiers sont traités entièrement dans votre navigateur. Nous ne les stockons ni partageons jamais.",
+  "faq.a2": "Vos fichiers sont traités entièrement dans votre navigateur. Nous ne les stockons ni partageons jamais.",
   "faq.q3": "Dois-je créer un compte?",
-  "faq.a3":
-    "Aucun compte n'est nécessaire pour utiliser la plupart des outils. La connexion est optionnelle.",
+  "faq.a3": "Aucun compte n'est nécessaire pour utiliser la plupart des outils. La connexion est optionnelle.",
   "faq.q4": "Quelle taille de fichier puis-je télécharger?",
-  "faq.a4":
-    "PDF Vaulty prend en charge la plupart des fichiers PDF standard. Pour de meilleurs résultats, utilisez des fichiers inférieurs à 50 Mo.",
+  "faq.a4": "PDF Vaulty prend en charge la plupart des fichiers PDF standard. Pour de meilleurs résultats, utilisez des fichiers inférieurs à 50 Mo.",
   "faq.q5": "Puis-je utiliser PDF Vaulty sur mobile?",
-  "faq.a5":
-    "Oui, PDF Vaulty est entièrement responsive et fonctionne sur smartphones, tablettes et ordinateurs.",
+  "faq.a5": "Oui, PDF Vaulty est entièrement responsive et fonctionne sur smartphones, tablettes et ordinateurs.",
   "faq.q6": "Comment fusionner plusieurs PDF?",
-  "faq.a6":
-    "Cliquez sur l'outil Fusionner PDF, téléchargez deux fichiers ou plus, puis cliquez sur le bouton Fusionner.",
+  "faq.a6": "Cliquez sur l'outil Fusionner PDF, téléchargez deux fichiers ou plus, puis cliquez sur le bouton Fusionner.",
   "faq.q7": "PDF Vaulty fonctionne-t-il hors ligne?",
-  "faq.a7":
-    "PDF Vaulty nécessite une connexion Internet pour se charger, mais tout le traitement PDF se fait localement dans votre navigateur.",
+  "faq.a7": "PDF Vaulty nécessite une connexion Internet pour se charger, mais tout le traitement PDF se fait localement dans votre navigateur.",
   "faq.q8": "Vers quels formats puis-je convertir des PDF?",
-  "faq.a8":
-    "Avec le convertisseur PDF, vous pouvez exporter des PDF en tableurs Excel ou en images JPG ou PNG.",
+  "faq.a8": "Avec le convertisseur PDF, vous pouvez exporter des PDF en tableurs Excel ou en images JPG ou PNG."
 };
-
-export default fr;
+export {
+  fr as default
+};

@@ -20,6 +20,8 @@ const langLoaders: Record<
   es: () => import("../i18n/lang/es"),
   hi: () => import("../i18n/lang/hi"),
   pt: () => import("../i18n/lang/pt"),
+  mr: () => import("../i18n/lang/mr"),
+  bn: () => import("../i18n/lang/bn"),
 };
 
 interface LanguageContextType {
@@ -35,7 +37,16 @@ const LanguageContext = createContext<LanguageContextType>({
 });
 
 const STORAGE_KEY = "pdf-vaulty-lang";
-const VALID_LANGS: LangCode[] = ["en", "ar", "fr", "es", "hi", "pt"];
+const VALID_LANGS: LangCode[] = [
+  "en",
+  "ar",
+  "fr",
+  "es",
+  "hi",
+  "pt",
+  "mr",
+  "bn",
+];
 
 function getInitialLang(): LangCode {
   try {

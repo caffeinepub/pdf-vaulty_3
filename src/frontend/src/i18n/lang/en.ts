@@ -57,6 +57,8 @@ const en: Record<string, string> = {
   "lang.es": "Español",
   "lang.hi": "हिन्दी",
   "lang.pt": "Português",
+  "lang.mr": "मराठी",
+  "lang.bn": "বাংলা",
 
   // Login page
   "login.title": "Your Complete PDF Vaulty",

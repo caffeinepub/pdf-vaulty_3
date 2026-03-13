@@ -31,6 +31,8 @@ const LANGUAGES: { code: LangCode; flag: string }[] = [
   { code: "es", flag: "🇪🇸" },
   { code: "hi", flag: "🇮🇳" },
   { code: "pt", flag: "🇧🇷" },
+  { code: "mr", flag: "🇮🇳" },
+  { code: "bn", flag: "🇧🇩" },
 ];
 
 export default function Header({
@@ -102,14 +104,12 @@ export default function Header({
               className="flex flex-row items-center gap-2 group flex-shrink-0"
               data-ocid="nav.home.link"
             >
-              {/* Logo container with gradient background so it's visible on both light and dark */}
               <div className="w-7 h-7 flex-shrink-0 rounded overflow-hidden flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600 p-0.5">
                 <img
                   src="/assets/generated/pdf-vaulty-logo-v3-transparent.dim_256x256.png"
                   alt="PDF Vaulty"
                   className="w-full h-full object-contain"
                   onError={(e) => {
-                    // Fallback: show initials if image fails
                     const el = e.target as HTMLImageElement;
                     el.style.display = "none";
                     const parent = el.parentElement;
@@ -278,7 +278,7 @@ export default function Header({
               )}
             </div>
 
-            {/* Theme toggle — transition-none prevents flash when switching themes */}
+            {/* Theme toggle */}
             <button
               type="button"
               onClick={handleThemeToggle}
@@ -318,12 +318,13 @@ export default function Header({
         </div>
       </div>
 
-      {/* Mobile bottom nav row */}
+      {/* Mobile bottom nav — Home, My Files, Profile (3 items, compact) */}
       <TooltipProvider delayDuration={300}>
         <nav
           className="flex sm:hidden flex-row items-center justify-around border-t border-gray-200 dark:border-white/10 bg-white dark:bg-[#0d0d0d]"
           aria-label="Mobile navigation"
         >
+          {/* Home */}
           <button
             type="button"
             onClick={onNavigateHome}
@@ -337,48 +338,7 @@ export default function Header({
             {t("nav.home")}
           </button>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="flex-1">
-                <button
-                  type="button"
-                  onClick={isAuthenticated ? onNavigateAnalytics : undefined}
-                  disabled={!isAuthenticated}
-                  data-ocid="mobile.nav.analytics.button"
-                  className={`w-full flex items-center justify-center py-2.5 text-xs font-medium transition-colors min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed ${
-                    activeView === "analytics"
-                      ? "text-blue-600 dark:text-blue-400 border-t-2 border-blue-500 dark:border-blue-400 -mt-px"
-                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border-t-2 border-transparent -mt-px"
-                  }`}
-                >
-                  {t("nav.analytics")}
-                  {!isAuthenticated && (
-                    <svg
-                      className="ml-1 w-3 h-3 opacity-50"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      aria-hidden="true"
-                    >
-                      <title>Login required</title>
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                      />
-                    </svg>
-                  )}
-                </button>
-              </span>
-            </TooltipTrigger>
-            {!isAuthenticated && (
-              <TooltipContent data-ocid="mobile.nav.analytics.tooltip">
-                <p>Login required</p>
-              </TooltipContent>
-            )}
-          </Tooltip>
-
+          {/* My Files */}
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="flex-1">
@@ -416,6 +376,49 @@ export default function Header({
             </TooltipTrigger>
             {!isAuthenticated && (
               <TooltipContent data-ocid="mobile.nav.myfiles.tooltip">
+                <p>Login required</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+
+          {/* Profile */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="flex-1">
+                <button
+                  type="button"
+                  onClick={isAuthenticated ? onNavigateProfile : undefined}
+                  disabled={!isAuthenticated}
+                  data-ocid="mobile.nav.profile.button"
+                  className={`w-full flex items-center justify-center py-2.5 text-xs font-medium transition-colors min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed ${
+                    activeView === "profile"
+                      ? "text-blue-600 dark:text-blue-400 border-t-2 border-blue-500 dark:border-blue-400 -mt-px"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border-t-2 border-transparent -mt-px"
+                  }`}
+                >
+                  Profile
+                  {!isAuthenticated && (
+                    <svg
+                      className="ml-1 w-3 h-3 opacity-50"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      aria-hidden="true"
+                    >
+                      <title>Login required</title>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </span>
+            </TooltipTrigger>
+            {!isAuthenticated && (
+              <TooltipContent data-ocid="mobile.nav.profile.tooltip">
                 <p>Login required</p>
               </TooltipContent>
             )}

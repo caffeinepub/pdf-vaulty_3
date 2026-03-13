@@ -1,13 +1,14 @@
 import {
   BarChart2,
-  FileInput,
   FileText,
   HardDrive,
   Hash,
+  FileInput,
   Layers,
   Lock,
   Minimize2,
   RotateCw,
+  TrendingUp,
   User,
 } from "lucide-react";
 import type { ToolId } from "../App";
@@ -80,6 +81,8 @@ export default function ProfilePage({
   const maxCount = Math.max(...toolStatsWithCounts.map((s) => s.count), 1);
   const hasToolUsage = mergedAnalytics.totalOperations > 0;
 
+  const toolsUsedCount = Object.keys(mergedAnalytics.byTool).length;
+
   const stats = [
     {
       icon: FileText,
@@ -98,6 +101,18 @@ export default function ProfilePage({
       label: "Total Operations",
       value: totalOps,
       ocid: "profile.operations.card",
+    },
+    {
+      icon: TrendingUp,
+      label: "Files Processed",
+      value: mergedAnalytics.filesProcessed,
+      ocid: "profile.files_processed.card",
+    },
+    {
+      icon: BarChart2,
+      label: "Tools Used",
+      value: toolsUsedCount,
+      ocid: "profile.tools_used.card",
     },
   ];
 
@@ -138,17 +153,17 @@ export default function ProfilePage({
 
       {/* Stats */}
       <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
               <div
                 key={stat.label}
                 data-ocid={stat.ocid}
-                className="flex flex-col items-center gap-3 p-6 rounded-xl border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-[#111111] text-center"
+                className="flex flex-col items-center gap-3 p-5 rounded-xl border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-[#111111] text-center"
               >
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-50 dark:bg-[#1e3a5f]">
-                  <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 dark:bg-[#1e3a5f]">
+                  <Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
                   <p className="text-2xl font-black text-gray-900 dark:text-white">

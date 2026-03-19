@@ -18,21 +18,20 @@ interface HeaderProps {
   userName?: string;
   onLogout: () => void;
   onNavigateHome: () => void;
-  onNavigateAnalytics: () => void;
   onNavigateMyFiles: () => void;
   onNavigateProfile?: () => void;
   activeView: AppView;
 }
 
-const LANGUAGES: { code: LangCode; flag: string }[] = [
-  { code: "en", flag: "🇬🇧" },
-  { code: "ar", flag: "🇸🇦" },
-  { code: "fr", flag: "🇫🇷" },
-  { code: "es", flag: "🇪🇸" },
-  { code: "hi", flag: "🇮🇳" },
-  { code: "pt", flag: "🇧🇷" },
-  { code: "mr", flag: "🇮🇳" },
-  { code: "bn", flag: "🇧🇩" },
+const LANGUAGES: { code: LangCode }[] = [
+  { code: "en" },
+  { code: "ar" },
+  { code: "fr" },
+  { code: "es" },
+  { code: "hi" },
+  { code: "pt" },
+  { code: "mr" },
+  { code: "bn" },
 ];
 
 export default function Header({
@@ -40,7 +39,6 @@ export default function Header({
   userName,
   onLogout,
   onNavigateHome,
-  onNavigateAnalytics,
   onNavigateMyFiles,
   onNavigateProfile,
   activeView,
@@ -142,32 +140,6 @@ export default function Header({
                       <button
                         type="button"
                         onClick={
-                          isAuthenticated ? onNavigateAnalytics : undefined
-                        }
-                        disabled={!isAuthenticated}
-                        data-ocid="nav.analytics.button"
-                        className={`${navLinkBase} ${
-                          activeView === "analytics"
-                            ? navLinkActive
-                            : navLinkInactive
-                        } disabled:opacity-40 disabled:cursor-not-allowed`}
-                      >
-                        {t("nav.analytics")}
-                      </button>
-                    </span>
-                  </TooltipTrigger>
-                  {!isAuthenticated && (
-                    <TooltipContent data-ocid="nav.analytics.tooltip">
-                      <p>Login required</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span>
-                      <button
-                        type="button"
-                        onClick={
                           isAuthenticated ? onNavigateMyFiles : undefined
                         }
                         disabled={!isAuthenticated}
@@ -196,7 +168,7 @@ export default function Header({
                     className={`${navLinkBase} ${activeView === "profile" ? navLinkActive : navLinkInactive} flex items-center gap-1.5`}
                   >
                     <User className="w-3.5 h-3.5" />
-                    Profile
+                    {t("nav.profile")}
                   </button>
                 )}
               </nav>
@@ -235,7 +207,7 @@ export default function Header({
                   className="absolute right-0 top-full mt-1.5 w-44 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1a1a1a] shadow-lg shadow-black/10 dark:shadow-black/40 overflow-hidden z-[100]"
                 >
                   <div className="py-1">
-                    {LANGUAGES.map(({ code, flag }) => {
+                    {LANGUAGES.map(({ code }) => {
                       const isActive = lang === code;
                       return (
                         <button
@@ -252,7 +224,6 @@ export default function Header({
                               : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
                           }`}
                         >
-                          <span className="text-base leading-none">{flag}</span>
                           <span>{t(`lang.${code}`)}</span>
                           {isActive && (
                             <svg
@@ -318,7 +289,7 @@ export default function Header({
         </div>
       </div>
 
-      {/* Mobile bottom nav — Home, My Files, Profile (3 items, compact) */}
+      {/* Mobile bottom nav */}
       <TooltipProvider delayDuration={300}>
         <nav
           className="flex sm:hidden flex-row items-center justify-around border-t border-gray-200 dark:border-white/10 bg-white dark:bg-[#0d0d0d]"
@@ -396,7 +367,7 @@ export default function Header({
                       : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border-t-2 border-transparent -mt-px"
                   }`}
                 >
-                  Profile
+                  {t("nav.profile")}
                   {!isAuthenticated && (
                     <svg
                       className="ml-1 w-3 h-3 opacity-50"

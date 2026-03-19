@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { usePdfWorker } from "@/hooks/usePdfWorker";
 import { Download, Merge } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -17,6 +18,7 @@ interface UploadedFile {
 export default function MergePDFTool() {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { processInWorker } = usePdfWorker();
 
   const handleMerge = async () => {
     if (files.length < 2) {
@@ -25,24 +27,32 @@ export default function MergePDFTool() {
     }
     setIsProcessing(true);
     try {
-      await ensurePdfLibLoaded();
-      const { PDFDocument } = getPDFLib();
-      const mergedPdf = await PDFDocument.create();
+      const fileBuffers = await Promise.all(
+        files.map(({ file }) => file.arrayBuffer()),
+      );
 
-      for (const { file } of files) {
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await PDFDocument.load(arrayBuffer);
-        const copiedPages = await mergedPdf.copyPages(
-          pdf,
-          pdf.getPageIndices(),
-        );
-        for (const page of copiedPages) {
-          mergedPdf.addPage(page);
+      let mergedBytes: Uint8Array;
+      try {
+        mergedBytes = await processInWorker("merge", { fileBuffers });
+      } catch {
+        // Fallback to inline processing
+        await ensurePdfLibLoaded();
+        const { PDFDocument } = getPDFLib();
+        const mergedPdf = await PDFDocument.create();
+        for (const buffer of fileBuffers) {
+          const pdf = await PDFDocument.load(buffer);
+          const copiedPages = await mergedPdf.copyPages(
+            pdf,
+            pdf.getPageIndices(),
+          );
+          for (const page of copiedPages) {
+            mergedPdf.addPage(page);
+          }
         }
+        mergedBytes = new Uint8Array(await mergedPdf.save());
       }
 
-      const mergedBytes = await mergedPdf.save();
-      downloadBytes(new Uint8Array(mergedBytes), "merged.pdf");
+      downloadBytes(mergedBytes, "merged.pdf");
       toast.success("PDFs merged successfully!");
     } catch (err) {
       toast.error(

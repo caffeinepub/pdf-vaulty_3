@@ -3,6 +3,7 @@ const en: Record<string, string> = {
   "nav.home": "Home",
   "nav.analytics": "Analytics",
   "nav.myFiles": "My Files",
+  "nav.profile": "Profile",
   "nav.login": "Login",
   "nav.logout": "Logout",
   "nav.loggingIn": "Logging in...",
@@ -37,6 +38,11 @@ const en: Record<string, string> = {
   "tool.pageNumbers.desc": "Stamp page numbers onto your PDF document",
   "tool.watermark.label": "Add Watermark",
   "tool.watermark.desc": "Overlay custom watermark text on your PDF",
+  "tool.crop.label": "Crop PDF",
+  "tool.crop.desc": "Trim margins from every page of your PDF precisely.",
+  "tool.flatten.label": "Flatten PDF Forms",
+  "tool.flatten.desc":
+    "Convert interactive form fields into static, non-editable content.",
 
   // Feature strip
   "feature.easy.title": "Easy to Use",
@@ -107,6 +113,48 @@ const en: Record<string, string> = {
   "faq.q8": "What formats can I convert PDFs to?",
   "faq.a8":
     "Using the PDF Converter tool, you can export PDFs as Excel spreadsheets (.xlsx) or as images in JPG or PNG format.",
+
+  // Profile page
+  "profile.yourProfile": "Your Profile",
+  "profile.filesStored": "Files Stored",
+  "profile.storageUsed": "Storage Used",
+  "profile.totalOperations": "Total Operations",
+  "profile.toolUsage": "Tool Usage",
+  "profile.toolEmpty": "Use PDF tools to see your usage stats here.",
+  "profile.accountDetails": "Account Details",
+  "profile.displayName": "Display Name",
+  "profile.principalId": "Principal ID",
+  "profile.authProvider": "Auth Provider",
+  "profile.internetIdentity": "Internet Identity",
+  "profile.backToDashboard": "← Back to Dashboard",
+
+  // My Files page
+  "myfiles.title": "My Files",
+  "myfiles.subtitle":
+    "Your private PDF vault - encrypted and accessible only to you, stored securely on the Internet Computer.",
+  "myfiles.storedFiles": "Stored Files",
+  "myfiles.file": "file",
+  "myfiles.files": "files",
+  "myfiles.uploadPdf": "Upload PDF",
+  "myfiles.uploading": "Uploading...",
+  "myfiles.loadingFiles": "Loading your files...",
+  "myfiles.failedToLoad": "Failed to load files",
+  "myfiles.refreshPage": "Please try refreshing the page.",
+  "myfiles.noFiles": "No files uploaded yet",
+  "myfiles.noFilesDesc":
+    "Upload your first PDF to get started, or use a PDF tool and save the result here.",
+  "myfiles.filesPrivate": "Files are private - only you can access them",
+  "myfiles.goToTools": "Go to PDF Tools",
+  "myfiles.searchPlaceholder": "Search files...",
+  "myfiles.clearSearch": "Clear search",
+  "myfiles.noMatch": "No files match",
+  "myfiles.uploaded": "Uploaded",
+  "myfiles.filesPrivateFooter":
+    "Files are stored privately on the Internet Computer - only you can access them.",
+  "myfiles.copyLink": "Copy shareable link",
+  "myfiles.viewPdf": "View PDF",
+  "myfiles.renameFile": "Rename file",
+  "myfiles.deleteFile": "Delete file",
 };
 
 export default en;

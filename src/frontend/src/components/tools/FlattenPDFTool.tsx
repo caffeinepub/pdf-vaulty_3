@@ -1,3 +1,4 @@
+import { usePdfWorker } from "@/hooks/usePdfWorker";
 import { FileCheck, Loader2, Upload } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { ensurePdfLibLoaded, getPDFLib } from "../../lib/pdfUtils";
@@ -7,6 +8,7 @@ export default function FlattenPDFTool() {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { processInWorker } = usePdfWorker();
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -24,30 +26,38 @@ export default function FlattenPDFTool() {
     if (!file) return;
     setIsProcessing(true);
     try {
-      await ensurePdfLibLoaded();
-      const { PDFDocument } = getPDFLib();
-      const bytes = new Uint8Array(await file.arrayBuffer());
-      const pdfDoc = await PDFDocument.load(
-        bytes as unknown as Uint8Array,
-        { ignoreEncryption: true } as Record<string, unknown>,
-      );
-      // Access form via runtime API (not in stripped type declarations)
-      const doc = pdfDoc as unknown as Record<
-        string,
-        () => {
-          getFields: () => Array<{ enableReadOnly: () => void }>;
-          flatten: () => void;
+      const fileBuffer = await file.arrayBuffer();
+      let out: Uint8Array;
+
+      try {
+        out = await processInWorker("flatten", { fileBuffer });
+      } catch {
+        // Fallback to inline
+        await ensurePdfLibLoaded();
+        const { PDFDocument } = getPDFLib();
+        const bytes = new Uint8Array(fileBuffer);
+        const pdfDoc = await PDFDocument.load(
+          bytes as unknown as Uint8Array,
+          { ignoreEncryption: true } as Record<string, unknown>,
+        );
+        const doc = pdfDoc as unknown as Record<
+          string,
+          () => {
+            getFields: () => Array<{ enableReadOnly: () => void }>;
+            flatten: () => void;
+          }
+        >;
+        if (typeof doc.getForm === "function") {
+          const form = doc.getForm();
+          const fields = form.getFields();
+          for (const field of fields) {
+            field.enableReadOnly();
+          }
+          form.flatten();
         }
-      >;
-      if (typeof doc.getForm === "function") {
-        const form = doc.getForm();
-        const fields = form.getFields();
-        for (const field of fields) {
-          field.enableReadOnly();
-        }
-        form.flatten();
+        out = new Uint8Array(await pdfDoc.save());
       }
-      const out = await pdfDoc.save();
+
       const blob = new Blob([out.buffer as ArrayBuffer], {
         type: "application/pdf",
       });

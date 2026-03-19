@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { usePdfWorker } from "@/hooks/usePdfWorker";
 import { Download, FileText, RotateCw } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ export default function RotatePDFTool() {
   const [rotation, setRotation] = useState(90);
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { processInWorker } = usePdfWorker();
 
   const handleFileChange = async (newFiles: UploadedFile[]) => {
     setFiles(newFiles);
@@ -49,23 +51,29 @@ export default function RotatePDFTool() {
     }
     setIsProcessing(true);
     try {
-      const ab = await files[0].file.arrayBuffer();
-      await ensurePdfLibLoaded();
-      const { PDFDocument, degrees } = getPDFLib();
-      const pdfDoc = await PDFDocument.load(ab);
-      const pages = pdfDoc.getPages();
+      const fileBuffer = await files[0].file.arrayBuffer();
+      let rotatedBytes: Uint8Array;
 
-      for (const page of pages) {
-        const currentRotation = page.getRotation().angle;
-        const newRotation = (currentRotation + rotation) % 360;
-        page.setRotation(degrees(newRotation));
+      try {
+        rotatedBytes = await processInWorker("rotate", {
+          fileBuffer,
+          angle: rotation,
+        });
+      } catch {
+        // Fallback to inline
+        await ensurePdfLibLoaded();
+        const { PDFDocument, degrees } = getPDFLib();
+        const pdfDoc = await PDFDocument.load(fileBuffer);
+        const pages = pdfDoc.getPages();
+        for (const page of pages) {
+          const currentRotation = page.getRotation().angle;
+          const newRotation = (currentRotation + rotation) % 360;
+          page.setRotation(degrees(newRotation));
+        }
+        rotatedBytes = new Uint8Array(await pdfDoc.save());
       }
 
-      const rotatedBytes = await pdfDoc.save();
-      downloadBytes(
-        new Uint8Array(rotatedBytes),
-        `rotated-${files[0].file.name}`,
-      );
+      downloadBytes(rotatedBytes, `rotated-${files[0].file.name}`);
       toast.success("PDF rotated successfully!");
     } catch (err) {
       toast.error("Failed to rotate PDF.");

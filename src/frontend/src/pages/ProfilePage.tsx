@@ -11,6 +11,7 @@ import {
   User,
 } from "lucide-react";
 import type { ToolId } from "../App";
+import { useLanguage } from "../contexts/LanguageContext";
 import { useAnalytics, useSyncAnalytics } from "../hooks/useAnalytics";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
@@ -25,29 +26,46 @@ interface ProfilePageProps {
 }
 
 interface ToolStat {
-  label: string;
+  labelKey: string;
   icon: React.ElementType;
   toolId: ToolId;
 }
 
 const TOOL_STATS: ToolStat[] = [
-  { label: "Merge PDFs", icon: Layers, toolId: "merge" },
-  { label: "Split PDFs", icon: FileText, toolId: "split" },
-  { label: "Compress PDFs", icon: Minimize2, toolId: "compress" },
-  { label: "Protect PDFs", icon: Lock, toolId: "password-protect" },
-  { label: "Rotate PDFs", icon: RotateCw, toolId: "rotate" },
-  { label: "Convert PDFs", icon: FileInput, toolId: "pdf-converter" },
-  { label: "Add Watermark", icon: FileText, toolId: "add-watermark" },
-  { label: "Add Page Numbers", icon: FileText, toolId: "add-page-numbers" },
-  { label: "Word to PDF", icon: FileInput, toolId: "word-to-pdf" },
-  { label: "Excel to PDF", icon: FileInput, toolId: "excel-to-pdf" },
-  { label: "Image to PDF", icon: FileInput, toolId: "image-to-pdf" },
-  { label: "PDF to Word", icon: FileText, toolId: "pdf-to-word" },
+  { labelKey: "tool.merge.label", icon: Layers, toolId: "merge" },
+  { labelKey: "tool.split.label", icon: FileText, toolId: "split" },
+  { labelKey: "tool.compress.label", icon: Minimize2, toolId: "compress" },
+  { labelKey: "tool.protect.label", icon: Lock, toolId: "password-protect" },
+  { labelKey: "tool.rotate.label", icon: RotateCw, toolId: "rotate" },
+  {
+    labelKey: "tool.converter.label",
+    icon: FileInput,
+    toolId: "pdf-converter",
+  },
+  { labelKey: "tool.watermark.label", icon: FileText, toolId: "add-watermark" },
+  {
+    labelKey: "tool.pageNumbers.label",
+    icon: FileText,
+    toolId: "add-page-numbers",
+  },
+  { labelKey: "tool.imageToPdf.label", icon: FileInput, toolId: "word-to-pdf" },
+  {
+    labelKey: "tool.imageToPdf.label",
+    icon: FileInput,
+    toolId: "excel-to-pdf",
+  },
+  {
+    labelKey: "tool.imageToPdf.label",
+    icon: FileInput,
+    toolId: "image-to-pdf",
+  },
+  { labelKey: "tool.merge.label", icon: FileText, toolId: "pdf-to-word" },
 ];
 
 export default function ProfilePage({
   onNavigateToDashboard,
 }: ProfilePageProps) {
+  const { t } = useLanguage();
   const { identity } = useInternetIdentity();
   const { data: profile, isLoading: profileLoading } =
     useGetCallerUserProfile();
@@ -83,19 +101,19 @@ export default function ProfilePage({
   const stats = [
     {
       icon: FileText,
-      label: "Files Stored",
+      label: t("profile.filesStored"),
       value: files?.length ?? 0,
       ocid: "profile.files.card",
     },
     {
       icon: HardDrive,
-      label: "Storage Used",
+      label: t("profile.storageUsed"),
       value: formatBytes(totalStorageBytes),
       ocid: "profile.storage.card",
     },
     {
       icon: Hash,
-      label: "Total Operations",
+      label: t("profile.totalOperations"),
       value: totalOps,
       ocid: "profile.operations.card",
     },
@@ -128,7 +146,7 @@ export default function ProfilePage({
             <User className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">
-            {profile?.name ?? "Your Profile"}
+            {profile?.name ?? t("profile.yourProfile")}
           </h1>
           <p className="text-sm text-gray-400 dark:text-white/30 font-mono">
             {shortPrincipal}
@@ -171,39 +189,41 @@ export default function ProfilePage({
           <div className="px-5 py-4 border-b border-gray-100 dark:border-white/[0.06] flex items-center gap-2">
             <BarChart2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             <h2 className="text-sm font-bold text-gray-900 dark:text-white">
-              Tool Usage
+              {t("profile.toolUsage")}
             </h2>
           </div>
           {hasToolUsage ? (
             <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {toolStatsWithCounts.map(({ label, icon: Icon, count }) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-[#1a1a1a]"
-                >
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-blue-50 dark:bg-[#1e3a5f]">
-                    <Icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium text-gray-800 dark:text-white/90 truncate">
-                        {label}
-                      </span>
-                      <span className="text-xs font-bold text-gray-500 dark:text-white/50 ml-2 shrink-0">
-                        {count}
-                      </span>
+              {toolStatsWithCounts.map(
+                ({ labelKey, icon: Icon, toolId, count }) => (
+                  <div
+                    key={toolId}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-[#1a1a1a]"
+                  >
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-blue-50 dark:bg-[#1e3a5f]">
+                      <Icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <div className="h-1 rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-blue-500 dark:bg-blue-400 transition-all duration-500"
-                        style={{
-                          width: `${maxCount > 0 ? (count / maxCount) * 100 : 0}%`,
-                        }}
-                      />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium text-gray-800 dark:text-white/90 truncate">
+                          {t(labelKey)}
+                        </span>
+                        <span className="text-xs font-bold text-gray-500 dark:text-white/50 ml-2 shrink-0">
+                          {count}
+                        </span>
+                      </div>
+                      <div className="h-1 rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-blue-500 dark:bg-blue-400 transition-all duration-500"
+                          style={{
+                            width: `${maxCount > 0 ? (count / maxCount) * 100 : 0}%`,
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ),
+              )}
             </div>
           ) : (
             <div
@@ -211,7 +231,7 @@ export default function ProfilePage({
               className="px-5 py-8 text-center"
             >
               <p className="text-sm text-gray-400 dark:text-white/30">
-                Use PDF tools to see your usage stats here.
+                {t("profile.toolEmpty")}
               </p>
             </div>
           )}
@@ -221,13 +241,13 @@ export default function ProfilePage({
         <div className="rounded-xl border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-[#111111] overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100 dark:border-white/[0.06]">
             <h2 className="text-sm font-bold text-gray-900 dark:text-white">
-              Account Details
+              {t("profile.accountDetails")}
             </h2>
           </div>
           <div className="divide-y divide-gray-100 dark:divide-white/[0.04]">
             <div className="flex items-center justify-between px-5 py-4">
               <span className="text-sm text-gray-500 dark:text-white/50">
-                Display Name
+                {t("profile.displayName")}
               </span>
               <span className="text-sm font-semibold text-gray-900 dark:text-white">
                 {profile?.name ?? "—"}
@@ -235,7 +255,7 @@ export default function ProfilePage({
             </div>
             <div className="flex items-start justify-between px-5 py-4 gap-4">
               <span className="text-sm text-gray-500 dark:text-white/50 flex-shrink-0">
-                Principal ID
+                {t("profile.principalId")}
               </span>
               <span className="text-xs font-mono text-gray-700 dark:text-white/70 break-all text-right">
                 {principal}
@@ -243,10 +263,10 @@ export default function ProfilePage({
             </div>
             <div className="flex items-center justify-between px-5 py-4">
               <span className="text-sm text-gray-500 dark:text-white/50">
-                Auth Provider
+                {t("profile.authProvider")}
               </span>
               <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                Internet Identity
+                {t("profile.internetIdentity")}
               </span>
             </div>
           </div>
@@ -259,7 +279,7 @@ export default function ProfilePage({
             data-ocid="profile.secondary_button"
             className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
           >
-            ← Back to Dashboard
+            {t("profile.backToDashboard")}
           </button>
         </div>
       </section>

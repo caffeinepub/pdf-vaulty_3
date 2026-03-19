@@ -1,3 +1,4 @@
+import { usePdfWorker } from "@/hooks/usePdfWorker";
 import { Loader2, Upload } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { ensurePdfLibLoaded, getPDFLib } from "../../lib/pdfUtils";
@@ -13,6 +14,7 @@ export default function CropPDFTool() {
     left: 0,
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { processInWorker } = usePdfWorker();
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -30,33 +32,41 @@ export default function CropPDFTool() {
     if (!file) return;
     setIsProcessing(true);
     try {
-      await ensurePdfLibLoaded();
-      const { PDFDocument } = getPDFLib();
-      const bytes = new Uint8Array(await file.arrayBuffer());
-      const pdfDoc = await PDFDocument.load(bytes as unknown as Uint8Array);
-      const pages = pdfDoc.getPages();
-      const mmToPt = (mm: number) => mm * 2.83465;
-      for (const page of pages) {
-        const { width, height } = page.getSize();
-        const top = mmToPt(margins.top);
-        const right = mmToPt(margins.right);
-        const bottom = mmToPt(margins.bottom);
-        const left = mmToPt(margins.left);
-        const newX = left;
-        const newY = bottom;
-        const newWidth = Math.max(1, width - left - right);
-        const newHeight = Math.max(1, height - top - bottom);
-        // pdf-lib runtime methods not in stripped type declarations
-        const p = page as unknown as Record<
-          string,
-          (a: number, b: number, c: number, d: number) => void
-        >;
-        if (typeof p.setMediaBox === "function")
-          p.setMediaBox(newX, newY, newWidth, newHeight);
-        if (typeof p.setCropBox === "function")
-          p.setCropBox(newX, newY, newWidth, newHeight);
+      const fileBuffer = await file.arrayBuffer();
+      let out: Uint8Array;
+
+      try {
+        out = await processInWorker("crop", { fileBuffer, margins });
+      } catch {
+        // Fallback to inline
+        await ensurePdfLibLoaded();
+        const { PDFDocument } = getPDFLib();
+        const bytes = new Uint8Array(fileBuffer);
+        const pdfDoc = await PDFDocument.load(bytes as unknown as Uint8Array);
+        const pages = pdfDoc.getPages();
+        const mmToPt = (mm: number) => mm * 2.83465;
+        for (const page of pages) {
+          const { width, height } = page.getSize();
+          const top = mmToPt(margins.top);
+          const right = mmToPt(margins.right);
+          const bottom = mmToPt(margins.bottom);
+          const left = mmToPt(margins.left);
+          const newX = left;
+          const newY = bottom;
+          const newWidth = Math.max(1, width - left - right);
+          const newHeight = Math.max(1, height - top - bottom);
+          const p = page as unknown as Record<
+            string,
+            (a: number, b: number, c: number, d: number) => void
+          >;
+          if (typeof p.setMediaBox === "function")
+            p.setMediaBox(newX, newY, newWidth, newHeight);
+          if (typeof p.setCropBox === "function")
+            p.setCropBox(newX, newY, newWidth, newHeight);
+        }
+        out = new Uint8Array(await pdfDoc.save());
       }
-      const out = await pdfDoc.save();
+
       const blob = new Blob([out.buffer as ArrayBuffer], {
         type: "application/pdf",
       });

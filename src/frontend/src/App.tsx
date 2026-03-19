@@ -9,7 +9,6 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import { useGetCallerUserProfile } from "./hooks/useQueries";
 
-const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const MyFilesPage = lazy(() => import("./pages/MyFilesPage"));
@@ -32,12 +31,7 @@ export type ToolId =
   | "crop-pdf"
   | "flatten-pdf";
 
-export type AppView =
-  | "dashboard"
-  | "tool"
-  | "analytics"
-  | "myFiles"
-  | "profile";
+export type AppView = "dashboard" | "tool" | "myFiles" | "profile";
 
 export default function App() {
   const { identity, login, isInitializing } = useInternetIdentity();
@@ -91,12 +85,9 @@ export default function App() {
       return pageFallback;
     }
 
-    // Protected views — redirect unauthenticated users to login
     if (
       !isAuthenticated &&
-      (activeView === "myFiles" ||
-        activeView === "analytics" ||
-        activeView === "profile")
+      (activeView === "myFiles" || activeView === "profile")
     ) {
       return (
         <Suspense fallback={pageFallback}>
@@ -119,12 +110,6 @@ export default function App() {
             ) : (
               <Dashboard onSelectTool={handleSelectTool} />
             )}
-          </Suspense>
-        );
-      case "analytics":
-        return (
-          <Suspense fallback={pageFallback}>
-            <AnalyticsPage onNavigateToDashboard={handleNavigateToDashboard} />
           </Suspense>
         );
       case "myFiles":
@@ -156,7 +141,6 @@ export default function App() {
             isAuthenticated={isAuthenticated}
             activeView={activeView}
             onNavigateHome={handleNavigateToDashboard}
-            onNavigateAnalytics={() => setActiveView("analytics")}
             onNavigateMyFiles={() => setActiveView("myFiles")}
             onNavigateProfile={() => setActiveView("profile")}
             onLogout={handleLogout}

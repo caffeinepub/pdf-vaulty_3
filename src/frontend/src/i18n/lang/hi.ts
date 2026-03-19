@@ -2,6 +2,7 @@ const hi: Record<string, string> = {
   "nav.home": "होम",
   "nav.analytics": "एनालिटिक्स",
   "nav.myFiles": "मेरी फ़ाइलें",
+  "nav.profile": "प्रोफ़ाइल",
   "nav.login": "लॉगिन",
   "nav.logout": "लॉगआउट",
   "nav.loggingIn": "लॉगिन हो रहा है...",
@@ -29,6 +30,10 @@ const hi: Record<string, string> = {
   "tool.pageNumbers.desc": "अपने PDF दस्तावेज़ पर पृष्ठ संख्या मुद्रित करें",
   "tool.watermark.label": "वाटरमार्क जोड़ें",
   "tool.watermark.desc": "अपने PDF पर कस्टम वाटरमार्क टेक्स्ट ओवरले करें",
+  "tool.crop.label": "PDF क्रॉप करें",
+  "tool.crop.desc": "अपने PDF के प्रत्येक पृष्ठ से हाशिये को सटीक रूप से ट्रिम करें।",
+  "tool.flatten.label": "PDF फॉर्म फ्लैटन करें",
+  "tool.flatten.desc": "इंटरैक्टिव फॉर्म फ़ील्ड को स्थिर, गैर-संपादन योग्य सामग्री में बदलें।",
   "feature.easy.title": "उपयोग में आसान",
   "feature.easy.desc": "आपकी सभी PDF ज़रूरतों के लिए सरल और सहज इंटरफेस",
   "feature.secure.title": "सुरक्षित और निजी",
@@ -85,6 +90,47 @@ const hi: Record<string, string> = {
   "faq.q8": "PDF को किन फॉर्मेट में बदल सकते हैं?",
   "faq.a8":
     "PDF Converter टूल से PDF को Excel स्प्रेडशीट या JPG/PNG इमेज के रूप में एक्सपोर्ट कर सकते हैं।",
+
+  // Profile page
+  "profile.yourProfile": "आपकी प्रोफ़ाइल",
+  "profile.filesStored": "संग्रहीत फ़ाइलें",
+  "profile.storageUsed": "उपयोग किया गया संग्रहण",
+  "profile.totalOperations": "कुल ऑपरेशन",
+  "profile.toolUsage": "टूल उपयोग",
+  "profile.toolEmpty": "अपनी उपयोग सांख्यिकी देखने के लिए PDF टूल का उपयोग करें।",
+  "profile.accountDetails": "खाता विवरण",
+  "profile.displayName": "प्रदर्शन नाम",
+  "profile.principalId": "प्रिंसिपल ID",
+  "profile.authProvider": "प्रमाणीकरण प्रदाता",
+  "profile.internetIdentity": "Internet Identity",
+  "profile.backToDashboard": "← डैशबोर्ड पर वापस जाएं",
+
+  // My Files page
+  "myfiles.title": "Meri Failein",
+  "myfiles.subtitle":
+    "Aapka nijee PDF vault - encrypted aur keval aapke liye, Internet Computer par surakshit.",
+  "myfiles.storedFiles": "Sangraheet Failein",
+  "myfiles.file": "fail",
+  "myfiles.files": "failein",
+  "myfiles.uploadPdf": "PDF Upload Karein",
+  "myfiles.uploading": "Upload ho raha hai...",
+  "myfiles.loadingFiles": "Failein load ho rahi hain...",
+  "myfiles.failedToLoad": "Failein load karne mein vifal",
+  "myfiles.refreshPage": "Kripaya prishth refresh karein.",
+  "myfiles.noFiles": "Abhi tak koi file upload nahin ki gayi",
+  "myfiles.noFilesDesc": "Shuru karne ke liye apni pahali PDF upload karein.",
+  "myfiles.filesPrivate": "Failein nijee hain - keval aap hi dekh sakte hain",
+  "myfiles.goToTools": "PDF Tools par jaein",
+  "myfiles.searchPlaceholder": "Failein khojein...",
+  "myfiles.clearSearch": "Khoj saaf karein",
+  "myfiles.noMatch": "Koi file mel nahin khaati",
+  "myfiles.uploaded": "Upload kiya",
+  "myfiles.filesPrivateFooter":
+    "Failein Internet Computer par nijee roop se sangraheet hain.",
+  "myfiles.copyLink": "Link copy karein",
+  "myfiles.viewPdf": "PDF dekhein",
+  "myfiles.renameFile": "Fail ka naam badlein",
+  "myfiles.deleteFile": "Fail mitaein",
 };
 
 export default hi;

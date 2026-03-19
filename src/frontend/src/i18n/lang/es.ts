@@ -2,6 +2,7 @@ const es: Record<string, string> = {
   "nav.home": "Inicio",
   "nav.analytics": "Analítica",
   "nav.myFiles": "Mis Archivos",
+  "nav.profile": "Perfil",
   "nav.login": "Iniciar sesión",
   "nav.logout": "Cerrar sesión",
   "nav.loggingIn": "Iniciando sesión...",
@@ -33,6 +34,12 @@ const es: Record<string, string> = {
   "tool.watermark.label": "Añadir Marca de Agua",
   "tool.watermark.desc":
     "Superponer texto de marca de agua personalizado en tu PDF",
+  "tool.crop.label": "Recortar PDF",
+  "tool.crop.desc":
+    "Recorta los márgenes de cada página de tu PDF con precisión.",
+  "tool.flatten.label": "Aplanar formularios PDF",
+  "tool.flatten.desc":
+    "Convierte los campos de formulario interactivos en contenido estático no editable.",
   "feature.easy.title": "Fácil de usar",
   "feature.easy.desc":
     "Interfaz simple e intuitiva para todas tus necesidades PDF",
@@ -91,6 +98,48 @@ const es: Record<string, string> = {
   "faq.q8": "¿A qué formatos puedo convertir PDFs?",
   "faq.a8":
     "Con el convertidor PDF, puedes exportar PDFs como hojas de cálculo Excel o imágenes JPG o PNG.",
+
+  // Profile page
+  "profile.yourProfile": "Tu Perfil",
+  "profile.filesStored": "Archivos Almacenados",
+  "profile.storageUsed": "Almacenamiento Usado",
+  "profile.totalOperations": "Operaciones Totales",
+  "profile.toolUsage": "Uso de Herramientas",
+  "profile.toolEmpty":
+    "Usa las herramientas PDF para ver tus estadísticas aquí.",
+  "profile.accountDetails": "Detalles de la Cuenta",
+  "profile.displayName": "Nombre Mostrado",
+  "profile.principalId": "ID Principal",
+  "profile.authProvider": "Proveedor de Autenticación",
+  "profile.internetIdentity": "Internet Identity",
+  "profile.backToDashboard": "← Volver al Panel",
+
+  // My Files page
+  "myfiles.title": "Mis Archivos",
+  "myfiles.subtitle":
+    "Tu boveda PDF privada - cifrada y accesible solo para ti en Internet Computer.",
+  "myfiles.storedFiles": "Archivos Almacenados",
+  "myfiles.file": "archivo",
+  "myfiles.files": "archivos",
+  "myfiles.uploadPdf": "Subir PDF",
+  "myfiles.uploading": "Subiendo...",
+  "myfiles.loadingFiles": "Cargando tus archivos...",
+  "myfiles.failedToLoad": "Error al cargar archivos",
+  "myfiles.refreshPage": "Por favor, recarga la pagina.",
+  "myfiles.noFiles": "No hay archivos subidos aun",
+  "myfiles.noFilesDesc": "Sube tu primer PDF para comenzar.",
+  "myfiles.filesPrivate": "Los archivos son privados - solo tu puedes acceder",
+  "myfiles.goToTools": "Ir a herramientas PDF",
+  "myfiles.searchPlaceholder": "Buscar archivos...",
+  "myfiles.clearSearch": "Borrar busqueda",
+  "myfiles.noMatch": "No hay archivos que coincidan",
+  "myfiles.uploaded": "Subido",
+  "myfiles.filesPrivateFooter":
+    "Los archivos se almacenan de forma privada en Internet Computer.",
+  "myfiles.copyLink": "Copiar enlace",
+  "myfiles.viewPdf": "Ver PDF",
+  "myfiles.renameFile": "Renombrar",
+  "myfiles.deleteFile": "Eliminar",
 };
 
 export default es;

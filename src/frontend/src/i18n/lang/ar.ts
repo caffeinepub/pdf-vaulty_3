@@ -2,6 +2,7 @@ const ar: Record<string, string> = {
   "nav.home": "الرئيسية",
   "nav.analytics": "التحليلات",
   "nav.myFiles": "ملفاتي",
+  "nav.profile": "الملف الشخصي",
   "nav.login": "تسجيل الدخول",
   "nav.logout": "تسجيل الخروج",
   "nav.loggingIn": "جارٍ تسجيل الدخول...",
@@ -29,6 +30,11 @@ const ar: Record<string, string> = {
   "tool.pageNumbers.desc": "ختم أرقام الصفحات على مستند PDF",
   "tool.watermark.label": "إضافة علامة مائية",
   "tool.watermark.desc": "تراكب نص العلامة المائية المخصص على PDF",
+  "tool.crop.label": "قص ملف PDF",
+  "tool.crop.desc": "قص الهوامش من كل صفحة في ملف PDF بدقة.",
+  "tool.flatten.label": "تسطيح نماذج PDF",
+  "tool.flatten.desc":
+    "تحويل حقول النماذج التفاعلية إلى محتوى ثابت غير قابل للتحرير.",
   "feature.easy.title": "سهل الاستخدام",
   "feature.easy.desc": "واجهة بسيطة وبديهية لجميع احتياجات PDF الخاصة بك",
   "feature.secure.title": "آمن وخاص",
@@ -81,6 +87,48 @@ const ar: Record<string, string> = {
   "faq.q8": "ما التنسيقات التي يمكنني تحويل PDF إليها؟",
   "faq.a8":
     "باستخدام أداة محوّل PDF، يمكنك تصدير ملفات PDF كجداول بيانات Excel أو صور JPG أو PNG.",
+
+  // Profile page
+  "profile.yourProfile": "ملفك الشخصي",
+  "profile.filesStored": "الملفات المخزنة",
+  "profile.storageUsed": "التخزين المستخدم",
+  "profile.totalOperations": "إجمالي العمليات",
+  "profile.toolUsage": "استخدام الأدوات",
+  "profile.toolEmpty": "استخدم أدوات PDF لرؤية إحصاءات استخدامك هنا.",
+  "profile.accountDetails": "تفاصيل الحساب",
+  "profile.displayName": "الاسم المعروض",
+  "profile.principalId": "معرف المبدأ",
+  "profile.authProvider": "مزود المصادقة",
+  "profile.internetIdentity": "الهوية الإنترنتية",
+  "profile.backToDashboard": "→ العودة إلى لوحة التحكم",
+
+  // My Files page
+  "myfiles.title": "ملفاتي",
+  "myfiles.subtitle":
+    "مخزن PDF الخاص بك - مشفر ومتاح لك فقط، مخزن بامان على Internet Computer.",
+  "myfiles.storedFiles": "الملفات المخزنة",
+  "myfiles.file": "ملف",
+  "myfiles.files": "ملفات",
+  "myfiles.uploadPdf": "رفع PDF",
+  "myfiles.uploading": "جار الرفع...",
+  "myfiles.loadingFiles": "جار تحميل ملفاتك...",
+  "myfiles.failedToLoad": "فشل تحميل الملفات",
+  "myfiles.refreshPage": "يرجى تحديث الصفحة.",
+  "myfiles.noFiles": "لم يتم رفع اي ملفات بعد",
+  "myfiles.noFilesDesc":
+    "ارفع اول ملف PDF للبدء، او استخدم اداة PDF واحفظ النتيجة هنا.",
+  "myfiles.filesPrivate": "الملفات خاصة - لا يمكن لاحد سواك الوصول اليها",
+  "myfiles.goToTools": "انتقل الى ادوات PDF",
+  "myfiles.searchPlaceholder": "البحث في الملفات...",
+  "myfiles.clearSearch": "مسح البحث",
+  "myfiles.noMatch": "لا توجد ملفات مطابقة",
+  "myfiles.uploaded": "تم الرفع",
+  "myfiles.filesPrivateFooter":
+    "يتم تخزين الملفات بشكل خاص على Internet Computer.",
+  "myfiles.copyLink": "نسخ رابط المشاركة",
+  "myfiles.viewPdf": "عرض PDF",
+  "myfiles.renameFile": "اعادة تسمية",
+  "myfiles.deleteFile": "حذف الملف",
 };
 
 export default ar;

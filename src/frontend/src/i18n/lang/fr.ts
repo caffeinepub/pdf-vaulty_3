@@ -2,6 +2,7 @@ const fr: Record<string, string> = {
   "nav.home": "Accueil",
   "nav.analytics": "Analytique",
   "nav.myFiles": "Mes Fichiers",
+  "nav.profile": "Profil",
   "nav.login": "Connexion",
   "nav.logout": "Déconnexion",
   "nav.loggingIn": "Connexion en cours...",
@@ -35,6 +36,12 @@ const fr: Record<string, string> = {
   "tool.watermark.label": "Ajouter un filigrane",
   "tool.watermark.desc":
     "Superposer un texte de filigrane personnalisé sur votre PDF",
+  "tool.crop.label": "Rogner le PDF",
+  "tool.crop.desc":
+    "Recadrez les marges de chaque page de votre PDF avec précision.",
+  "tool.flatten.label": "Aplatir les formulaires PDF",
+  "tool.flatten.desc":
+    "Convertissez les champs de formulaire interactifs en contenu statique non modifiable.",
   "feature.easy.title": "Facile à utiliser",
   "feature.easy.desc":
     "Interface simple et intuitive pour tous vos besoins PDF",
@@ -94,6 +101,49 @@ const fr: Record<string, string> = {
   "faq.q8": "Vers quels formats puis-je convertir des PDF?",
   "faq.a8":
     "Avec le convertisseur PDF, vous pouvez exporter des PDF en tableurs Excel ou en images JPG ou PNG.",
+
+  // Profile page
+  "profile.yourProfile": "Votre Profil",
+  "profile.filesStored": "Fichiers Stockés",
+  "profile.storageUsed": "Stockage Utilisé",
+  "profile.totalOperations": "Total des Opérations",
+  "profile.toolUsage": "Utilisation des Outils",
+  "profile.toolEmpty":
+    "Utilisez les outils PDF pour voir vos statistiques ici.",
+  "profile.accountDetails": "Détails du Compte",
+  "profile.displayName": "Nom Affiché",
+  "profile.principalId": "ID Principal",
+  "profile.authProvider": "Fournisseur d'Authentification",
+  "profile.internetIdentity": "Internet Identity",
+  "profile.backToDashboard": "← Retour au Tableau de Bord",
+
+  // My Files page
+  "myfiles.title": "Mes Fichiers",
+  "myfiles.subtitle":
+    "Votre coffre PDF prive - chiffre et accessible uniquement par vous sur Internet Computer.",
+  "myfiles.storedFiles": "Fichiers Stockes",
+  "myfiles.file": "fichier",
+  "myfiles.files": "fichiers",
+  "myfiles.uploadPdf": "Telecharger PDF",
+  "myfiles.uploading": "Telechargement...",
+  "myfiles.loadingFiles": "Chargement de vos fichiers...",
+  "myfiles.failedToLoad": "Echec du chargement",
+  "myfiles.refreshPage": "Veuillez rafraichir la page.",
+  "myfiles.noFiles": "Aucun fichier telecharge",
+  "myfiles.noFilesDesc": "Telechargez votre premier PDF pour commencer.",
+  "myfiles.filesPrivate":
+    "Les fichiers sont prives - seul vous pouvez y acceder",
+  "myfiles.goToTools": "Aller aux outils PDF",
+  "myfiles.searchPlaceholder": "Rechercher des fichiers...",
+  "myfiles.clearSearch": "Effacer la recherche",
+  "myfiles.noMatch": "Aucun fichier ne correspond",
+  "myfiles.uploaded": "Telecharge",
+  "myfiles.filesPrivateFooter":
+    "Les fichiers sont stockes en prive sur Internet Computer.",
+  "myfiles.copyLink": "Copier le lien",
+  "myfiles.viewPdf": "Voir le PDF",
+  "myfiles.renameFile": "Renommer",
+  "myfiles.deleteFile": "Supprimer",
 };
 
 export default fr;

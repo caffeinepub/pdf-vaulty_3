@@ -17,7 +17,19 @@ export default defineConfig({
   build: {
     emptyOutDir: true,
     sourcemap: false,
-    minify: false,
+    minify: "esbuild",
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-dfinity": [
+            "@dfinity/agent",
+            "@dfinity/auth-client",
+            "@dfinity/candid",
+            "@dfinity/principal",
+          ],
+        },
+      },
+    },
   },
   css: {
     postcss: "./postcss.config.js",

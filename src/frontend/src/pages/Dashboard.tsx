@@ -98,15 +98,14 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
       {
         id: "crop-pdf",
         icon: Crop,
-        label: "Crop PDF",
-        description: "Trim margins from every page of your PDF precisely.",
+        label: t("tool.crop.label"),
+        description: t("tool.crop.desc"),
       },
       {
         id: "flatten-pdf",
         icon: FileCheck,
-        label: "Flatten PDF Forms",
-        description:
-          "Convert interactive form fields into static, non-editable content.",
+        label: t("tool.flatten.label"),
+        description: t("tool.flatten.desc"),
       },
     ],
     [t],

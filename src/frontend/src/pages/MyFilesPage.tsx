@@ -18,6 +18,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ExternalBlob } from "../backend";
+import { useLanguage } from "../contexts/LanguageContext";
 import {
   useDeleteFile,
   useGetMyFiles,
@@ -187,6 +188,7 @@ function RenameInput({ fileId, currentName, onDone }: RenameInputProps) {
 export default function MyFilesPage({
   onNavigateToDashboard,
 }: MyFilesPageProps) {
+  const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingFileName, setUploadingFileName] = useState<string | null>(
     null,
@@ -255,7 +257,6 @@ export default function MyFilesPage({
       );
       setViewerFile({ name: fileName, url: objectUrl });
     } catch {
-      // fallback: use direct URL
       setViewerFile({ name: fileName, url: fileUrl });
     }
   };
@@ -307,11 +308,10 @@ export default function MyFilesPage({
             <FolderOpen className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white mb-4 leading-tight tracking-tight">
-            My Files
+            {t("myfiles.title")}
           </h1>
           <p className="text-base text-gray-500 dark:text-white/60 max-w-md mx-auto leading-relaxed">
-            Your private PDF vault — encrypted and accessible only to you,
-            stored securely on the Internet Computer.
+            {t("myfiles.subtitle")}
           </p>
         </div>
       </section>
@@ -321,10 +321,11 @@ export default function MyFilesPage({
         {/* Header row */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            Stored Files
+            {t("myfiles.storedFiles")}
             {!isLoading && (
               <span className="ml-2 text-sm font-normal text-gray-400 dark:text-white/30">
-                {fileCount} {fileCount === 1 ? "file" : "files"}
+                {fileCount}{" "}
+                {fileCount === 1 ? t("myfiles.file") : t("myfiles.files")}
               </span>
             )}
           </h2>
@@ -338,12 +339,14 @@ export default function MyFilesPage({
             {isUploading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                {uploadProgress > 0 ? `${uploadProgress}%` : "Uploading…"}
+                {uploadProgress > 0
+                  ? `${uploadProgress}%`
+                  : t("myfiles.uploading")}
               </>
             ) : (
               <>
                 <Upload className="w-4 h-4" />
-                Upload PDF
+                {t("myfiles.uploadPdf")}
               </>
             )}
           </button>
@@ -380,7 +383,7 @@ export default function MyFilesPage({
           >
             <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
             <p className="text-gray-400 dark:text-white/30 text-sm">
-              Loading your files…
+              {t("myfiles.loadingFiles")}
             </p>
           </div>
         )}
@@ -393,10 +396,10 @@ export default function MyFilesPage({
           >
             <AlertCircle className="w-10 h-10 text-red-400" />
             <p className="text-red-600 dark:text-red-400 font-semibold">
-              Failed to load files
+              {t("myfiles.failedToLoad")}
             </p>
             <p className="text-red-400 dark:text-red-500/70 text-sm">
-              Please try refreshing the page.
+              {t("myfiles.refreshPage")}
             </p>
           </div>
         )}
@@ -407,30 +410,26 @@ export default function MyFilesPage({
             data-ocid="files.empty_state"
             className="flex flex-col items-center justify-center py-16 rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-[#111111] text-center px-6"
           >
-            {/* Illustration */}
             <div className="relative mb-6">
               <div className="w-24 h-24 rounded-2xl flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/40 dark:to-purple-950/40 border border-blue-100 dark:border-blue-900/30">
                 <FileText className="w-10 h-10 text-blue-400 dark:text-blue-500" />
               </div>
-              {/* Shield badge */}
               <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
                 <Shield className="w-4 h-4 text-white" />
               </div>
             </div>
 
             <p className="text-gray-800 dark:text-white/80 text-xl font-bold mb-2">
-              No files uploaded yet
+              {t("myfiles.noFiles")}
             </p>
             <p className="text-gray-500 dark:text-white/40 text-sm mb-3 max-w-xs leading-relaxed">
-              Upload your first PDF to get started, or use a PDF tool and save
-              the result here.
+              {t("myfiles.noFilesDesc")}
             </p>
 
-            {/* Privacy assurance row */}
             <div className="flex items-center gap-2 mb-8 px-4 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/30">
               <Lock className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 flex-shrink-0" />
               <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                Files are private — only you can access them
+                {t("myfiles.filesPrivate")}
               </span>
             </div>
 
@@ -443,7 +442,7 @@ export default function MyFilesPage({
                 className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold rounded-lg transition-colors text-sm shadow-md shadow-blue-600/20"
               >
                 <Upload className="w-4 h-4" />
-                Upload PDF
+                {t("myfiles.uploadPdf")}
               </button>
               <button
                 type="button"
@@ -451,7 +450,7 @@ export default function MyFilesPage({
                 data-ocid="files.secondary_button"
                 className="inline-flex items-center gap-2 px-6 py-2.5 border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5 text-gray-700 dark:text-white/70 font-semibold rounded-lg transition-colors text-sm"
               >
-                Go to PDF Tools
+                {t("myfiles.goToTools")}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -467,7 +466,7 @@ export default function MyFilesPage({
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search files…"
+                placeholder={t("myfiles.searchPlaceholder")}
                 data-ocid="files.search_input"
                 className="w-full pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/10 rounded-xl placeholder:text-gray-400 dark:placeholder:text-white/25 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 aria-label="Search files"
@@ -491,14 +490,14 @@ export default function MyFilesPage({
               >
                 <Search className="w-8 h-8 text-gray-300 dark:text-white/20 mb-3" />
                 <p className="text-gray-600 dark:text-white/50 text-sm font-medium">
-                  No files match &ldquo;{searchQuery}&rdquo;
+                  {t("myfiles.noMatch")} &ldquo;{searchQuery}&rdquo;
                 </p>
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
                   className="mt-3 text-xs text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
-                  Clear search
+                  {t("myfiles.clearSearch")}
                 </button>
               </div>
             )}
@@ -526,8 +525,8 @@ export default function MyFilesPage({
                         {file.name}
                       </p>
                       <p className="text-xs text-gray-400 dark:text-white/30 mt-0.5">
-                        {formatBytes(Number(file.size))} · Uploaded{" "}
-                        {formatDate(file.uploadedAt)}
+                        {formatBytes(Number(file.size))} ·{" "}
+                        {t("myfiles.uploaded")} {formatDate(file.uploadedAt)}
                       </p>
                     </>
                   )}
@@ -549,7 +548,7 @@ export default function MyFilesPage({
                       }}
                       data-ocid={`files.share_button.${idx + 1}`}
                       className="p-2 rounded-lg text-gray-400 dark:text-white/30 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/40 transition-colors"
-                      title="Copy shareable link"
+                      title={t("myfiles.copyLink") || "Copy shareable link"}
                       aria-label={`Copy link for ${file.name}`}
                     >
                       <Share2 className="w-4 h-4" />
@@ -561,7 +560,7 @@ export default function MyFilesPage({
                       }
                       data-ocid={`files.secondary_button.${idx + 1}`}
                       className="p-2 rounded-lg text-gray-400 dark:text-white/30 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
-                      title="View PDF"
+                      title={t("myfiles.viewPdf") || "View PDF"}
                       aria-label={`View ${file.name}`}
                     >
                       <Eye className="w-4 h-4" />
@@ -597,7 +596,7 @@ export default function MyFilesPage({
                       onClick={() => setRenamingId(file.id)}
                       data-ocid={`files.edit_button.${idx + 1}`}
                       className="p-2 rounded-lg text-gray-400 dark:text-white/30 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors"
-                      title="Rename file"
+                      title={t("myfiles.renameFile") || "Rename file"}
                       aria-label={`Rename ${file.name}`}
                     >
                       <Pencil className="w-4 h-4" />
@@ -609,7 +608,7 @@ export default function MyFilesPage({
                       disabled={deletingId === file.id}
                       data-ocid={`files.delete_button.${idx + 1}`}
                       className="p-2 rounded-lg text-gray-400 dark:text-white/30 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      title="Delete file"
+                      title={t("myfiles.deleteFile") || "Delete file"}
                       aria-label={`Delete ${file.name}`}
                     >
                       {deletingId === file.id ? (
@@ -627,8 +626,7 @@ export default function MyFilesPage({
 
         {!isLoading && fileCount > 0 && (
           <p className="text-center text-xs text-gray-400 dark:text-white/25 mt-8">
-            Files are stored privately on the Internet Computer — only you can
-            access them.
+            {t("myfiles.filesPrivateFooter")}
           </p>
         )}
       </section>

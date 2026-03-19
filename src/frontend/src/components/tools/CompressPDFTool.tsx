@@ -1,5 +1,6 @@
 import FileUploadZone from "@/components/shared/FileUploadZone";
 import { Button } from "@/components/ui/button";
+import { usePdfWorker } from "@/hooks/usePdfWorker";
 import {
   ensurePdfLibLoaded,
   ensurePdfjsLoaded,
@@ -7,7 +8,7 @@ import {
   getPDFLib,
 } from "@/lib/pdfUtils";
 import { AlertCircle, CheckCircle, Download, Loader2 } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 
 interface UploadedFile {
   file: File;
@@ -22,52 +23,37 @@ interface CompressionResult {
 }
 
 async function compressPDFCanvas(file: File): Promise<CompressionResult> {
-  // Load libraries on demand
   await ensurePdfLibLoaded();
   await ensurePdfjsLoaded();
 
   const PDFLib = getPDFLib();
   const pdfjsLib = window.pdfjsLib as PdfjsLib;
 
-  // Standard compression settings
   const scale = 0.85;
   const jpegQuality = 0.7;
 
-  // Read original file
   const originalBytes = new Uint8Array(await file.arrayBuffer());
 
-  // Load with pdf.js for rendering (pass a copy to avoid detached buffer issues)
   const loadingTask = pdfjsLib.getDocument({ data: originalBytes.slice() });
   const pdfDoc = await loadingTask.promise;
   const numPages = pdfDoc.numPages;
 
-  // Create new pdf-lib document
   const newPdf = await PDFLib.PDFDocument.create();
 
   for (let pageNum = 1; pageNum <= numPages; pageNum++) {
     const page = await pdfDoc.getPage(pageNum);
-
     const viewport = page.getViewport({ scale });
-
     const canvasWidth = Math.floor(viewport.width);
     const canvasHeight = Math.floor(viewport.height);
-
-    // Create offscreen canvas
     const canvas = document.createElement("canvas");
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Could not get canvas context");
-
-    // Render PDF page to canvas
     await page.render({ canvasContext: ctx, viewport }).promise;
-
-    // Convert canvas to JPEG bytes
     const jpegDataUrl = canvas.toDataURL("image/jpeg", jpegQuality);
     const base64Data = jpegDataUrl.split(",")[1];
     const jpegBytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
-
-    // Embed JPEG into new pdf-lib document
     const jpegImage = await newPdf.embedJpg(jpegBytes);
     const newPage = newPdf.addPage([canvasWidth, canvasHeight]);
     newPage.drawImage(jpegImage, {
@@ -78,7 +64,6 @@ async function compressPDFCanvas(file: File): Promise<CompressionResult> {
     });
   }
 
-  // Strip all metadata
   newPdf.setTitle("");
   newPdf.setAuthor("");
   newPdf.setSubject("");
@@ -86,7 +71,6 @@ async function compressPDFCanvas(file: File): Promise<CompressionResult> {
   newPdf.setCreator("");
   newPdf.setProducer("");
 
-  // Save with object streams for additional compression
   const compressedBytes = await newPdf.save({ useObjectStreams: true });
 
   return {
@@ -103,6 +87,7 @@ export default function CompressPDFTool() {
   const [result, setResult] = useState<CompressionResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<string>("");
+  const { processInWorker } = usePdfWorker();
 
   const handleCompress = async () => {
     if (uploadedFiles.length === 0) return;
@@ -112,9 +97,30 @@ export default function CompressPDFTool() {
     setResult(null);
     setProgress("Rendering pages and compressing...");
 
+    const file = uploadedFiles[0].file;
+    const originalSize = file.size;
+
     try {
-      const res = await compressPDFCanvas(uploadedFiles[0].file);
-      setResult(res);
+      // Try worker-based fast compression first
+      let compressedBytes: Uint8Array;
+      try {
+        const fileBuffer = await file.arrayBuffer();
+        compressedBytes = await processInWorker("compress", { fileBuffer });
+      } catch {
+        // Worker failed — fall back to canvas-based compression
+        const canvasResult = await compressPDFCanvas(file);
+        setResult(canvasResult);
+        setProgress("");
+        setIsProcessing(false);
+        return;
+      }
+
+      setResult({
+        originalSize,
+        compressedSize: compressedBytes.length,
+        compressedBytes,
+        fileName: `${file.name.replace(/\.pdf$/i, "")}_compressed.pdf`,
+      });
       setProgress("");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Compression failed";
@@ -161,7 +167,6 @@ export default function CompressPDFTool() {
         hint="Supports PDF files"
       />
 
-      {/* Compress Button */}
       <Button
         onClick={handleCompress}
         disabled={uploadedFiles.length === 0 || isProcessing}
@@ -178,7 +183,6 @@ export default function CompressPDFTool() {
         )}
       </Button>
 
-      {/* Error */}
       {error && (
         <div className="flex items-start gap-3 p-4 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive">
           <AlertCircle className="h-5 w-5 mt-0.5 shrink-0" />
@@ -186,10 +190,8 @@ export default function CompressPDFTool() {
         </div>
       )}
 
-      {/* Result */}
       {result && (
         <div className="rounded-xl border border-border bg-card p-5 space-y-4">
-          {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-green-500 font-semibold">
               <CheckCircle className="h-5 w-5" />
@@ -200,7 +202,6 @@ export default function CompressPDFTool() {
             </span>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-lg bg-muted/40 p-3 text-center">
               <p className="text-xs text-muted-foreground mb-1">Original</p>
@@ -226,7 +227,6 @@ export default function CompressPDFTool() {
             </div>
           </div>
 
-          {/* Could not reduce message */}
           {couldNotReduce && (
             <div className="flex items-center gap-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-600 dark:text-yellow-400 text-sm">
               <AlertCircle className="h-4 w-4 shrink-0" />
@@ -235,7 +235,6 @@ export default function CompressPDFTool() {
             </div>
           )}
 
-          {/* Download */}
           <Button onClick={handleDownload} className="w-full" size="lg">
             <Download className="mr-2 h-4 w-4" />
             Download Compressed PDF

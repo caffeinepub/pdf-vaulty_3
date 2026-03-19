@@ -2,6 +2,7 @@ const mr: Record<string, string> = {
   "nav.home": "होम",
   "nav.analytics": "विश्लेषण",
   "nav.myFiles": "माझ्या फाइल्स",
+  "nav.profile": "प्रोफाइल",
   "nav.login": "लॉगिन",
   "nav.logout": "लॉगआउट",
   "nav.loggingIn": "लॉगिन होत आहे...",
@@ -30,6 +31,11 @@ const mr: Record<string, string> = {
   "tool.pageNumbers.desc": "तुमच्या PDF दस्तऐवजावर पृष्ठ क्रमांक मुद्रित करा",
   "tool.watermark.label": "वॉटरमार्क जोडा",
   "tool.watermark.desc": "तुमच्या PDF वर सानुकूल वॉटरमार्क मजकूर ओव्हरले करा",
+  "tool.crop.label": "PDF क्रॉप करा",
+  "tool.crop.desc": "तुमच्या PDF च्या प्रत्येक पानावरून समास अचूकपणे काढा.",
+  "tool.flatten.label": "PDF फॉर्म फ्लॅटन करा",
+  "tool.flatten.desc":
+    "इंटरॅक्टिव्ह फॉर्म फील्ड स्थिर, न-संपादन करण्यायोग्य सामग्रीमध्ये रूपांतरित करा.",
   "feature.easy.title": "वापरण्यास सोपे",
   "feature.easy.desc": "तुमच्या सर्व PDF गरजांसाठी सरळ आणि सहज इंटरफेस",
   "feature.secure.title": "सुरक्षित आणि खाजगी",
@@ -86,6 +92,48 @@ const mr: Record<string, string> = {
   "faq.q8": "PDF कोणत्या फॉरमॅटमध्ये रूपांतरित करू शकतो?",
   "faq.a8":
     "PDF Converter साधन वापरून, तुम्ही PDF ला Excel स्प्रेडशीट किंवा JPG किंवा PNG स्वरूपातील प्रतिमा म्हणून निर्यात करू शकता.",
+
+  // Profile page
+  "profile.yourProfile": "तुमची प्रोफाइल",
+  "profile.filesStored": "संग्रहित फाइल्स",
+  "profile.storageUsed": "वापरलेले संचयन",
+  "profile.totalOperations": "एकूण ऑपरेशन्स",
+  "profile.toolUsage": "साधन वापर",
+  "profile.toolEmpty": "तुमची वापर आकडेवारी पाहण्यासाठी PDF साधने वापरा.",
+  "profile.accountDetails": "खाते तपशील",
+  "profile.displayName": "प्रदर्शन नाव",
+  "profile.principalId": "प्रिंसिपल ID",
+  "profile.authProvider": "प्रमाणीकरण प्रदाता",
+  "profile.internetIdentity": "Internet Identity",
+  "profile.backToDashboard": "← डॅशबोर्डवर परत जा",
+
+  // My Files page
+  "myfiles.title": "Mazya Files",
+  "myfiles.subtitle":
+    "Tumcha khajagi PDF vault - encrypted ani keval tumchyasathi, Internet Computer var surakshit.",
+  "myfiles.storedFiles": "Sathavlelya Files",
+  "myfiles.file": "file",
+  "myfiles.files": "files",
+  "myfiles.uploadPdf": "PDF Upload Kara",
+  "myfiles.uploading": "Upload hot ahe...",
+  "myfiles.loadingFiles": "Tumachya files load hot ahet...",
+  "myfiles.failedToLoad": "Files load karanyas ayashavi",
+  "myfiles.refreshPage": "Kripaya prishtha refresh kara.",
+  "myfiles.noFiles": "Adyap kontyahi files upload kelya nahit",
+  "myfiles.noFilesDesc": "Suruvat karanyas tumachi pahili PDF upload kara.",
+  "myfiles.filesPrivate":
+    "Files khajagi ahet - keval tumhich pravesh karu shakta",
+  "myfiles.goToTools": "PDF Tools var ja",
+  "myfiles.searchPlaceholder": "Files shodha...",
+  "myfiles.clearSearch": "Shodh saaf kara",
+  "myfiles.noMatch": "Kontyahi files julat nahit",
+  "myfiles.uploaded": "Upload kele",
+  "myfiles.filesPrivateFooter":
+    "Files Internet Computer var khajagirityane sathavlya ahet.",
+  "myfiles.copyLink": "Link copy kara",
+  "myfiles.viewPdf": "PDF paha",
+  "myfiles.renameFile": "File che nav badla",
+  "myfiles.deleteFile": "File delete kara",
 };
 
 export default mr;

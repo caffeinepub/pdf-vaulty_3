@@ -2,6 +2,7 @@ const bn: Record<string, string> = {
   "nav.home": "হোম",
   "nav.analytics": "বিশ্লেষণ",
   "nav.myFiles": "আমার ফাইল",
+  "nav.profile": "প্রোফাইল",
   "nav.login": "লগইন",
   "nav.logout": "লগআউট",
   "nav.loggingIn": "লগইন হচ্ছে...",
@@ -29,6 +30,11 @@ const bn: Record<string, string> = {
   "tool.pageNumbers.desc": "আপনার PDF নথিতে পৃষ্ঠা নম্বর স্ট্যাম্প করুন",
   "tool.watermark.label": "ওয়াটারমার্ক যোগ করুন",
   "tool.watermark.desc": "আপনার PDF-এ কাস্টম ওয়াটারমার্ক টেক্সট ওভারলে করুন",
+  "tool.crop.label": "PDF ক্রপ করুন",
+  "tool.crop.desc": "আপনার PDF-এর প্রতিটি পৃষ্ঠা থেকে মার্জিন সঠিকভাবে ট্রিম করুন।",
+  "tool.flatten.label": "PDF ফর্ম ফ্ল্যাটেন করুন",
+  "tool.flatten.desc":
+    "ইন্টারঅ্যাক্টিভ ফর্ম ফিল্ডগুলি স্থির, অ-সম্পাদনযোগ্য বিষয়বস্তুতে রূপান্তর করুন।",
   "feature.easy.title": "ব্যবহার করা সহজ",
   "feature.easy.desc": "আপনার সব PDF প্রয়োজনের জন্য সহজ এবং স্বজ্ঞাত ইন্টারফেস",
   "feature.secure.title": "নিরাপদ এবং ব্যক্তিগত",
@@ -84,6 +90,48 @@ const bn: Record<string, string> = {
   "faq.q8": "PDF কোন ফরম্যাটে রূপান্তর করা যায়?",
   "faq.a8":
     "PDF Converter টুল ব্যবহার করে, আপনি PDF কে Excel স্প্রেডশিট বা JPG বা PNG ফরম্যাটের ছবি হিসেবে এক্সপোর্ট করতে পারেন।",
+
+  // Profile page
+  "profile.yourProfile": "আপনার প্রোফাইল",
+  "profile.filesStored": "সংরক্ষিত ফাইল",
+  "profile.storageUsed": "ব্যবহৃত স্টোরেজ",
+  "profile.totalOperations": "মোট অপারেশন",
+  "profile.toolUsage": "টুল ব্যবহার",
+  "profile.toolEmpty": "আপনার ব্যবহারের পরিসংখ্যান দেখতে PDF টুল ব্যবহার করুন।",
+  "profile.accountDetails": "অ্যাকাউন্ট বিবরণ",
+  "profile.displayName": "প্রদর্শন নাম",
+  "profile.principalId": "প্রিন্সিপাল ID",
+  "profile.authProvider": "প্রমাণীকরণ প্রদানকারী",
+  "profile.internetIdentity": "Internet Identity",
+  "profile.backToDashboard": "← ড্যাশবোর্ডে ফিরে যান",
+
+  // My Files page
+  "myfiles.title": "Amar Filegulio",
+  "myfiles.subtitle":
+    "Apnar byaktigat PDF vault - encrypted ebong sudhumatro apnar jonyo, Internet Computer-e nirapade sangrakhita.",
+  "myfiles.storedFiles": "Sangrakhita Filegulio",
+  "myfiles.file": "file",
+  "myfiles.files": "filegulio",
+  "myfiles.uploadPdf": "PDF Upload Korun",
+  "myfiles.uploading": "Upload hochhe...",
+  "myfiles.loadingFiles": "Apnar filegulio load hochhe...",
+  "myfiles.failedToLoad": "Filegulio load korte byartha",
+  "myfiles.refreshPage": "Onugrahpurbak prishthati refresh korun.",
+  "myfiles.noFiles": "Ekhono kono file upload kora hoyni",
+  "myfiles.noFilesDesc": "Shuru korte apnar prothom PDF upload korun.",
+  "myfiles.filesPrivate":
+    "Filegulio byaktigat - sudhumatro apni access korte parben",
+  "myfiles.goToTools": "PDF Tools-e Jan",
+  "myfiles.searchPlaceholder": "Filegulio khujun...",
+  "myfiles.clearSearch": "Onusondhan muche din",
+  "myfiles.noMatch": "Kono file mile na",
+  "myfiles.uploaded": "Upload kora hoyeche",
+  "myfiles.filesPrivateFooter":
+    "Filegulio Internet Computer-e byaktigatbhabe sangrakhita.",
+  "myfiles.copyLink": "Link copy korun",
+  "myfiles.viewPdf": "PDF dekhun",
+  "myfiles.renameFile": "File rename korun",
+  "myfiles.deleteFile": "File delete korun",
 };
 
 export default bn;

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { ToolId } from "../App";
+import OnboardingTour from "../components/OnboardingTour";
 import { useLanguage } from "../contexts/LanguageContext";
 
 interface Tool {
@@ -347,6 +348,9 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
           </div>
         </div>
       </section>
+
+      {/* Onboarding tour — shown only to first-time visitors */}
+      <OnboardingTour />
     </div>
   );
 }

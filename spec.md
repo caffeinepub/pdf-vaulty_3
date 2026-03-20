@@ -1,29 +1,31 @@
 # PDF Vaulty
 
 ## Current State
-- Hindi translation file has a typo: `myfiles.noFiles` says "koi fail upload" (fail) instead of "koi file upload" (file)
-- `vite.config.js` has `minify: false` — all JS/CSS is shipped uncompressed, causing slow load times
-- Language files are already lazy-loaded per-language in LanguageContext.tsx (task 3 is already implemented)
-- No rollupOptions / manualChunks configured for vendor splitting
-- PDF library imports are inline in each tool component (pdf-lib, pdfjs-dist, etc.) — loaded on main thread
+- App is live at Version 56 with full PDF toolkit, multi-language support (8 languages), lazy-loaded language files, dark/light theme, Internet Identity login, My Files, Profile page with analytics, PWA support
+- `vite.config.js` has `minify: false` -- keeps reverting, needs to be fixed permanently
+- No onboarding for first-time visitors -- they land on a tool grid with no guidance
+- No error messages when PDF operations fail -- users see nothing when something goes wrong
+- Language lazy-loading is already implemented in LanguageContext.tsx (only active language loads)
 
 ## Requested Changes (Diff)
 
 ### Add
-- `src/frontend/src/workers/pdf.worker.ts` — a Web Worker that handles heavy PDF operations (merge, split, compress, rotate, crop, flatten) off the main thread using pdf-lib
-- `rollupOptions.output.manualChunks` in vite.config.js to split pdf-lib and pdfjs-dist into separate cached vendor chunks
+- Onboarding tour component (`OnboardingTour.tsx`): shown once to first-time visitors using localStorage flag `pdfvaulty_onboarding_done`. Simple 3-step tooltip/overlay: Step 1 highlights the tool grid ("Pick a tool to get started"), Step 2 highlights the language switcher ("Works in 8 languages"), Step 3 highlights the login/My Files ("Save your files by logging in"). Dismiss button and a "Got it" final button. Non-blocking -- user can dismiss at any time.
+- Error boundary component (`PDFErrorBoundary.tsx`): wraps the tool Suspense in ToolPage.tsx. Shows a friendly error card with the message "Something went wrong processing your PDF" and a "Try again" button that resets the error state. Also add a global error toast using the existing Toaster/sonner setup.
 
 ### Modify
-- `src/frontend/src/i18n/lang/hi.ts` — fix `myfiles.noFiles` typo: "fail" → "file"
-- `src/frontend/vite.config.js` — set `minify: 'esbuild'` (was `false`), add manualChunks for pdf-lib and pdfjs-dist vendor splitting
-- Heavy PDF tool components — offload pdf-lib operations to the Web Worker where feasible (MergePDFTool, SplitPDFTool, CompressPDFTool, RotatePDFTool, CropPDFTool, FlattenPDFTool)
+- `vite.config.js`: set `minify: true` and add `rollupOptions.output.manualChunks` to split pdf-lib, pdfjs-dist, xlsx, jspdf, jszip into separate cached vendor chunks
+- `ToolPage.tsx`: wrap `<Suspense>` around each tool render with the new `PDFErrorBoundary`
+- `Dashboard.tsx`: render `<OnboardingTour />` component after the hero section (shown only to first-time visitors)
+- `en.ts` (and all 7 other language files): add onboarding translation keys
 
 ### Remove
 - Nothing
 
 ## Implementation Plan
-1. Fix the single-word typo in `hi.ts` (`myfiles.noFiles`)
-2. Enable minification in `vite.config.js` and add manualChunks for vendor splitting
-3. Create `src/frontend/src/workers/pdf.worker.ts` that accepts messages for each PDF operation (merge, split, compress, rotate, crop, flatten) and posts back the result Uint8Array
-4. Update the 6 heavy tool components to post operations to the worker instead of running pdf-lib on the main thread; keep a graceful fallback if the worker fails
-5. Keep pdfjs-dist (PDF.js) inline in the tools that use it for rendering previews — only offload pdf-lib write operations to the worker
+1. Fix `vite.config.js` -- set minify to true, add manualChunks for vendor libraries
+2. Create `OnboardingTour.tsx` -- 3-step first-time visitor guide, localStorage-gated, dismissable
+3. Create `PDFErrorBoundary.tsx` -- React error boundary with friendly error card and reset button
+4. Update `ToolPage.tsx` -- wrap tool render with PDFErrorBoundary
+5. Update `Dashboard.tsx` -- include OnboardingTour
+6. Add onboarding translation keys to `en.ts` and all 7 other language files

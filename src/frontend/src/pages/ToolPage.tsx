@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import type { ToolId } from "../App";
+import PDFErrorBoundary from "../components/PDFErrorBoundary";
 import { useAnalytics } from "../hooks/useAnalytics";
 
 const AddPageNumbersTool = lazy(
@@ -502,10 +503,12 @@ export default function ToolPage({
         {meta.description}
       </p>
 
-      {/* Tool area — listens for download actions to trigger analytics + one-time banner */}
+      {/* Tool area — wrapped with error boundary and listens for download actions */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: click capture on container, not an interactive element */}
       <div ref={toolAreaRef} onClick={handleToolAreaClick}>
-        <Suspense fallback={toolSpinner}>{renderTool()}</Suspense>
+        <PDFErrorBoundary>
+          <Suspense fallback={toolSpinner}>{renderTool()}</Suspense>
+        </PDFErrorBoundary>
       </div>
 
       {/* Processing indicator */}

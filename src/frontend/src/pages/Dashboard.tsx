@@ -10,20 +10,66 @@ import {
   Lock,
   Minimize2,
   RotateCw,
+  Search,
   Shield,
   Stamp,
+  Star,
   Zap,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ToolId } from "../App";
 import OnboardingTour from "../components/OnboardingTour";
 import { useLanguage } from "../contexts/LanguageContext";
+
+const RECENT_TOOLS_KEY = "pdfvaulty_recent_tools";
+const PINNED_TOOLS_KEY = "pdfvaulty_pinned_tools";
+const MAX_RECENT = 3;
+
+function getRecentTools(): ToolId[] {
+  try {
+    const raw = localStorage.getItem(RECENT_TOOLS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentTool(id: ToolId) {
+  const recent = getRecentTools().filter((t) => t !== id);
+  recent.unshift(id);
+  localStorage.setItem(
+    RECENT_TOOLS_KEY,
+    JSON.stringify(recent.slice(0, MAX_RECENT)),
+  );
+}
+
+function getPinnedTools(): ToolId[] {
+  try {
+    const raw = localStorage.getItem(PINNED_TOOLS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function togglePinnedTool(id: ToolId): ToolId[] {
+  const pinned = getPinnedTools();
+  const idx = pinned.indexOf(id);
+  const updated = idx >= 0 ? pinned.filter((t) => t !== id) : [...pinned, id];
+  localStorage.setItem(PINNED_TOOLS_KEY, JSON.stringify(updated));
+  return updated;
+}
 
 interface Tool {
   id: ToolId;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   description: string;
+}
+
+interface ToolCategory {
+  label: string;
+  tools: Tool[];
 }
 
 interface DashboardProps {
@@ -39,8 +85,27 @@ interface FaqItem {
 export default function Dashboard({ onSelectTool }: DashboardProps) {
   const { t } = useLanguage();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
+  const [recentToolIds, setRecentToolIds] = useState<ToolId[]>([]);
+  const [pinnedToolIds, setPinnedToolIds] = useState<ToolId[]>([]);
 
-  const tools: Tool[] = useMemo(
+  useEffect(() => {
+    setRecentToolIds(getRecentTools());
+    setPinnedToolIds(getPinnedTools());
+  }, []);
+
+  const handleSelectTool = (id: ToolId) => {
+    saveRecentTool(id);
+    setRecentToolIds(getRecentTools());
+    onSelectTool(id);
+  };
+
+  const handleTogglePin = (id: ToolId) => {
+    const updated = togglePinnedTool(id);
+    setPinnedToolIds(updated);
+  };
+
+  const allTools: Tool[] = useMemo(
     () => [
       {
         id: "merge",
@@ -112,40 +177,77 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
     [t],
   );
 
-  const faqItems: FaqItem[] = useMemo(
+  const categories: ToolCategory[] = useMemo(
     () => [
       {
-        question: t("faq.q1"),
-        answer: t("faq.a1"),
+        label: "Edit",
+        tools: allTools.filter((t) =>
+          [
+            "merge",
+            "split",
+            "rotate",
+            "crop-pdf",
+            "add-page-numbers",
+            "add-watermark",
+          ].includes(t.id),
+        ),
       },
       {
-        question: t("faq.q2"),
-        answer: t("faq.a2"),
+        label: "Convert",
+        tools: allTools.filter((t) =>
+          ["image-to-pdf", "pdf-converter"].includes(t.id),
+        ),
       },
       {
-        question: t("faq.q3"),
-        answer: t("faq.a3"),
+        label: "Protect",
+        tools: allTools.filter((t) =>
+          ["password-protect", "flatten-pdf"].includes(t.id),
+        ),
       },
       {
-        question: t("faq.q4"),
-        answer: t("faq.a4"),
+        label: "Optimize",
+        tools: allTools.filter((t) => ["compress"].includes(t.id)),
       },
-      {
-        question: t("faq.q5"),
-        answer: t("faq.a5"),
-      },
-      {
-        question: t("faq.q6"),
-        answer: t("faq.a6"),
-      },
-      {
-        question: t("faq.q7"),
-        answer: t("faq.a7"),
-      },
-      {
-        question: t("faq.q8"),
-        answer: t("faq.a8"),
-      },
+    ],
+    [allTools],
+  );
+
+  const filteredTools = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return [];
+    return allTools.filter(
+      (tool) =>
+        tool.label.toLowerCase().includes(q) ||
+        tool.description.toLowerCase().includes(q),
+    );
+  }, [allTools, search]);
+
+  const recentTools = useMemo(
+    () =>
+      recentToolIds
+        .map((id) => allTools.find((tool) => tool.id === id))
+        .filter(Boolean) as Tool[],
+    [recentToolIds, allTools],
+  );
+
+  const pinnedTools = useMemo(
+    () =>
+      pinnedToolIds
+        .map((id) => allTools.find((tool) => tool.id === id))
+        .filter(Boolean) as Tool[],
+    [pinnedToolIds, allTools],
+  );
+
+  const faqItems: FaqItem[] = useMemo(
+    () => [
+      { question: t("faq.q1"), answer: t("faq.a1") },
+      { question: t("faq.q2"), answer: t("faq.a2") },
+      { question: t("faq.q3"), answer: t("faq.a3") },
+      { question: t("faq.q4"), answer: t("faq.a4") },
+      { question: t("faq.q5"), answer: t("faq.a5") },
+      { question: t("faq.q6"), answer: t("faq.a6") },
+      { question: t("faq.q7"), answer: t("faq.a7") },
+      { question: t("faq.q8"), answer: t("faq.a8") },
     ],
     [t],
   );
@@ -160,11 +262,58 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
     setOpenFaq((prev) => (prev === idx ? null : idx));
   };
 
+  const ToolCard = ({
+    tool,
+    isPinned,
+    onTogglePin,
+  }: {
+    tool: Tool;
+    isPinned: boolean;
+    onTogglePin: (id: ToolId) => void;
+  }) => {
+    const Icon = tool.icon;
+    return (
+      <div className="group relative h-[180px]">
+        <button
+          type="button"
+          onClick={() => handleSelectTool(tool.id)}
+          className="flex flex-col items-start p-6 rounded-xl text-left transition-all duration-200 bg-white dark:bg-[#1a1a2e] border-2 border-black dark:border-white/[0.08] hover:border-gray-700 dark:hover:border-white/20 hover:shadow-md shadow-sm dark:shadow-none w-full h-full"
+        >
+          <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center mb-3 bg-blue-50 dark:bg-[#1e3a5f]">
+            <Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          </div>
+          <h3 className="font-bold text-gray-900 dark:text-white text-base mb-1 leading-tight w-full pr-6">
+            {tool.label}
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-white/50 leading-snug line-clamp-2">
+            {tool.description}
+          </p>
+        </button>
+        <button
+          type="button"
+          onClick={() => onTogglePin(tool.id)}
+          aria-label={isPinned ? "Unpin tool" : "Pin tool"}
+          data-ocid="dashboard.tools.toggle"
+          className={`absolute top-2 right-2 z-10 p-1 rounded-md transition-opacity ${
+            isPinned ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+          } hover:bg-gray-100 dark:hover:bg-white/10`}
+        >
+          <Star
+            className={`w-4 h-4 transition-colors ${
+              isPinned
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-gray-400 dark:text-white/40"
+            }`}
+          />
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
       {/* Hero Section */}
       <section className="relative flex flex-col items-center justify-center text-center px-4 py-20 overflow-hidden bg-white dark:bg-[#0a0a0a]">
-        {/* Radial blue glow — dark mode only */}
         <div
           className="absolute inset-0 pointer-events-none hidden dark:block"
           style={{
@@ -206,7 +355,7 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
         className="px-4 sm:px-6 lg:px-8 pb-16 max-w-4xl mx-auto"
       >
         {/* Section heading */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             {t("tools.heading")}
           </h2>
@@ -215,41 +364,113 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
           </p>
         </div>
 
-        {/* 2-column tool grid */}
-        <div
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-          data-ocid="dashboard.tools.list"
-        >
-          {tools.map((tool, idx) => {
-            const Icon = tool.icon;
-            return (
-              <button
-                type="button"
-                key={tool.id}
-                onClick={() => onSelectTool(tool.id)}
-                data-ocid={`dashboard.tools.item.${idx + 1}`}
-                className="group flex flex-col items-start p-6 rounded-xl text-left transition-all duration-200 bg-white dark:bg-[#1a1a2e] border-2 border-black dark:border-white/[0.08] hover:border-gray-700 dark:hover:border-white/20 hover:shadow-md shadow-sm dark:shadow-none min-h-[140px] overflow-hidden"
-              >
-                {/* Icon box */}
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-blue-50 dark:bg-[#1e3a5f]">
-                  <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1.5 leading-tight w-full">
-                  {tool.label}
-                </h3>
-                <p className="text-sm text-gray-500 dark:text-white/50 leading-snug line-clamp-2">
-                  {tool.description}
-                </p>
-              </button>
-            );
-          })}
+        {/* Search bar */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40 pointer-events-none" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search tools..."
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1a1a2e] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          />
         </div>
+
+        {/* Search results */}
+        {search &&
+          (filteredTools.length === 0 ? (
+            <div className="text-center py-16 text-gray-400 dark:text-white/30">
+              No tools found for &ldquo;{search}&rdquo;
+            </div>
+          ) : (
+            <div
+              className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+              data-ocid="dashboard.tools.list"
+            >
+              {filteredTools.map((tool, idx) => (
+                <div
+                  key={tool.id}
+                  data-ocid={`dashboard.tools.item.${idx + 1}`}
+                >
+                  <ToolCard
+                    tool={tool}
+                    isPinned={pinnedToolIds.includes(tool.id)}
+                    onTogglePin={handleTogglePin}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+
+        {/* Pinned Tools */}
+        {!search && pinnedTools.length > 0 && (
+          <div className="mb-8">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-white/30 mb-3">
+              Pinned
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {pinnedTools.map((tool) => (
+                <ToolCard
+                  key={tool.id}
+                  tool={tool}
+                  isPinned={true}
+                  onTogglePin={handleTogglePin}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Recently Used */}
+        {!search && recentTools.length > 0 && (
+          <div className="mb-8">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-white/30 mb-3">
+              Recently Used
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {recentTools.map((tool) => (
+                <ToolCard
+                  key={tool.id}
+                  tool={tool}
+                  isPinned={pinnedToolIds.includes(tool.id)}
+                  onTogglePin={handleTogglePin}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Categorized tools */}
+        {!search && (
+          <div className="space-y-10" data-ocid="dashboard.tools.list">
+            {categories.map((category) => (
+              <div key={category.label}>
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-white/30 mb-3">
+                  {category.label}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {category.tools.map((tool, idx) => (
+                    <div
+                      key={tool.id}
+                      data-ocid={`dashboard.tools.item.${idx + 1}`}
+                    >
+                      <ToolCard
+                        tool={tool}
+                        isPinned={pinnedToolIds.includes(tool.id)}
+                        onTogglePin={handleTogglePin}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Why Use PDF Vaulty strip */}
       <section className="py-16 px-4 bg-gray-50 dark:bg-[#111111]">
         <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-10 text-center">
-          {/* Easy to Use */}
           <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 rounded-full flex items-center justify-center bg-blue-50 dark:bg-[#1e3a5f]">
               <FileText className="w-7 h-7 text-blue-600 dark:text-blue-400" />
@@ -263,8 +484,6 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
               </p>
             </div>
           </div>
-
-          {/* Secure & Private */}
           <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 rounded-full flex items-center justify-center border border-gray-200 dark:border-white/10 bg-white dark:bg-transparent">
               <Shield className="w-7 h-7 text-gray-400 dark:text-white/40" />
@@ -278,8 +497,6 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
               </p>
             </div>
           </div>
-
-          {/* Powerful Tools */}
           <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 rounded-full flex items-center justify-center bg-blue-50 dark:bg-[#1e3a5f]">
               <Zap className="w-7 h-7 text-blue-600 dark:text-blue-400" />
@@ -310,7 +527,6 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
               {t("faq.subheading")}
             </p>
           </div>
-
           <div
             className="divide-y divide-gray-200 dark:divide-white/[0.08]"
             data-ocid="dashboard.faq.list"
@@ -349,7 +565,6 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
         </div>
       </section>
 
-      {/* Onboarding tour — shown only to first-time visitors */}
       <OnboardingTour />
     </div>
   );

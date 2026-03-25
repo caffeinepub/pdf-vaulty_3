@@ -2,6 +2,7 @@ import {
   AlertCircle,
   ArrowRight,
   Check,
+  Copy,
   Eye,
   FileText,
   FolderOpen,
@@ -90,6 +91,127 @@ function PdfViewerModal({ fileName, fileUrl, onClose }: PdfViewerModalProps) {
           title={fileName}
           aria-label={`PDF viewer for ${fileName}`}
         />
+      </div>
+    </dialog>
+  );
+}
+
+// ─── Share Modal (QR Code) ──────────────────────────────────────────────────
+
+interface ShareModalProps {
+  fileName: string;
+  fileUrl: string;
+  onClose: () => void;
+}
+
+function ShareModal({ fileName, fileUrl, onClose }: ShareModalProps) {
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const handleCopy = () => {
+    navigator.clipboard
+      .writeText(fileUrl)
+      .then(() => {
+        setCopied(true);
+        toast.success("Link copied to clipboard");
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {
+        toast.error("Failed to copy link");
+      });
+  };
+
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(fileUrl)}`;
+
+  return (
+    <dialog
+      data-ocid="files.dialog"
+      open
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent max-w-none max-h-none w-screen h-screen m-0 border-0"
+      aria-label={`Share ${fileName}`}
+    >
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") onClose();
+        }}
+        role="presentation"
+      />
+
+      {/* Modal card */}
+      <div className="relative w-full max-w-sm rounded-2xl border border-white/10 bg-[#111111] shadow-2xl p-6 flex flex-col items-center gap-5">
+        {/* Close button */}
+        <button
+          type="button"
+          onClick={onClose}
+          data-ocid="files.close_button"
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+          aria-label="Close share modal"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Title */}
+        <div className="text-center w-full pr-6">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <Share2 className="w-4 h-4 text-blue-400" />
+            <span className="text-sm font-semibold text-white">Share File</span>
+          </div>
+          <p className="text-xs text-white/40 truncate" title={fileName}>
+            {fileName}
+          </p>
+        </div>
+
+        {/* QR Code */}
+        <div className="rounded-xl overflow-hidden border border-white/10 bg-white p-2">
+          <img
+            src={qrUrl}
+            alt={`QR code for ${fileName}`}
+            width={180}
+            height={180}
+            className="block"
+          />
+        </div>
+
+        {/* URL display */}
+        <div className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+          <p className="text-xs text-white/50 truncate" title={fileUrl}>
+            {fileUrl}
+          </p>
+        </div>
+
+        {/* Copy button */}
+        <button
+          type="button"
+          onClick={handleCopy}
+          data-ocid="files.primary_button"
+          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all ${
+            copied
+              ? "bg-green-600 text-white"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
+        >
+          {copied ? (
+            <>
+              <Check className="w-4 h-4" />
+              Copied!
+            </>
+          ) : (
+            <>
+              <Copy className="w-4 h-4" />
+              Copy Link
+            </>
+          )}
+        </button>
       </div>
     </dialog>
   );
@@ -200,6 +322,10 @@ export default function MyFilesPage({
     name: string;
     url: string;
   } | null>(null);
+  const [sharingFile, setSharingFile] = useState<{
+    name: string;
+    url: string;
+  } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: files, isLoading, isError } = useGetMyFiles();
@@ -291,6 +417,14 @@ export default function MyFilesPage({
           fileName={viewerFile.name}
           fileUrl={viewerFile.url}
           onClose={handleCloseViewer}
+        />
+      )}
+
+      {sharingFile && (
+        <ShareModal
+          fileName={sharingFile.name}
+          fileUrl={sharingFile.url}
+          onClose={() => setSharingFile(null)}
         />
       )}
 
@@ -536,20 +670,16 @@ export default function MyFilesPage({
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                       type="button"
-                      onClick={() => {
-                        navigator.clipboard
-                          .writeText(file.blob.getDirectURL())
-                          .then(() => {
-                            toast.success("Link copied to clipboard");
-                          })
-                          .catch(() => {
-                            toast.error("Failed to copy link");
-                          });
-                      }}
+                      onClick={() =>
+                        setSharingFile({
+                          name: file.name,
+                          url: file.blob.getDirectURL(),
+                        })
+                      }
                       data-ocid={`files.share_button.${idx + 1}`}
                       className="p-2 rounded-lg text-gray-400 dark:text-white/30 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/40 transition-colors"
-                      title={t("myfiles.copyLink") || "Copy shareable link"}
-                      aria-label={`Copy link for ${file.name}`}
+                      title={t("myfiles.copyLink") || "Share file"}
+                      aria-label={`Share ${file.name}`}
                     >
                       <Share2 className="w-4 h-4" />
                     </button>

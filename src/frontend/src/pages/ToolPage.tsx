@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookmarkPlus, X } from "lucide-react";
+import { ArrowLeft, BookmarkPlus, Share2, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Suspense,
@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { toast } from "sonner";
 import type { ToolId } from "../App";
 import PDFErrorBoundary from "../components/PDFErrorBoundary";
 import { useAnalytics } from "../hooks/useAnalytics";
@@ -308,6 +309,7 @@ const faqSchema: Record<ToolId, Array<{ q: string; a: string }>> = {
 };
 
 const SESSION_KEY = "pdfvaulty_save_prompt_shown";
+const LARGE_FILE_THRESHOLD_MB = 10;
 
 const toolSpinner = (
   <div className="flex items-center justify-center py-16">
@@ -334,6 +336,13 @@ export default function ToolPage({
   // One-time save banner state
   const [bannerVisible, setBannerVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Large file warning state
+  const [sizeWarning, setSizeWarning] = useState<{
+    visible: boolean;
+    sizeMb: number;
+  }>({ visible: false, sizeMb: 0 });
+
   const toolAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -383,7 +392,7 @@ export default function ToolPage({
     };
   }, [meta.title, meta.description, toolId]);
 
-  // Listen for file input change events in tool area to show processing indicator
+  // Listen for file input change events — show processing indicator + large-file warning
   useEffect(() => {
     const el = toolAreaRef.current;
     if (!el) return;
@@ -394,10 +403,59 @@ export default function ToolPage({
         (target as HTMLInputElement).type === "file"
       ) {
         setIsProcessing(true);
+
+        // Check for large files
+        const input = target as HTMLInputElement;
+        const files = input.files;
+        if (files && files.length > 0) {
+          let totalBytes = 0;
+          for (let i = 0; i < files.length; i++) {
+            totalBytes += files[i].size;
+          }
+          const totalMb = totalBytes / (1024 * 1024);
+          if (totalMb > LARGE_FILE_THRESHOLD_MB) {
+            setSizeWarning({
+              visible: true,
+              sizeMb: Math.round(totalMb * 10) / 10,
+            });
+          } else {
+            // Dismiss any previous warning if user re-selects smaller files
+            setSizeWarning((prev) =>
+              prev.visible ? { visible: false, sizeMb: 0 } : prev,
+            );
+          }
+        }
       }
     };
     el.addEventListener("change", onFileChange, true);
     return () => el.removeEventListener("change", onFileChange, true);
+  }, []);
+
+  // Share tool handler
+  const handleShareTool = useCallback(() => {
+    const url = window.location.href;
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          toast.success("Link copied!", {
+            description: "Share this tool with anyone.",
+            duration: 2500,
+          });
+        })
+        .catch(() => {
+          toast.error("Could not copy link.");
+        });
+    } else {
+      // Fallback for browsers without clipboard API
+      const el = document.createElement("textarea");
+      el.value = url;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      toast.success("Link copied!", { duration: 2500 });
+    }
   }, []);
 
   // Listen for any download action inside the tool area
@@ -485,6 +543,7 @@ export default function ToolPage({
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header row: back button + title + share button */}
       <div className="flex items-center gap-3 mb-3">
         <Button
           variant="ghost"
@@ -497,11 +556,56 @@ export default function ToolPage({
           Back
         </Button>
         <div className="h-5 w-px bg-vault-border" />
-        <h1 className="text-xl font-bold text-foreground">{meta.title}</h1>
+        <h1 className="text-xl font-bold text-foreground flex-1">
+          {meta.title}
+        </h1>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleShareTool}
+          data-ocid="tool.share.button"
+          className="gap-1.5 text-xs text-vault-muted border-vault-border hover:text-foreground hover:border-foreground/30 hover:bg-vault-hover shrink-0"
+        >
+          <Share2 className="w-3.5 h-3.5" />
+          Share
+        </Button>
       </div>
-      <p className="text-sm text-muted-foreground mb-8 max-w-2xl leading-relaxed">
+      <p className="text-sm text-muted-foreground mb-6 max-w-2xl leading-relaxed">
         {meta.description}
       </p>
+
+      {/* Large file warning banner */}
+      <AnimatePresence>
+        {sizeWarning.visible && (
+          <motion.div
+            key="size-warning"
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.97 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            data-ocid="tool.size_warning.card"
+            className="mb-6 rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 flex items-start gap-3"
+            aria-live="polite"
+          >
+            <span className="text-lg leading-none mt-0.5 shrink-0">⚠️</span>
+            <p className="flex-1 text-sm text-amber-800 dark:text-amber-200 leading-snug">
+              <span className="font-semibold">
+                Large file detected ({sizeWarning.sizeMb} MB).
+              </span>{" "}
+              Processing may take a while — please be patient.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSizeWarning({ visible: false, sizeMb: 0 })}
+              data-ocid="tool.size_warning.close_button"
+              aria-label="Dismiss warning"
+              className="shrink-0 mt-0.5 p-1 rounded-md text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Tool area — wrapped with error boundary and listens for download actions */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: click capture on container, not an interactive element */}

@@ -17,21 +17,7 @@ export default defineConfig({
   build: {
     emptyOutDir: true,
     sourcemap: false,
-    minify: true,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            if (id.includes("pdf-lib")) return "vendor-pdf";
-            if (id.includes("pdfjs-dist")) return "vendor-pdfjs";
-            if (id.includes("/xlsx/")) return "vendor-xlsx";
-            if (id.includes("jspdf") || id.includes("jszip")) return "vendor-misc";
-            if (id.includes("@dfinity")) return "vendor-dfinity";
-            if (id.includes("@radix-ui")) return "vendor-radix";
-          }
-        },
-      },
-    },
+    minify: false,
   },
   css: {
     postcss: "./postcss.config.js",

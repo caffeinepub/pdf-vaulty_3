@@ -34,6 +34,51 @@ const LANGUAGES: { code: LangCode }[] = [
   { code: "bn" },
 ];
 
+function ShieldLogo() {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-full h-full"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="shieldGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#3b82f6" />
+          <stop offset="100%" stopColor="#a855f7" />
+        </linearGradient>
+      </defs>
+      {/* Shield shape */}
+      <path
+        d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z"
+        fill="url(#shieldGrad)"
+      />
+      {/* Lock body */}
+      <rect
+        x="12"
+        y="16"
+        width="8"
+        height="6"
+        rx="1.5"
+        fill="white"
+        opacity="0.95"
+      />
+      {/* Lock shackle */}
+      <path
+        d="M13.5 16v-2a2.5 2.5 0 015 0v2"
+        stroke="white"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.95"
+      />
+      {/* Lock keyhole */}
+      <circle cx="16" cy="19" r="1" fill="url(#shieldGrad)" />
+    </svg>
+  );
+}
+
 export default function Header({
   isAuthenticated,
   userName,
@@ -103,20 +148,7 @@ export default function Header({
               data-ocid="nav.home.link"
             >
               <div className="w-7 h-7 flex-shrink-0 rounded overflow-hidden flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600 p-0.5">
-                <img
-                  src="/assets/generated/pdf-vaulty-logo-v3-transparent.dim_256x256.png"
-                  alt="PDF Vaulty"
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    const el = e.target as HTMLImageElement;
-                    el.style.display = "none";
-                    const parent = el.parentElement;
-                    if (parent) {
-                      parent.innerHTML =
-                        '<span style="color:white;font-weight:900;font-size:11px;line-height:1">PV</span>';
-                    }
-                  }}
-                />
+                <ShieldLogo />
               </div>
               <span className="font-bold text-base text-gray-900 dark:text-white tracking-tight whitespace-nowrap">
                 PDF Vaulty

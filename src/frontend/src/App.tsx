@@ -29,7 +29,8 @@ export type ToolId =
   | "add-page-numbers"
   | "add-watermark"
   | "crop-pdf"
-  | "flatten-pdf";
+  | "flatten-pdf"
+  | "extract-text";
 
 export type AppView = "dashboard" | "tool" | "myFiles" | "profile";
 

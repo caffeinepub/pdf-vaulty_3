@@ -24,6 +24,9 @@ const CompressPDFTool = lazy(
   () => import("../components/tools/CompressPDFTool"),
 );
 const ExcelToPDFTool = lazy(() => import("../components/tools/ExcelToPDFTool"));
+const ExtractTextTool = lazy(
+  () => import("../components/tools/ExtractTextTool"),
+);
 const ImageToPDFTool = lazy(() => import("../components/tools/ImageToPDFTool"));
 const MergePDFTool = lazy(() => import("../components/tools/MergePDFTool"));
 const PDFConverterTool = lazy(
@@ -114,6 +117,11 @@ const toolMeta: Record<ToolId, ToolMeta> = {
     title: "Flatten PDF Forms",
     description:
       "Convert interactive form fields into static, non-editable content. Useful for archiving completed forms.",
+  },
+  "extract-text": {
+    title: "Extract PDF Text",
+    description:
+      "Extract all readable text from a PDF file. Copy it to your clipboard or download as a .txt file.",
   },
 };
 
@@ -306,9 +314,20 @@ const faqSchema: Record<ToolId, Array<{ q: string; a: string }>> = {
       a: "The watermark is overlaid on top of existing content without altering it.",
     },
   ],
+  "extract-text": [
+    {
+      q: "How do I extract text from a PDF?",
+      a: "Upload your PDF to the Extract PDF Text tool. The tool reads all pages and extracts readable text, which you can copy to clipboard or download as a .txt file.",
+    },
+    {
+      q: "Does text extraction work on scanned PDFs?",
+      a: "Text extraction works on PDFs with embedded text layers. Scanned image-only PDFs will not return readable text — they would require OCR software.",
+    },
+  ],
 };
 
 const SESSION_KEY = "pdfvaulty_save_prompt_shown";
+const SESSION_HISTORY_KEY = "pdfvaulty_session_history";
 const LARGE_FILE_THRESHOLD_MB = 10;
 
 const toolSpinner = (
@@ -333,11 +352,8 @@ export default function ToolPage({
   const meta = toolMeta[toolId];
   const { trackToolUse } = useAnalytics();
 
-  // One-time save banner state
   const [bannerVisible, setBannerVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  // Large file warning state
   const [sizeWarning, setSizeWarning] = useState<{
     visible: boolean;
     sizeMb: number;
@@ -348,7 +364,6 @@ export default function ToolPage({
   useEffect(() => {
     document.title = `${meta.title} – PDF Vaulty`;
 
-    // Inject JSON-LD structured data for the tool
     const script = document.createElement("script");
     script.type = "application/ld+json";
     script.id = "tool-jsonld";
@@ -367,7 +382,6 @@ export default function ToolPage({
     });
     document.head.appendChild(script);
 
-    // Inject FAQ structured data for this tool
     const faqItems = faqSchema[toolId];
     if (faqItems) {
       const faqScript = document.createElement("script");
@@ -392,7 +406,6 @@ export default function ToolPage({
     };
   }, [meta.title, meta.description, toolId]);
 
-  // Listen for file input change events — show processing indicator + large-file warning
   useEffect(() => {
     const el = toolAreaRef.current;
     if (!el) return;
@@ -403,8 +416,6 @@ export default function ToolPage({
         (target as HTMLInputElement).type === "file"
       ) {
         setIsProcessing(true);
-
-        // Check for large files
         const input = target as HTMLInputElement;
         const files = input.files;
         if (files && files.length > 0) {
@@ -419,7 +430,6 @@ export default function ToolPage({
               sizeMb: Math.round(totalMb * 10) / 10,
             });
           } else {
-            // Dismiss any previous warning if user re-selects smaller files
             setSizeWarning((prev) =>
               prev.visible ? { visible: false, sizeMb: 0 } : prev,
             );
@@ -431,7 +441,6 @@ export default function ToolPage({
     return () => el.removeEventListener("change", onFileChange, true);
   }, []);
 
-  // Share tool handler
   const handleShareTool = useCallback(() => {
     const url = window.location.href;
     if (navigator.clipboard) {
@@ -447,7 +456,6 @@ export default function ToolPage({
           toast.error("Could not copy link.");
         });
     } else {
-      // Fallback for browsers without clipboard API
       const el = document.createElement("textarea");
       el.value = url;
       document.body.appendChild(el);
@@ -458,12 +466,10 @@ export default function ToolPage({
     }
   }, []);
 
-  // Listen for any download action inside the tool area
   const handleToolAreaClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       const target = e.target as HTMLElement;
 
-      // Walk up to 5 ancestor levels to find a download button or anchor
       let el: HTMLElement | null = target;
       for (let i = 0; i < 5; i++) {
         if (!el) break;
@@ -473,18 +479,31 @@ export default function ToolPage({
         const isDownloadLink = tag === "a" && hasDownload;
         const isDownloadButton =
           (tag === "button" || tag === "a") &&
-          (text.includes("download") || text.includes("save"));
+          (text.includes("download") ||
+            text.includes("save") ||
+            text.includes("copy"));
 
         if (isDownloadLink || isDownloadButton) {
-          // Track tool usage in analytics
           trackToolUse(toolId);
-
-          // Hide processing indicator on download
           setIsProcessing(false);
 
-          // Show one-time save banner for unauthenticated users
+          // Write session history entry
+          const historyEntry = {
+            toolId,
+            toolLabel: meta.title,
+            timestamp: Date.now(),
+          };
+          try {
+            const raw = sessionStorage.getItem(SESSION_HISTORY_KEY);
+            const existing = raw ? JSON.parse(raw) : [];
+            const updated = [historyEntry, ...existing].slice(0, 5);
+            sessionStorage.setItem(
+              SESSION_HISTORY_KEY,
+              JSON.stringify(updated),
+            );
+          } catch {}
+
           if (!isAuthenticated && !sessionStorage.getItem(SESSION_KEY)) {
-            // Small delay so the download starts before banner appears
             setTimeout(() => setBannerVisible(true), 400);
           }
           break;
@@ -492,7 +511,7 @@ export default function ToolPage({
         el = el.parentElement;
       }
     },
-    [isAuthenticated, toolId, trackToolUse],
+    [isAuthenticated, toolId, trackToolUse, meta.title],
   );
 
   const dismissBanner = useCallback(() => {
@@ -536,6 +555,8 @@ export default function ToolPage({
         return <CropPDFTool />;
       case "flatten-pdf":
         return <FlattenPDFTool />;
+      case "extract-text":
+        return <ExtractTextTool />;
       default:
         return null;
     }
@@ -607,7 +628,7 @@ export default function ToolPage({
         )}
       </AnimatePresence>
 
-      {/* Tool area — wrapped with error boundary and listens for download actions */}
+      {/* Tool area */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: click capture on container, not an interactive element */}
       <div ref={toolAreaRef} onClick={handleToolAreaClick}>
         <PDFErrorBoundary>
@@ -626,7 +647,7 @@ export default function ToolPage({
         </div>
       )}
 
-      {/* One-time "Save to My Files" recommendation banner */}
+      {/* One-time save banner */}
       <AnimatePresence>
         {bannerVisible && (
           <motion.div
@@ -639,12 +660,9 @@ export default function ToolPage({
             className="mt-6 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/80 dark:bg-blue-950/30 backdrop-blur-sm px-4 py-3.5 flex items-start gap-3 shadow-sm"
             aria-live="polite"
           >
-            {/* Icon */}
             <div className="mt-0.5 shrink-0 w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
               <BookmarkPlus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </div>
-
-            {/* Text + action */}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-blue-900 dark:text-blue-100 leading-snug">
                 Want to keep this file?
@@ -663,8 +681,6 @@ export default function ToolPage({
                 Log in to save files
               </Button>
             </div>
-
-            {/* Dismiss */}
             <button
               type="button"
               onClick={dismissBanner}

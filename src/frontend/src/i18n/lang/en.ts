@@ -155,6 +155,11 @@ const en: Record<string, string> = {
   "myfiles.viewPdf": "View PDF",
   "myfiles.renameFile": "Rename file",
   "myfiles.deleteFile": "Delete file",
+  "tool.extractText.label": "Extract PDF Text",
+  "tool.extractText.desc":
+    "Extract all readable text from any PDF to copy or download",
+  "history.heading": "Session History",
+  "history.clear": "Clear",
 };
 
 export default en;

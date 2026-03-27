@@ -1,9 +1,11 @@
 import {
   ArrowRightLeft,
   ChevronDown,
+  Clock,
   Crop,
   FileCheck,
   FileInput,
+  FileSearch,
   FileText,
   Hash,
   Layers,
@@ -14,6 +16,7 @@ import {
   Shield,
   Stamp,
   Star,
+  Trash2,
   Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -21,27 +24,8 @@ import type { ToolId } from "../App";
 import OnboardingTour from "../components/OnboardingTour";
 import { useLanguage } from "../contexts/LanguageContext";
 
-const RECENT_TOOLS_KEY = "pdfvaulty_recent_tools";
 const PINNED_TOOLS_KEY = "pdfvaulty_pinned_tools";
-const MAX_RECENT = 3;
-
-function getRecentTools(): ToolId[] {
-  try {
-    const raw = localStorage.getItem(RECENT_TOOLS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveRecentTool(id: ToolId) {
-  const recent = getRecentTools().filter((t) => t !== id);
-  recent.unshift(id);
-  localStorage.setItem(
-    RECENT_TOOLS_KEY,
-    JSON.stringify(recent.slice(0, MAX_RECENT)),
-  );
-}
+const SESSION_HISTORY_KEY = "pdfvaulty_session_history";
 
 function getPinnedTools(): ToolId[] {
   try {
@@ -58,6 +42,91 @@ function togglePinnedTool(id: ToolId): ToolId[] {
   const updated = idx >= 0 ? pinned.filter((t) => t !== id) : [...pinned, id];
   localStorage.setItem(PINNED_TOOLS_KEY, JSON.stringify(updated));
   return updated;
+}
+
+interface HistoryEntry {
+  toolId: string;
+  toolLabel: string;
+  timestamp: number;
+}
+
+function getSessionHistory(): HistoryEntry[] {
+  try {
+    const raw = sessionStorage.getItem(SESSION_HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function formatRelativeTime(timestamp: number): string {
+  const diffMs = Date.now() - timestamp;
+  const diffSec = Math.floor(diffMs / 1000);
+  if (diffSec < 60) return "just now";
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin} min ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  return `${diffHr}h ago`;
+}
+
+function SessionHistory() {
+  const { t } = useLanguage();
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+
+  useEffect(() => {
+    setHistory(getSessionHistory());
+    const interval = setInterval(() => {
+      setHistory(getSessionHistory());
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleClear = () => {
+    try {
+      sessionStorage.removeItem(SESSION_HISTORY_KEY);
+    } catch {}
+    setHistory([]);
+  };
+
+  if (history.length === 0) return null;
+
+  return (
+    <div className="mb-10" data-ocid="dashboard.history.section">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Clock className="w-3.5 h-3.5 text-gray-400 dark:text-white/30" />
+          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-white/30">
+            {t("history.heading")}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleClear}
+          data-ocid="dashboard.history.delete_button"
+          className="flex items-center gap-1 text-xs text-gray-400 dark:text-white/30 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+        >
+          <Trash2 className="w-3 h-3" />
+          {t("history.clear")}
+        </button>
+      </div>
+      <div className="flex flex-col gap-2" data-ocid="dashboard.history.list">
+        {history.map((entry, idx) => (
+          <div
+            key={`${entry.toolId}-${entry.timestamp}`}
+            data-ocid={`dashboard.history.item.${idx + 1}`}
+            className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-[#111] border border-gray-100 dark:border-white/[0.05]"
+          >
+            <span className="text-sm text-gray-700 dark:text-white/70 font-medium">
+              {entry.toolLabel}
+            </span>
+            <span className="text-xs text-gray-400 dark:text-white/30">
+              {formatRelativeTime(entry.timestamp)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 interface Tool {
@@ -86,17 +155,13 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
   const { t } = useLanguage();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [search, setSearch] = useState("");
-  const [recentToolIds, setRecentToolIds] = useState<ToolId[]>([]);
   const [pinnedToolIds, setPinnedToolIds] = useState<ToolId[]>([]);
 
   useEffect(() => {
-    setRecentToolIds(getRecentTools());
     setPinnedToolIds(getPinnedTools());
   }, []);
 
   const handleSelectTool = (id: ToolId) => {
-    saveRecentTool(id);
-    setRecentToolIds(getRecentTools());
     onSelectTool(id);
   };
 
@@ -173,6 +238,12 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
         label: t("tool.flatten.label"),
         description: t("tool.flatten.desc"),
       },
+      {
+        id: "extract-text",
+        icon: FileSearch,
+        label: t("tool.extractText.label"),
+        description: t("tool.extractText.desc"),
+      },
     ],
     [t],
   );
@@ -181,7 +252,7 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
     () => [
       {
         label: "Edit",
-        tools: allTools.filter((t) =>
+        tools: allTools.filter((tool) =>
           [
             "merge",
             "split",
@@ -189,24 +260,24 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
             "crop-pdf",
             "add-page-numbers",
             "add-watermark",
-          ].includes(t.id),
+          ].includes(tool.id),
         ),
       },
       {
         label: "Convert",
-        tools: allTools.filter((t) =>
-          ["image-to-pdf", "pdf-converter"].includes(t.id),
+        tools: allTools.filter((tool) =>
+          ["image-to-pdf", "pdf-converter", "extract-text"].includes(tool.id),
         ),
       },
       {
         label: "Protect",
-        tools: allTools.filter((t) =>
-          ["password-protect", "flatten-pdf"].includes(t.id),
+        tools: allTools.filter((tool) =>
+          ["password-protect", "flatten-pdf"].includes(tool.id),
         ),
       },
       {
         label: "Optimize",
-        tools: allTools.filter((t) => ["compress"].includes(t.id)),
+        tools: allTools.filter((tool) => ["compress"].includes(tool.id)),
       },
     ],
     [allTools],
@@ -221,14 +292,6 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
         tool.description.toLowerCase().includes(q),
     );
   }, [allTools, search]);
-
-  const recentTools = useMemo(
-    () =>
-      recentToolIds
-        .map((id) => allTools.find((tool) => tool.id === id))
-        .filter(Boolean) as Tool[],
-    [recentToolIds, allTools],
-  );
 
   const pinnedTools = useMemo(
     () =>
@@ -372,6 +435,7 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search tools..."
+            data-ocid="dashboard.search_input"
             className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1a1a2e] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
         </div>
@@ -421,25 +485,6 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
           </div>
         )}
 
-        {/* Recently Used */}
-        {!search && recentTools.length > 0 && (
-          <div className="mb-8">
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-white/30 mb-3">
-              Recently Used
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {recentTools.map((tool) => (
-                <ToolCard
-                  key={tool.id}
-                  tool={tool}
-                  isPinned={pinnedToolIds.includes(tool.id)}
-                  onTogglePin={handleTogglePin}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Categorized tools */}
         {!search && (
           <div className="space-y-10" data-ocid="dashboard.tools.list">
@@ -466,6 +511,11 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
             ))}
           </div>
         )}
+      </section>
+
+      {/* Session History */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+        <SessionHistory />
       </section>
 
       {/* Why Use PDF Vaulty strip */}

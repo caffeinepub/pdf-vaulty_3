@@ -1,28 +1,22 @@
 # PDF Vaulty
 
 ## Current State
-- Full PDF toolkit with 14 tools, categorized dashboard, search, pinned tools
-- LanguageContext already lazy-loads non-English files (Task 3 already done)
-- ToolPage has share, file size warning, save banner, analytics tracking on download
+Version 66 is live. The app has a header with logo, language switcher, and theme toggle. Individual tool pages have a "Share this tool" button, but there is no way to share the overall app from the main dashboard.
 
 ## Requested Changes (Diff)
 
 ### Add
-- PDF Text Extractor tool (id: extract-text): upload PDF, extract all readable text using pdfjs-dist, copy to clipboard
-- Session download history panel: on dashboard, shows last 5 tools used this session (sessionStorage), above FAQ
+- A "Share" button in the header (visible to all users, guests and logged-in)
+- Clicking it triggers the Web Share API on mobile (native share sheet for WhatsApp, Messages, etc.) with a fallback to copying the link on desktop
+- Share content: title "PDF Vaulty", text "Free PDF tools that work in your browser", url "https://pdfvaulty-dqb.caffeine.xyz"
 
 ### Modify
-- App.tsx: add "extract-text" to ToolId
-- Dashboard.tsx: add extract-text to Convert category; add SessionHistory panel above FAQ
-- ToolPage.tsx: add lazy import + case + meta + faq for extract-text; write session history entry on download
-- en.ts: add tool.extractText.label, tool.extractText.desc, history.heading keys
+- Header.tsx: add the share button next to the existing controls
 
 ### Remove
 - Nothing
 
 ## Implementation Plan
-1. Create ExtractTextTool.tsx
-2. Update App.tsx - add to ToolId
-3. Update ToolPage.tsx - add tool case + session history write
-4. Update Dashboard.tsx - add to Convert category + history panel
-5. Update en.ts - add translation keys
+1. Add a share button icon (Share2 from lucide-react) to Header.tsx
+2. On click: if `navigator.share` is available, call it with title/text/url; otherwise copy the URL to clipboard and show a brief toast
+3. Button visible to all users

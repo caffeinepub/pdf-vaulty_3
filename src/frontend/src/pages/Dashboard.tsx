@@ -134,6 +134,7 @@ interface Tool {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   description: string;
+  category: "Edit" | "Convert" | "Protect" | "Optimize";
 }
 
 interface ToolCategory {
@@ -151,11 +152,15 @@ interface FaqItem {
   answer: string;
 }
 
+const MOBILE_TABS = ["All", "Edit", "Convert", "Protect", "Optimize"] as const;
+type MobileTab = (typeof MOBILE_TABS)[number];
+
 export default function Dashboard({ onSelectTool }: DashboardProps) {
   const { t } = useLanguage();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [pinnedToolIds, setPinnedToolIds] = useState<ToolId[]>([]);
+  const [mobileTab, setMobileTab] = useState<MobileTab>("All");
 
   useEffect(() => {
     setPinnedToolIds(getPinnedTools());
@@ -177,72 +182,84 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
         icon: Layers,
         label: t("tool.merge.label"),
         description: t("tool.merge.desc"),
+        category: "Edit",
       },
       {
         id: "split",
         icon: FileText,
         label: t("tool.split.label"),
         description: t("tool.split.desc"),
+        category: "Edit",
       },
       {
         id: "compress",
         icon: Minimize2,
         label: t("tool.compress.label"),
         description: t("tool.compress.desc"),
+        category: "Optimize",
       },
       {
         id: "password-protect",
         icon: Lock,
         label: t("tool.protect.label"),
         description: t("tool.protect.desc"),
+        category: "Protect",
       },
       {
         id: "rotate",
         icon: RotateCw,
         label: t("tool.rotate.label"),
         description: t("tool.rotate.desc"),
+        category: "Edit",
       },
       {
         id: "image-to-pdf",
         icon: FileInput,
         label: t("tool.imageToPdf.label"),
         description: t("tool.imageToPdf.desc"),
+        category: "Convert",
       },
       {
         id: "pdf-converter",
         icon: ArrowRightLeft,
         label: t("tool.converter.label"),
         description: t("tool.converter.desc"),
+        category: "Convert",
       },
       {
         id: "add-page-numbers",
         icon: Hash,
         label: t("tool.pageNumbers.label"),
         description: t("tool.pageNumbers.desc"),
+        category: "Edit",
       },
       {
         id: "add-watermark",
         icon: Stamp,
         label: t("tool.watermark.label"),
         description: t("tool.watermark.desc"),
+        category: "Edit",
       },
       {
         id: "crop-pdf",
         icon: Crop,
         label: t("tool.crop.label"),
         description: t("tool.crop.desc"),
+        category: "Edit",
       },
       {
         id: "flatten-pdf",
         icon: FileCheck,
         label: t("tool.flatten.label"),
         description: t("tool.flatten.desc"),
+        category: "Protect",
       },
       {
         id: "extract-text",
         icon: FileSearch,
         label: t("tool.extractText.label"),
         description: t("tool.extractText.desc"),
+        category: "Convert",
       },
     ],
     [t],
@@ -252,32 +269,19 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
     () => [
       {
         label: "Edit",
-        tools: allTools.filter((tool) =>
-          [
-            "merge",
-            "split",
-            "rotate",
-            "crop-pdf",
-            "add-page-numbers",
-            "add-watermark",
-          ].includes(tool.id),
-        ),
+        tools: allTools.filter((tool) => tool.category === "Edit"),
       },
       {
         label: "Convert",
-        tools: allTools.filter((tool) =>
-          ["image-to-pdf", "pdf-converter", "extract-text"].includes(tool.id),
-        ),
+        tools: allTools.filter((tool) => tool.category === "Convert"),
       },
       {
         label: "Protect",
-        tools: allTools.filter((tool) =>
-          ["password-protect", "flatten-pdf"].includes(tool.id),
-        ),
+        tools: allTools.filter((tool) => tool.category === "Protect"),
       },
       {
         label: "Optimize",
-        tools: allTools.filter((tool) => ["compress"].includes(tool.id)),
+        tools: allTools.filter((tool) => tool.category === "Optimize"),
       },
     ],
     [allTools],
@@ -300,6 +304,12 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
         .filter(Boolean) as Tool[],
     [pinnedToolIds, allTools],
   );
+
+  // Tools shown in mobile tab view
+  const mobileTabTools = useMemo(() => {
+    if (mobileTab === "All") return allTools;
+    return allTools.filter((tool) => tool.category === mobileTab);
+  }, [allTools, mobileTab]);
 
   const faqItems: FaqItem[] = useMemo(
     () => [
@@ -466,50 +476,93 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
             </div>
           ))}
 
-        {/* Pinned Tools */}
-        {!search && pinnedTools.length > 0 && (
-          <div className="mb-8">
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-white/30 mb-3">
-              Pinned
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {pinnedTools.map((tool) => (
-                <ToolCard
-                  key={tool.id}
-                  tool={tool}
-                  isPinned={true}
-                  onTogglePin={handleTogglePin}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Categorized tools */}
         {!search && (
-          <div className="space-y-10" data-ocid="dashboard.tools.list">
-            {categories.map((category) => (
-              <div key={category.label}>
+          <>
+            {/* Pinned Tools */}
+            {pinnedTools.length > 0 && (
+              <div className="mb-8">
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-white/30 mb-3">
-                  {category.label}
+                  Pinned
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {category.tools.map((tool, idx) => (
-                    <div
+                  {pinnedTools.map((tool) => (
+                    <ToolCard
                       key={tool.id}
-                      data-ocid={`dashboard.tools.item.${idx + 1}`}
-                    >
-                      <ToolCard
-                        tool={tool}
-                        isPinned={pinnedToolIds.includes(tool.id)}
-                        onTogglePin={handleTogglePin}
-                      />
-                    </div>
+                      tool={tool}
+                      isPinned={true}
+                      onTogglePin={handleTogglePin}
+                    />
                   ))}
                 </div>
               </div>
-            ))}
-          </div>
+            )}
+
+            {/* Mobile: category tabs */}
+            <div className="sm:hidden">
+              {/* Tab bar */}
+              <div className="flex gap-1 mb-6 overflow-x-auto scrollbar-hide pb-1">
+                {MOBILE_TABS.map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setMobileTab(tab)}
+                    className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                      mobileTab === tab
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/20"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+              {/* Tab content */}
+              <div
+                className="grid grid-cols-1 gap-4"
+                data-ocid="dashboard.tools.list"
+              >
+                {mobileTabTools.map((tool, idx) => (
+                  <div
+                    key={tool.id}
+                    data-ocid={`dashboard.tools.item.${idx + 1}`}
+                  >
+                    <ToolCard
+                      tool={tool}
+                      isPinned={pinnedToolIds.includes(tool.id)}
+                      onTogglePin={handleTogglePin}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop: categorized sections */}
+            <div className="hidden sm:block">
+              <div className="space-y-10" data-ocid="dashboard.tools.list">
+                {categories.map((category) => (
+                  <div key={category.label}>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-white/30 mb-3">
+                      {category.label}
+                    </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      {category.tools.map((tool, idx) => (
+                        <div
+                          key={tool.id}
+                          data-ocid={`dashboard.tools.item.${idx + 1}`}
+                        >
+                          <ToolCard
+                            tool={tool}
+                            isPinned={pinnedToolIds.includes(tool.id)}
+                            onTogglePin={handleTogglePin}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         )}
       </section>
 

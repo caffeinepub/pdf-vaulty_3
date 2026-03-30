@@ -5,7 +5,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
-import { Globe, Moon, Sun, User } from "lucide-react";
+import { Globe, Moon, Share2, Sun, User } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import type { AppView } from "../App";
@@ -33,6 +33,8 @@ const LANGUAGES: { code: LangCode }[] = [
   { code: "mr" },
   { code: "bn" },
 ];
+
+const APP_URL = "https://pdfvaulty-dqb.caffeine.xyz";
 
 function ShieldLogo() {
   return (
@@ -94,6 +96,7 @@ export default function Header({
   const { lang, setLang, t } = useLanguage();
 
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const langDropdownRef = useRef<HTMLDivElement>(null);
 
   const isDark = resolvedTheme === "dark";
@@ -124,6 +127,28 @@ export default function Header({
   const handleLogin = () => login();
 
   const handleThemeToggle = () => setTheme(isDark ? "light" : "dark");
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "PDF Vaulty",
+          text: "Free PDF tools that work in your browser — no uploads to servers, no account needed.",
+          url: APP_URL,
+        });
+      } catch {
+        // user cancelled or error — do nothing
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(APP_URL);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        // clipboard not available — silent fail
+      }
+    }
+  };
 
   const navLinkBase =
     "px-3 py-1.5 text-sm font-medium transition-colors rounded-md whitespace-nowrap";
@@ -278,6 +303,25 @@ export default function Header({
                     })}
                   </div>
                 </div>
+              )}
+            </div>
+
+            {/* Share button */}
+            <div className="relative flex-shrink-0">
+              <button
+                type="button"
+                onClick={handleShare}
+                data-ocid="header.share.button"
+                title="Share PDF Vaulty"
+                className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white rounded-md hover:bg-gray-100 dark:hover:bg-white/10 flex-shrink-0 [transition:color_0.15s_ease]"
+                aria-label="Share PDF Vaulty"
+              >
+                <Share2 className="w-4 h-4" />
+              </button>
+              {copied && (
+                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 dark:bg-gray-700 text-white text-xs px-2 py-1 pointer-events-none z-50">
+                  Link copied!
+                </span>
               )}
             </div>
 

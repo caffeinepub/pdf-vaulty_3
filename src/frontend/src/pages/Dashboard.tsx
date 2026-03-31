@@ -152,15 +152,15 @@ interface FaqItem {
   answer: string;
 }
 
-const MOBILE_TABS = ["All", "Edit", "Convert", "Protect", "Optimize"] as const;
-type MobileTab = (typeof MOBILE_TABS)[number];
+const TABS = ["All", "Edit", "Convert", "Protect", "Optimize"] as const;
+type ActiveTab = (typeof TABS)[number];
 
 export default function Dashboard({ onSelectTool }: DashboardProps) {
   const { t } = useLanguage();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [pinnedToolIds, setPinnedToolIds] = useState<ToolId[]>([]);
-  const [mobileTab, setMobileTab] = useState<MobileTab>("All");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("All");
 
   useEffect(() => {
     setPinnedToolIds(getPinnedTools());
@@ -265,7 +265,8 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
     [t],
   );
 
-  const categories: ToolCategory[] = useMemo(
+  // Keep categories for potential future use (type check)
+  const _categories: ToolCategory[] = useMemo(
     () => [
       {
         label: "Edit",
@@ -305,11 +306,11 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
     [pinnedToolIds, allTools],
   );
 
-  // Tools shown in mobile tab view
-  const mobileTabTools = useMemo(() => {
-    if (mobileTab === "All") return allTools;
-    return allTools.filter((tool) => tool.category === mobileTab);
-  }, [allTools, mobileTab]);
+  // Tools shown in the active tab
+  const activeTabTools = useMemo(() => {
+    if (activeTab === "All") return allTools;
+    return allTools.filter((tool) => tool.category === activeTab);
+  }, [allTools, activeTab]);
 
   const faqItems: FaqItem[] = useMemo(
     () => [
@@ -497,17 +498,20 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
               </div>
             )}
 
-            {/* Mobile: category tabs */}
-            <div className="sm:hidden">
-              {/* Tab bar */}
-              <div className="flex gap-1 mb-6 overflow-x-auto scrollbar-hide pb-1">
-                {MOBILE_TABS.map((tab) => (
+            {/* Unified tab bar — all screen sizes */}
+            <div>
+              <div
+                className="flex gap-1 mb-6 overflow-x-auto scrollbar-hide pb-1"
+                data-ocid="dashboard.tools.tab"
+              >
+                {TABS.map((tab) => (
                   <button
                     key={tab}
                     type="button"
-                    onClick={() => setMobileTab(tab)}
+                    onClick={() => setActiveTab(tab)}
+                    data-ocid="dashboard.tools.tab"
                     className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
-                      mobileTab === tab
+                      activeTab === tab
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/20"
                     }`}
@@ -516,12 +520,13 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
                   </button>
                 ))}
               </div>
+
               {/* Tab content */}
               <div
-                className="grid grid-cols-1 gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                 data-ocid="dashboard.tools.list"
               >
-                {mobileTabTools.map((tool, idx) => (
+                {activeTabTools.map((tool, idx) => (
                   <div
                     key={tool.id}
                     data-ocid={`dashboard.tools.item.${idx + 1}`}
@@ -531,33 +536,6 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
                       isPinned={pinnedToolIds.includes(tool.id)}
                       onTogglePin={handleTogglePin}
                     />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Desktop: categorized sections */}
-            <div className="hidden sm:block">
-              <div className="space-y-10" data-ocid="dashboard.tools.list">
-                {categories.map((category) => (
-                  <div key={category.label}>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-white/30 mb-3">
-                      {category.label}
-                    </p>
-                    <div className="grid grid-cols-2 gap-4">
-                      {category.tools.map((tool, idx) => (
-                        <div
-                          key={tool.id}
-                          data-ocid={`dashboard.tools.item.${idx + 1}`}
-                        >
-                          <ToolCard
-                            tool={tool}
-                            isPinned={pinnedToolIds.includes(tool.id)}
-                            onTogglePin={handleTogglePin}
-                          />
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 ))}
               </div>

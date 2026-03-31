@@ -1,22 +1,34 @@
 # PDF Vaulty
 
 ## Current State
-Version 66 is live. The app has a header with logo, language switcher, and theme toggle. Individual tool pages have a "Share this tool" button, but there is no way to share the overall app from the main dashboard.
+Dashboard.tsx has two separate rendering paths:
+- **Mobile** (`sm:hidden`): category tabs (All, Edit, Convert, Protect, Optimize) using `mobileTab` state
+- **Desktop** (`hidden sm:block`): static category sections with heading labels and no tab switching
+
+Both share the same tool data and pinned/search logic.
 
 ## Requested Changes (Diff)
 
 ### Add
-- A "Share" button in the header (visible to all users, guests and logged-in)
-- Clicking it triggers the Web Share API on mobile (native share sheet for WhatsApp, Messages, etc.) with a fallback to copying the link on desktop
-- Share content: title "PDF Vaulty", text "Free PDF tools that work in your browser", url "https://pdfvaulty-dqb.caffeine.xyz"
+- Desktop now also renders the same tab bar (All, Edit, Convert, Protect, Optimize) above the tool grid
+- Desktop tab bar uses the same pill button style as mobile
 
 ### Modify
-- Header.tsx: add the share button next to the existing controls
+- Unify `mobileTab` state into a single `activeTab` state shared by both mobile and desktop
+- Unify `mobileTabTools` into `activeTabTools` used by both
+- Remove the separate `sm:hidden` / `hidden sm:block` split for the tab+grid section; both use the same tab UI
+- Desktop grid stays 2-column (`grid-cols-2`); mobile grid stays 1-column (`grid-cols-1 sm:grid-cols-2`)
+- Replace the desktop static category section headings with the unified tab navigation
 
 ### Remove
-- Nothing
+- The separate `hidden sm:block` desktop block with category section headings
+- The separate `sm:hidden` mobile block (merged into a single unified block)
 
 ## Implementation Plan
-1. Add a share button icon (Share2 from lucide-react) to Header.tsx
-2. On click: if `navigator.share` is available, call it with title/text/url; otherwise copy the URL to clipboard and show a brief toast
-3. Button visible to all users
+1. Rename `mobileTab` → `activeTab`, `setMobileTab` → `setActiveTab`
+2. Rename `mobileTabTools` → `activeTabTools`
+3. Replace the dual mobile/desktop rendering blocks with a single unified block that shows:
+   - The tab bar (All, Edit, Convert, Protect, Optimize) on both mobile and desktop
+   - A tool grid below it: `grid-cols-1 sm:grid-cols-2` (mobile 1-col, desktop 2-col)
+4. Keep search results, pinned tools section, session history, hero, FAQ, and all other sections unchanged
+5. The tab bar itself: same pill button style, horizontal scroll on mobile, wraps or fits inline on desktop

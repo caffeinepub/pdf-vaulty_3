@@ -4,6 +4,7 @@ import {
   Clock,
   Crop,
   FileCheck,
+  FileEdit,
   FileInput,
   FileSearch,
   FileText,
@@ -11,6 +12,7 @@ import {
   Layers,
   Lock,
   Minimize2,
+  Package,
   RotateCw,
   Search,
   Shield,
@@ -260,6 +262,24 @@ export default function Dashboard({ onSelectTool }: DashboardProps) {
         label: t("tool.extractText.label"),
         description: t("tool.extractText.desc"),
         category: "Convert",
+      },
+      {
+        id: "edit-metadata",
+        icon: FileEdit,
+        label: t("tool.editMetadata.label") || "Edit PDF Metadata",
+        description:
+          t("tool.editMetadata.desc") ||
+          "View and edit embedded metadata fields like title, author, subject, and keywords.",
+        category: "Edit",
+      },
+      {
+        id: "batch-compress",
+        icon: Package,
+        label: t("tool.batchCompress.label") || "Batch Compress",
+        description:
+          t("tool.batchCompress.desc") ||
+          "Compress multiple PDFs at once and download them all as a ZIP file.",
+        category: "Optimize",
       },
     ],
     [t],

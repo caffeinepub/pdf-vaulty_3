@@ -30,7 +30,9 @@ export type ToolId =
   | "add-watermark"
   | "crop-pdf"
   | "flatten-pdf"
-  | "extract-text";
+  | "extract-text"
+  | "edit-metadata"
+  | "batch-compress";
 
 export type AppView = "dashboard" | "tool" | "myFiles" | "profile";
 

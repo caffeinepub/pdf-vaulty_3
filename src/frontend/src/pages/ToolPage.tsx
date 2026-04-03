@@ -41,6 +41,12 @@ const SplitPDFTool = lazy(() => import("../components/tools/SplitPDFTool"));
 const WordToPDFTool = lazy(() => import("../components/tools/WordToPDFTool"));
 const CropPDFTool = lazy(() => import("../components/tools/CropPDFTool"));
 const FlattenPDFTool = lazy(() => import("../components/tools/FlattenPDFTool"));
+const PDFMetadataTool = lazy(
+  () => import("../components/tools/PDFMetadataTool"),
+);
+const BatchCompressTool = lazy(
+  () => import("../components/tools/BatchCompressTool"),
+);
 
 interface ToolMeta {
   title: string;
@@ -122,6 +128,16 @@ const toolMeta: Record<ToolId, ToolMeta> = {
     title: "Extract PDF Text",
     description:
       "Extract all readable text from a PDF file. Copy it to your clipboard or download as a .txt file.",
+  },
+  "edit-metadata": {
+    title: "Edit PDF Metadata",
+    description:
+      "View and edit the embedded metadata of any PDF file — including title, author, subject, and keywords. Useful for organizing documents and improving searchability.",
+  },
+  "batch-compress": {
+    title: "Batch Compress PDF",
+    description:
+      "Compress multiple PDF files at once and download them all in a single ZIP archive. Perfect for processing large batches of documents quickly.",
   },
 };
 
@@ -324,6 +340,34 @@ const faqSchema: Record<ToolId, Array<{ q: string; a: string }>> = {
       a: "Text extraction works on PDFs with embedded text layers. Scanned image-only PDFs will not return readable text — they would require OCR software.",
     },
   ],
+  "edit-metadata": [
+    {
+      q: "What is PDF metadata?",
+      a: "PDF metadata includes embedded fields like title, author, subject, and keywords. These fields help with document organization, searchability, and identification.",
+    },
+    {
+      q: "Can I edit the metadata of any PDF?",
+      a: "Yes. Upload any PDF to the Edit PDF Metadata tool, modify the fields, and download the updated file. Works on most standard PDFs.",
+    },
+    {
+      q: "Does editing metadata change the PDF content?",
+      a: "No. Only the metadata fields are updated; all pages, text, images, and formatting remain exactly the same.",
+    },
+  ],
+  "batch-compress": [
+    {
+      q: "How many PDFs can I compress at once?",
+      a: "You can upload and compress up to 10 PDF files at once using the Batch Compress tool.",
+    },
+    {
+      q: "How do I download all compressed PDFs?",
+      a: "After compression is complete, click the Download All as ZIP button to receive all compressed files in a single archive.",
+    },
+    {
+      q: "What if one file fails to compress?",
+      a: "If a single file fails, the others continue processing. Successfully compressed files are still included in the final ZIP download.",
+    },
+  ],
 };
 
 const SESSION_KEY = "pdfvaulty_save_prompt_shown";
@@ -353,7 +397,7 @@ export default function ToolPage({
   const { trackToolUse } = useAnalytics();
 
   const [bannerVisible, setBannerVisible] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [_isProcessing, setIsProcessing] = useState(false);
   const [sizeWarning, setSizeWarning] = useState<{
     visible: boolean;
     sizeMb: number;
@@ -447,83 +491,51 @@ export default function ToolPage({
       navigator.clipboard
         .writeText(url)
         .then(() => {
-          toast.success("Link copied!", {
-            description: "Share this tool with anyone.",
-            duration: 2500,
-          });
+          toast.success("Tool link copied!");
         })
         .catch(() => {
-          toast.error("Could not copy link.");
+          toast.error("Could not copy link");
         });
     } else {
-      const el = document.createElement("textarea");
-      el.value = url;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand("copy");
-      document.body.removeChild(el);
-      toast.success("Link copied!", { duration: 2500 });
+      toast.error("Clipboard not available");
     }
   }, []);
 
-  const handleToolAreaClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const target = e.target as HTMLElement;
+  useEffect(() => {
+    trackToolUse(toolId);
 
-      let el: HTMLElement | null = target;
-      for (let i = 0; i < 5; i++) {
-        if (!el) break;
-        const tag = el.tagName.toLowerCase();
-        const text = el.textContent?.toLowerCase() ?? "";
-        const hasDownload = el.hasAttribute("download");
-        const isDownloadLink = tag === "a" && hasDownload;
-        const isDownloadButton =
-          (tag === "button" || tag === "a") &&
-          (text.includes("download") ||
-            text.includes("save") ||
-            text.includes("copy"));
+    // Session history
+    try {
+      const raw = sessionStorage.getItem(SESSION_HISTORY_KEY);
+      const history = raw ? JSON.parse(raw) : [];
+      const meta2 = toolMeta[toolId];
+      const newEntry = {
+        toolId,
+        toolLabel: meta2?.title ?? toolId,
+        timestamp: Date.now(),
+      };
+      const filtered = history.filter(
+        (e: { toolId: string }) => e.toolId !== toolId,
+      );
+      sessionStorage.setItem(
+        SESSION_HISTORY_KEY,
+        JSON.stringify([newEntry, ...filtered].slice(0, 10)),
+      );
+    } catch {}
+  }, [toolId, trackToolUse]);
 
-        if (isDownloadLink || isDownloadButton) {
-          trackToolUse(toolId);
-          setIsProcessing(false);
-
-          // Write session history entry
-          const historyEntry = {
-            toolId,
-            toolLabel: meta.title,
-            timestamp: Date.now(),
-          };
-          try {
-            const raw = sessionStorage.getItem(SESSION_HISTORY_KEY);
-            const existing = raw ? JSON.parse(raw) : [];
-            const updated = [historyEntry, ...existing].slice(0, 5);
-            sessionStorage.setItem(
-              SESSION_HISTORY_KEY,
-              JSON.stringify(updated),
-            );
-          } catch {}
-
-          if (!isAuthenticated && !sessionStorage.getItem(SESSION_KEY)) {
-            setTimeout(() => setBannerVisible(true), 400);
-          }
-          break;
-        }
-        el = el.parentElement;
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const shown = sessionStorage.getItem(SESSION_KEY);
+      if (!shown) {
+        const timer = setTimeout(() => {
+          setBannerVisible(true);
+          sessionStorage.setItem(SESSION_KEY, "1");
+        }, 2500);
+        return () => clearTimeout(timer);
       }
-    },
-    [isAuthenticated, toolId, trackToolUse, meta.title],
-  );
-
-  const dismissBanner = useCallback(() => {
-    sessionStorage.setItem(SESSION_KEY, "1");
-    setBannerVisible(false);
-  }, []);
-
-  const handleLoginClick = useCallback(() => {
-    sessionStorage.setItem(SESSION_KEY, "1");
-    setBannerVisible(false);
-    onRequestLogin?.();
-  }, [onRequestLogin]);
+    }
+  }, [isAuthenticated]);
 
   const renderTool = () => {
     switch (toolId) {
@@ -557,6 +569,10 @@ export default function ToolPage({
         return <FlattenPDFTool />;
       case "extract-text":
         return <ExtractTextTool />;
+      case "edit-metadata":
+        return <PDFMetadataTool />;
+      case "batch-compress":
+        return <BatchCompressTool />;
       default:
         return null;
     }
@@ -610,89 +626,109 @@ export default function ToolPage({
           >
             <span className="text-lg leading-none mt-0.5 shrink-0">⚠️</span>
             <p className="flex-1 text-sm text-amber-800 dark:text-amber-200 leading-snug">
-              <span className="font-semibold">
-                Large file detected ({sizeWarning.sizeMb} MB).
-              </span>{" "}
-              Processing may take a while — please be patient.
+              <span className="font-semibold">Large file detected</span> —{" "}
+              {sizeWarning.sizeMb} MB. Processing may take a moment.
             </p>
             <button
               type="button"
               onClick={() => setSizeWarning({ visible: false, sizeMb: 0 })}
-              data-ocid="tool.size_warning.close_button"
+              className="shrink-0 text-amber-500 hover:text-amber-700 dark:hover:text-amber-300"
               aria-label="Dismiss warning"
-              className="shrink-0 mt-0.5 p-1 rounded-md text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-4 h-4" />
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Tool area */}
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: click capture on container, not an interactive element */}
-      <div ref={toolAreaRef} onClick={handleToolAreaClick}>
+      <div ref={toolAreaRef}>
         <PDFErrorBoundary>
           <Suspense fallback={toolSpinner}>{renderTool()}</Suspense>
         </PDFErrorBoundary>
       </div>
 
-      {/* Processing indicator */}
-      {isProcessing && (
-        <div
-          data-ocid="tool.processing.loading_state"
-          className="mt-4 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400"
-        >
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 dark:border-blue-400" />
-          <span>Processing your PDF…</span>
-        </div>
-      )}
-
-      {/* One-time save banner */}
+      {/* Save-to-my-files guest banner */}
       <AnimatePresence>
-        {bannerVisible && (
+        {bannerVisible && !isAuthenticated && (
           <motion.div
             key="save-banner"
-            initial={{ opacity: 0, y: 12, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.97 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.25 }}
             data-ocid="tool.save_banner.card"
-            className="mt-6 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/80 dark:bg-blue-950/30 backdrop-blur-sm px-4 py-3.5 flex items-start gap-3 shadow-sm"
-            aria-live="polite"
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-sm z-50 px-4"
           >
-            <div className="mt-0.5 shrink-0 w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-              <BookmarkPlus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <div className="rounded-2xl border border-blue-200 dark:border-blue-800/60 bg-white dark:bg-[#1a1a2e] shadow-xl shadow-blue-900/10 px-5 py-4 flex items-start gap-3">
+              <BookmarkPlus className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm text-gray-900 dark:text-white mb-0.5">
+                  Save files to My Vault
+                </p>
+                <p className="text-xs text-gray-500 dark:text-white/50 leading-relaxed">
+                  Sign in to save, revisit, and share your processed files from
+                  any device.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBannerVisible(false);
+                    onRequestLogin?.();
+                  }}
+                  data-ocid="tool.save_banner.primary_button"
+                  className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                >
+                  Sign in
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBannerVisible(false)}
+                  data-ocid="tool.save_banner.close_button"
+                  className="text-xs text-gray-400 dark:text-white/30 hover:text-gray-600 dark:hover:text-white/60 text-center"
+                >
+                  Dismiss
+                </button>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-blue-900 dark:text-blue-100 leading-snug">
-                Want to keep this file?
-              </p>
-              <p className="text-sm text-blue-700/80 dark:text-blue-300/70 mt-0.5 leading-snug">
-                Log in to save your converted files to{" "}
-                <span className="font-medium">My Files</span> and access them
-                anytime.
-              </p>
-              <Button
-                size="sm"
-                onClick={handleLoginClick}
-                data-ocid="tool.save_banner.primary_button"
-                className="mt-2.5 h-7 px-3 text-xs bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white border-0 shadow-none"
-              >
-                Log in to save files
-              </Button>
-            </div>
-            <button
-              type="button"
-              onClick={dismissBanner}
-              data-ocid="tool.save_banner.close_button"
-              aria-label="Dismiss recommendation"
-              className="shrink-0 mt-0.5 p-1 rounded-md text-blue-400 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* FAQ section */}
+      {faqSchema[toolId] && faqSchema[toolId].length > 0 && (
+        <section
+          className="mt-12 pt-8 border-t border-border"
+          data-ocid="tool.faq.section"
+          aria-label="Frequently asked questions"
+        >
+          <h2 className="text-lg font-bold text-foreground mb-5">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-0 divide-y divide-border">
+            {faqSchema[toolId].map(({ q, a }, i) => (
+              <details key={q} className="group" open={i === 0}>
+                <summary
+                  className="flex items-center justify-between py-4 cursor-pointer list-none gap-3"
+                  data-ocid={`tool.faq.item.${i + 1}`}
+                >
+                  <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                    {q}
+                  </span>
+                  <span className="shrink-0 text-muted-foreground group-open:rotate-180 transition-transform duration-200">
+                    ▾
+                  </span>
+                </summary>
+                <p className="pb-4 text-sm text-muted-foreground leading-relaxed">
+                  {a}
+                </p>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
